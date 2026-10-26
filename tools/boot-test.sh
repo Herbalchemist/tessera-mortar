@@ -5,7 +5,7 @@
 #   tools/boot-test.sh path/to/Tessera-Live.iso [seconds]
 set -euo pipefail
 ISO=$(realpath "$1"); WAIT=${2:-240}
-OUT=boot-test; mkdir -p "$OUT"; rm -f "$OUT"/*
+OUT=$(realpath -m boot-test); mkdir -p "$OUT"; rm -f "$OUT"/*
 work=$(mktemp -d)
 # The kernel and initramfs from the ISO, so the test can add a serial console.
 xorriso -osirrox on -indev "$ISO" -extract /images/pxeboot/vmlinuz "$work/vmlinuz" -extract /images/pxeboot/initrd.img "$work/initrd.img" >/dev/null 2>&1
