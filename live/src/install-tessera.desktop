@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Tessera
+Comment=Install Tessera on this computer
+Icon=system-software-install
+Exec=/usr/bin/tessera-install
+Terminal=false
+Categories=System;

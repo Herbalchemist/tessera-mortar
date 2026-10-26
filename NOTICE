@@ -1,0 +1,6 @@
+Tessera Mortar
+Copyright the Tessera contributors. Licensed under GPL-3.0-or-later.
+
+Parts of live/src/build.sh and tools/build-iso.sh are adapted from Universal Blue's Titanoboa
+(https://github.com/ublue-os/titanoboa), Copyright the Universal Blue contributors, licensed under the
+Apache License, Version 2.0.

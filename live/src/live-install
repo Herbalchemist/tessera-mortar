@@ -1,0 +1,337 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Install Tessera from the live USB onto a disk.
+
+Runs as root (the live user may run exactly this program through sudo, see sudoers.d) and is driven by
+the Install Tessera screens in the launcher. Everything the launcher hands over is checked here: it
+picks from what `probe` offered, never paths or commands of its own.
+
+  live-install probe          what this machine has: disks, graphics, Secure Boot, images, time zones (JSON)
+  live-install run            install; the choices come as JSON on stdin (so the password never
+                              touches a file). Progress goes to /run/tessera-install/state.json.
+  live-install state          print the progress file
+
+The install itself is done by Anaconda (Fedora's installer, the same engine Bazzite's ISO uses) from
+a kickstart written here, from the Tessera images stored on the USB, with no network needed.
+"""
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+import time
+
+IMAGES_DIRS = [os.environ.get("TESSERA_IMAGES_DIR", ""), "/run/initramfs/live/tessera-images", "/usr/share/tessera-install/images"]
+REGISTRY = os.environ.get("TESSERA_REGISTRY", "ghcr.io/herbalchemist")
+SB_KEY = os.environ.get("TESSERA_SB_KEY", "/usr/share/tessera-install/secure-boot-key.der")
+SB_PASSWORD = "universalblue"  # the Universal Blue key's enrollment password (docs.bazzite.gg/sb)
+STATE_DIR = os.environ.get("TESSERA_INSTALL_STATE", "/run/tessera-install")
+ANACONDA = os.environ.get("TESSERA_ANACONDA", "/usr/sbin/anaconda")
+IMAGE_FOR = {"standard": "tessera", "nvidia": "tessera-nvidia", "nvidia-open": "tessera-nvidia-open"}
+USER_RE = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
+RESERVED_USERS = {"root", "liveuser", "bin", "daemon", "adm", "nobody", "sddm", "gdm", "tessera"}
+TZ_RE = re.compile(r"^[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+){0,2}$")
+HOST_RE = re.compile(r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$")
+
+
+def run(cmd, **kw):
+    return subprocess.run(cmd, capture_output=True, text=True, **kw)
+
+
+# ---------------------------------------------------------------- what the machine has
+def images_dir():
+    for d in IMAGES_DIRS:
+        if d and os.path.isfile(os.path.join(d, "index.json")):
+            return d
+    return None
+
+
+def images_available(d):
+    """Names of the builds in the OCI image layout (index.json ref names)."""
+    if not d:
+        return []
+    try:
+        with open(os.path.join(d, "index.json")) as f:
+            idx = json.load(f)
+    except (OSError, ValueError):
+        return []
+    names = []
+    for m in idx.get("manifests", []):
+        n = (m.get("annotations") or {}).get("org.opencontainers.image.ref.name", "")
+        if n in IMAGE_FOR.values():
+            names.append(n)
+    return sorted(set(names))
+
+
+def live_device():
+    """The disk the live system runs from: never offered as a target."""
+    for target in ("/run/initramfs/live", "/run/initramfs/isoscan"):
+        r = run(["findmnt", "-n", "-o", "SOURCE", target])
+        src = r.stdout.strip()
+        if src:
+            p = run(["lsblk", "-n", "-o", "PKNAME", src]).stdout.strip().splitlines()
+            return "/dev/" + p[0] if p and p[0] else src
+    return None
+
+
+def disks(lsblk_json=None, live=None):
+    if lsblk_json is None:
+        r = run(["lsblk", "-J", "-b", "-d", "-o", "NAME,PATH,SIZE,MODEL,TRAN,RM,TYPE,RO,HOTPLUG"])
+        lsblk_json = r.stdout or "{}"
+    try:
+        devs = json.loads(lsblk_json).get("blockdevices", [])
+    except ValueError:
+        devs = []
+    out = []
+    for d in devs:
+        path = d.get("path") or ("/dev/" + d.get("name", ""))
+        if d.get("type") != "disk" or str(d.get("ro")) in ("1", "True", "true"):
+            continue
+        if re.match(r"^/dev/(loop|zram|ram|sr|fd)", path):
+            continue
+        size = int(d.get("size") or 0)
+        if size < 64 * 1000 ** 3:  # Tessera wants room for the system plus games
+            continue
+        out.append({
+            "path": path,
+            "size": size,
+            "model": (d.get("model") or "").strip()[:60] or "Disk",
+            "transport": (d.get("tran") or "").lower(),
+            "removable": str(d.get("rm")) in ("1", "True", "true") or str(d.get("hotplug")) in ("1", "True", "true"),
+            "live": bool(live) and path == live,
+        })
+    return [d for d in out if not d["live"]]
+
+
+def secure_boot():
+    efi = os.path.isdir("/sys/firmware/efi")
+    state = "unknown"
+    if efi:
+        r = run(["mokutil", "--sb-state"])
+        t = (r.stdout + r.stderr).lower()
+        state = "on" if "enabled" in t else "off" if "disabled" in t else "unknown"
+    return {"efi": efi, "state": state, "keyAvailable": os.path.isfile(SB_KEY)}
+
+
+def gpus(pci_dir="/sys/bus/pci/devices"):
+    out = []
+    try:
+        names = sorted(os.listdir(pci_dir))
+    except OSError:
+        return out
+    for d in names:
+        def rd(f):
+            try:
+                with open(os.path.join(pci_dir, d, f)) as fh:
+                    return fh.read().strip().lower().replace("0x", "")
+            except OSError:
+                return ""
+        cls = rd("class")
+        if cls.startswith("03"):
+            out.append({"slot": d, "vendor": rd("vendor"), "device": rd("device"), "cls": cls})
+    return out
+
+
+def timezones():
+    r = run(["timedatectl", "list-timezones", "--no-pager"])
+    zones = [z for z in r.stdout.split() if TZ_RE.match(z)]
+    return zones or ["UTC"]
+
+
+def probe():
+    d = images_dir()
+    return {
+        "ok": True,
+        "disks": disks(live=live_device()),
+        "gpus": gpus(),
+        "secureBoot": secure_boot(),
+        "images": images_available(d),
+        "imagesDir": d,
+        "timezones": timezones(),
+        "memory": os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES"),
+    }
+
+
+# ---------------------------------------------------------------- the install
+class Bad(Exception):
+    pass
+
+
+def check(choices, offered):
+    """Turn what the launcher sent into safe values, or raise Bad with a message for the person."""
+    if not isinstance(choices, dict):
+        raise Bad("Nothing to install.")
+    disk = choices.get("disk")
+    if disk not in [d["path"] for d in offered["disks"]]:
+        raise Bad("That disk can't be used.")
+    variant = choices.get("variant")
+    if variant not in IMAGE_FOR:
+        raise Bad("Unknown graphics build.")
+    if IMAGE_FOR[variant] not in offered["images"]:
+        raise Bad("That graphics build isn't on this USB.")
+    user = str(choices.get("user", "")).strip().lower()
+    if not USER_RE.match(user) or user in RESERVED_USERS:
+        raise Bad("Pick another user name: lowercase letters and numbers, starting with a letter.")
+    full = re.sub(r"[\x00-\x1f\"\\:]", "", str(choices.get("fullName", "")))[:60].strip()
+    password = choices.get("password")
+    if not isinstance(password, str) or len(password) < 4 or len(password) > 200 or "\n" in password:
+        raise Bad("The password needs at least 4 characters.")
+    tz = choices.get("timezone") or "UTC"
+    if tz not in offered["timezones"]:
+        raise Bad("Unknown time zone.")
+    host = str(choices.get("hostname") or "tessera").lower()
+    if not HOST_RE.match(host):
+        host = "tessera"
+    sb = choices.get("secureBoot") if choices.get("secureBoot") in ("auto", "manual") else "auto"
+    return {"disk": disk, "variant": variant, "image": IMAGE_FOR[variant], "user": user, "fullName": full,
+            "password": password, "timezone": tz, "hostname": host, "secureBoot": sb}
+
+
+def hash_password(pw):
+    r = subprocess.run(["openssl", "passwd", "-6", "-stdin"], input=pw + "\n", capture_output=True, text=True)
+    h = r.stdout.strip()
+    if r.returncode != 0 or not h.startswith("$6$"):
+        raise Bad("Couldn't set the password.")
+    return h
+
+
+def kickstart(c, images, pw_hash, sb_key=SB_KEY, registry=REGISTRY):
+    q = shlex.quote
+    disk = c["disk"].replace("/dev/", "")
+    ref = f"{registry}/{c['image']}:latest"
+    lines = [
+        "# Written by Tessera's installer (live-install). Installs one Tessera build from the USB.",
+        "cmdline",
+        "lang en_US.UTF-8",
+        "keyboard us",
+        f"timezone {c['timezone']} --utc",
+        f"network --hostname={c['hostname']}",
+        f"ignoredisk --only-use={disk}",
+        "zerombr",
+        f"clearpart --all --initlabel --drives={disk}",
+        "autopart --type=btrfs --noswap",
+        "rootpw --lock",
+        f"user --name={c['user']} --groups=wheel --iscrypted --password={pw_hash}"
+        + (f' --gecos="{c["fullName"]}"' if c["fullName"] else ""),
+        f"ostreecontainer --url={images}:{c['image']} --transport=oci --no-signature-verification",
+        "",
+        # Bazzite's installer does these two; Bazzite's own tools look for the bazzite_xboot label.
+        "%pre-install --erroronfail",
+        "rm -rf /mnt/sysroot/boot/efi/EFI/fedora",
+        "%end",
+        "",
+        "%pre-install --erroronfail --log=/tmp/tessera-xboot.log",
+        "xboot_dev=$(findmnt -o SOURCE --nofsroot --noheadings -f --target /mnt/sysroot/boot)",
+        '[ -n "$xboot_dev" ] && e2label "$xboot_dev" bazzite_xboot',
+        "%end",
+        "",
+        # Updates come from the registry once the machine is online.
+        "%post --erroronfail --log=/tmp/tessera-origin.log",
+        f"sed -i 's|^container-image-reference=.*|container-image-reference=ostree-unverified-registry:{ref}|' /ostree/deploy/default/deploy/*.origin",
+        "mkdir -p /etc/tessera",
+        f"echo {q(c['user'])} > /etc/tessera/autologin-user",
+        "%end",
+    ]
+    if c["secureBoot"] == "auto":
+        lines += [
+            "",
+            "%post --nochroot --log=/tmp/tessera-secureboot.log",
+            "[ -d /sys/firmware/efi ] || exit 0",
+            f"[ -f {q(sb_key)} ] || exit 0",
+            "mokutil --timeout -1 || :",
+            f"printf '%s\\n%s\\n' {SB_PASSWORD} {SB_PASSWORD} | mokutil --import {q(sb_key)} || :",
+            "%end",
+        ]
+    return "\n".join(lines) + "\n"
+
+
+# Anaconda's own progress lines, mapped to rough percentages for the progress bar.
+STAGES = [
+    (re.compile(r"storage|partition|format", re.I), 8, "Preparing the disk"),
+    (re.compile(r"deploy|pull|ostree|container|fetch|layer|import", re.I), 20, "Copying Tessera onto the disk"),
+    (re.compile(r"configur.*installed system|post-install|post installation", re.I), 85, "Setting up the system"),
+    (re.compile(r"boot ?loader", re.I), 92, "Installing the boot loader"),
+    (re.compile(r"user|password|account", re.I), 95, "Creating your account"),
+]
+
+
+def write_state(**kw):
+    os.makedirs(STATE_DIR, exist_ok=True)
+    tmp = os.path.join(STATE_DIR, "state.json.tmp")
+    with open(tmp, "w") as f:
+        json.dump({"at": time.time(), **kw}, f)
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, os.path.join(STATE_DIR, "state.json"))
+
+
+def install(choices):
+    offered = probe()
+    try:
+        c = check(choices, offered)
+        pw = hash_password(c["password"])
+    except Bad as e:
+        write_state(phase="error", percent=0, line="", error=str(e))
+        return 2
+    os.makedirs(STATE_DIR, exist_ok=True)
+    ks_path = os.path.join(STATE_DIR, "tessera.ks")
+    fd = os.open(ks_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        f.write(kickstart(c, offered["imagesDir"], pw))
+    write_state(phase="running", percent=2, line="Starting the installer", stage="Starting", disk=c["disk"], variant=c["variant"])
+    log = open(os.path.join(STATE_DIR, "install.log"), "a")
+    p = subprocess.Popen([ANACONDA, "--liveinst", "--cmdline", f"--kickstart={ks_path}"],
+                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+    percent, stage = 2, "Starting"
+    for raw in p.stdout:
+        line = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", raw).strip()
+        log.write(raw)
+        log.flush()
+        if not line:
+            continue
+        for rx, pc, name in STAGES:
+            if rx.search(line) and pc >= percent:
+                percent, stage = pc, name
+                break
+        else:
+            if stage == "Copying Tessera onto the disk" and percent < 84:
+                percent += 0.25  # the long copy: creep forward so the bar never looks stuck
+        write_state(phase="running", percent=int(percent), line=line[:160], stage=stage, disk=c["disk"], variant=c["variant"])
+    code = p.wait()
+    log.close()
+    if code != 0:
+        write_state(phase="error", percent=int(percent), line="", error="The install didn't finish. Nothing on the USB was changed; you can try again.", code=code)
+        return 1
+    enrolled = False
+    if c["secureBoot"] == "auto" and os.path.isfile(SB_KEY):
+        enrolled = "already in the enrollment request" in run(["mokutil", "-t", SB_KEY]).stdout.lower()
+    write_state(phase="done", percent=100, line="", stage="Done", enrolled=enrolled, secureBoot=offered["secureBoot"]["state"], variant=c["variant"], user=c["user"])
+    return 0
+
+
+def main(argv):
+    if argv[:1] == ["probe"]:
+        print(json.dumps(probe()))
+        return 0
+    if argv[:1] == ["state"]:
+        try:
+            with open(os.path.join(STATE_DIR, "state.json")) as f:
+                print(f.read())
+        except OSError:
+            print(json.dumps({"phase": "idle"}))
+        return 0
+    if argv[:1] == ["run"]:
+        if os.geteuid() != 0:
+            print("live-install run needs root", file=sys.stderr)
+            return 1
+        try:
+            choices = json.loads(sys.stdin.read(65536) or "{}")
+        except ValueError:
+            choices = None
+        return install(choices)
+    print(__doc__.strip(), file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

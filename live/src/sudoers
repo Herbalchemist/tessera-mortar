@@ -1,0 +1,3 @@
+# The live user (the person trying Tessera from the USB) may run the installer helper as root, and
+# nothing else through this rule. live-install checks everything it's handed.
+liveuser ALL=(root) NOPASSWD: /usr/libexec/tessera/live-install
