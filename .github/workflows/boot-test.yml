@@ -10,6 +10,11 @@ on:
         description: Release tag (empty = the newest)
         required: false
         default: ''
+      mode:
+        description: boot (screenshots of the live system) or install (install onto a virtual disk, then boot it)
+        type: choice
+        default: boot
+        options: [boot, install]
       args:
         description: Extra kernel arguments (e.g. tessera.live=desktop)
         required: false
@@ -18,9 +23,6 @@ on:
         description: How long to let it run
         required: false
         default: '300'
-  push:
-    branches: [main]
-    paths: ['tools/boot-test.sh', '.github/workflows/boot-test.yml']
 
 permissions:
   contents: write
@@ -53,14 +55,23 @@ jobs:
           gh release download "$tag" -D /mnt/iso -p 'Tessera-Live.iso.part*' -p 'Tessera-Live.iso.sha256'
           cd /mnt/iso && cat Tessera-Live.iso.part* > Tessera-Live.iso && rm Tessera-Live.iso.part* && sha256sum -c Tessera-Live.iso.sha256
       - name: Boot it
+        timeout-minutes: 90
         run: |
           sudo chmod 666 /dev/kvm || :
-          BOOT_ARGS="${{ inputs.args }}" tools/boot-test.sh /mnt/iso/Tessera-Live.iso "${{ inputs.seconds || '300' }}"
+          if [ "${{ inputs.mode }}" = install ]; then
+            BOOT_ARGS="${{ inputs.args }}" tools/install-test.sh /mnt/iso/Tessera-Live.iso
+            grep -ahE "tessera-install:" install-test/serial-live.log | tail -30 | cut -c1-200 > /tmp/milestones || :
+            echo "::notice title=Install milestones::$(sed 's/%/%25/g' /tmp/milestones | awk 1 ORS=%0A)"
+          else
+            BOOT_ARGS="${{ inputs.args }}" tools/boot-test.sh /mnt/iso/Tessera-Live.iso "${{ inputs.seconds || '300' }}"
+          fi
       - name: Save the results to the boot-test branch
         if: always()
         run: |
-          [ -d boot-test ] || exit 0
-          mkdir -p /tmp/bt && cp boot-test/* /tmp/bt/ && tail -n 800 boot-test/serial.log > /tmp/bt/serial.log || :
+          mkdir -p /tmp/bt
+          for d in boot-test install-test; do [ -d $d ] && cp $d/* /tmp/bt/; done
+          for f in /tmp/bt/*.log; do [ -f "$f" ] && tail -n 1500 "$f" > "$f.tmp" && mv "$f.tmp" "$f"; done
+          ls /tmp/bt | grep -q . || exit 0
           git config user.name "Tessera CI"; git config user.email "actions@users.noreply.github.com"
           git checkout -q --orphan boot-test && git rm -rq --cached . && git clean -fdq
           cp /tmp/bt/* . && git add -A . && git commit -qm "Boot test" && git push -qf origin boot-test

@@ -256,6 +256,15 @@ STAGES = [
 ]
 
 
+def kmsg(text):
+    """A line in the kernel log (and so on a serial console), for following an install from outside."""
+    try:
+        with open("/dev/kmsg", "w") as f:
+            f.write(f"<4>tessera-install: {text}\n")
+    except OSError:
+        pass
+
+
 def write_state(**kw):
     os.makedirs(STATE_DIR, exist_ok=True)
     tmp = os.path.join(STATE_DIR, "state.json.tmp")
@@ -272,6 +281,7 @@ def install(choices):
         pw = hash_password(c["password"])
     except Bad as e:
         write_state(phase="error", percent=0, line="", error=str(e))
+        kmsg(f"refused: {e}")
         return 2
     os.makedirs(STATE_DIR, exist_ok=True)
     ks_path = os.path.join(STATE_DIR, "tessera.ks")
@@ -279,6 +289,7 @@ def install(choices):
     with os.fdopen(fd, "w") as f:
         f.write(kickstart(c, offered["imagesDir"], pw))
     write_state(phase="running", percent=2, line="Starting the installer", stage="Starting", disk=c["disk"], variant=c["variant"])
+    kmsg(f"start {c['image']} on {c['disk']}")
     log = open(os.path.join(STATE_DIR, "install.log"), "a")
     p = subprocess.Popen([ANACONDA, "--liveinst", "--cmdline", f"--kickstart={ks_path}"],
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
@@ -291,6 +302,8 @@ def install(choices):
             continue
         for rx, pc, name in STAGES:
             if rx.search(line) and pc >= percent:
+                if name != stage:
+                    kmsg(f"stage {name}")
                 percent, stage = pc, name
                 break
         else:
@@ -301,10 +314,19 @@ def install(choices):
     log.close()
     if code != 0:
         write_state(phase="error", percent=int(percent), line="", error="The install didn't finish. Nothing on the USB was changed; you can try again.", code=code)
+        kmsg(f"error: anaconda exited with {code}")
+        for name in (os.path.join(STATE_DIR, "install.log"), "/tmp/anaconda.log", "/tmp/packaging.log"):
+            try:
+                with open(name, errors="replace") as f:
+                    for l in f.readlines()[-12:]:
+                        kmsg(f"log {os.path.basename(name)}: {l.strip()[:200]}")
+            except OSError:
+                pass
         return 1
     enrolled = False
     if c["secureBoot"] == "auto" and os.path.isfile(SB_KEY):
         enrolled = "already in the enrollment request" in run(["mokutil", "-t", SB_KEY]).stdout.lower()
+    kmsg("done")
     write_state(phase="done", percent=100, line="", stage="Done", enrolled=enrolled, secureBoot=offered["secureBoot"]["state"], variant=c["variant"], user=c["user"])
     return 0
 
