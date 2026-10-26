@@ -1,0 +1,26 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Live USB only. livesys sets the login manager to log the live user into the KDE desktop; this switches
+# that to the Tessera session, so the USB starts into Install Tessera with a controller. Booting with
+# "tessera.live=desktop" (the "desktop mode" boot menu entry) keeps the KDE desktop instead, where
+# Install Tessera opens as a window. Runs after livesys and before the login manager.
+if grep -qw 'tessera.live=desktop' /proc/cmdline; then
+  echo "tessera-live-session: desktop mode, leaving the KDE session"
+  exit 0
+fi
+changed=0
+for f in /etc/sddm.conf /etc/plasmalogin.conf /etc/sddm.conf.d/*.conf /etc/plasmalogin.conf.d/*.conf; do
+  [ -f "$f" ] || continue
+  if grep -q '^Session=' "$f"; then
+    sed -i 's/^Session=.*/Session=tessera.desktop/' "$f"
+    echo "tessera-live-session: $f now starts the Tessera session"
+    changed=1
+  fi
+done
+if [ "$changed" = 0 ]; then
+  for d in /etc/sddm.conf.d /etc/plasmalogin.conf.d; do
+    mkdir -p "$d"
+    printf '[Autologin]\nUser=liveuser\nSession=tessera.desktop\nRelogin=false\n' > "$d/zzzz-tessera-live.conf"
+  done
+  echo "tessera-live-session: wrote autologin drop-ins"
+fi
