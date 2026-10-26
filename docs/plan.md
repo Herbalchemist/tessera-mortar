@@ -45,9 +45,21 @@ Steps:
 ## Order of work
 
 1. ✅ Measure the image sizes (`tools/measure-images.py`), to know what USB size to ask for.
-2. Live USB plus the installer: disk, graphics, Secure Boot, install. Tested on real hardware.
+2. 🧪 Live USB plus the installer: disk, graphics, Secure Boot, install. Built by GitHub and boot-tested in a VM; next comes testing on real hardware.
 3. Extras, starting with Xbox app compatibility.
 4. The Mortar app for Windows and Linux.
+
+## How it's built
+
+| Piece | Where |
+|---|---|
+| Install Tessera screens | the Tessera launcher (`renderer.js` `flowInstaller`, `main.js` `installerOp`), active only on the USB (`/etc/tessera/live-installer`) |
+| Root helper: probe, checks, kickstart, Anaconda | `live/src/live-install` (tests in `tests/`, kickstarts checked with Fedora's `ksvalidator`) |
+| Live system | `live/Containerfile` + `live/src/build.sh`: Tessera with Fedora's signed kernel, dracut live boot, Anaconda, the Secure Boot key |
+| The builds on the USB | `tools/fetch-images.sh`: one OCI image layout, `/tessera-images` on the ISO |
+| ISO | `tools/build-iso.sh` (adapted from Titanoboa) |
+| Smoke test | `tools/boot-test.sh`: boots the ISO in QEMU; screenshots land on the `boot-test` branch |
+| Releases | `.github/workflows/build-live.yml`: a pre-release, split into parts under GitHub's 2 GB limit |
 
 ## Measured sizes (2026-10-26)
 
