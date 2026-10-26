@@ -49,8 +49,25 @@ Steps:
 3. Extras, starting with Xbox app compatibility.
 4. The Mortar app for Windows and Linux.
 
+## Measured sizes (2026-10-26)
+
+From the published images' manifests (compressed, as they'd sit on the USB):
+
+| Build | Size |
+|---|---|
+| `tessera` (AMD / Intel) | 5.24 GB |
+| `tessera-nvidia` | 5.85 GB |
+| `tessera-nvidia-open` | 5.81 GB |
+| **All three, shared layers once** | **11.77 GB** (16.90 GB without sharing) |
+
+With the live boot system (a few GB) and Extras, an **every-build USB needs 32 GB**, and an
+**only-this-PC USB fits on 16 GB**. All three images are public, so Mortar can pull them without logging in.
+
+Sharing is only about 30%, because each build is chunked on its own. Two ways to shrink it later:
+- Boot the live USB from the standard build itself, so the system on the USB doubles as one of the three images (saves about 5 GB).
+- Chunk the three builds so their common parts land in identical layers.
+
 ## Open questions
 
-- The exact USB size: see step 1.
 - The base for the live boot system: build it from the Tessera image itself (most consistent) or from a minimal Fedora live image (smallest).
 - Dual-boot support in the installer.
