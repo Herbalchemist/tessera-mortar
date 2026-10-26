@@ -72,6 +72,13 @@ def main(refs):
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
             f.write(report + "\n")
+    if os.environ.get("GITHUB_ACTIONS"):
+        # also as annotations, so the numbers show on the run's page and in `gh run view`
+        for ref in refs:
+            r = results.get(ref, {})
+            msg = f"{r['bytes'] / GB:.2f} GB, {r['layers']} layers" if "bytes" in r else f"could not read: {r.get('error')}"
+            print(f"::notice title={ref}::{msg}")
+        print(f"::notice title=All builds together::{total_shared / GB:.2f} GB with shared layers stored once ({total_separate / GB:.2f} GB separately)")
     with open("sizes.json", "w") as f:
         json.dump({"images": results, "sharedBytes": total_shared, "separateBytes": total_separate}, f, indent=2)
     return 0 if ok else 1
