@@ -292,7 +292,7 @@ def install(choices):
     kmsg(f"start {c['image']} on {c['disk']}")
     log = open(os.path.join(STATE_DIR, "install.log"), "a")
     p = subprocess.Popen([ANACONDA, "--liveinst", "--cmdline", f"--kickstart={ks_path}"],
-                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
     percent, stage = 2, "Starting"
     for raw in p.stdout:
         line = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", raw).strip()
@@ -300,6 +300,13 @@ def install(choices):
         log.flush()
         if not line:
             continue
+        if "Installation complete" in line:
+            # Without a reboot command Anaconda waits for Enter at the end; the screens take it from here.
+            try:
+                p.stdin.write("\n")
+                p.stdin.flush()
+            except OSError:
+                pass
         for rx, pc, name in STAGES:
             if rx.search(line) and pc >= percent:
                 if name != stage:

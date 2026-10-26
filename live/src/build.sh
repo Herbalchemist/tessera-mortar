@@ -33,6 +33,14 @@ cp "$SRC/iso.yaml" /usr/lib/bootc-image-builder/iso.yaml
 
 ### The install engine: Anaconda, driven by a kickstart from live-install
 dnf install -y --allowerasing anaconda-live libblockdev-{btrfs,lvm,dm} mokutil openssl
+# Anaconda ignores a kickstart given with --kickstart when it runs on a live system (--liveinst), and
+# only uses interactive-defaults.ks, which can't run unattended. The Install Tessera screens have
+# already asked everything, so let a live install take the kickstart: a one-line change, checked so
+# the build stops if Anaconda ever changes there.
+ana=$(python3 -c 'import os, pyanaconda; print(os.path.dirname(pyanaconda.__file__))')/startup_utils.py
+grep -q 'if options.ksfile and not options.liveinst:' "$ana" || { echo "Anaconda's kickstart selection changed: check $ana" >&2; exit 1; }
+sed -i 's/if options.ksfile and not options.liveinst:/if options.ksfile:  # Tessera: live installs take a kickstart too/' "$ana"
+rm -rf "$(dirname "$ana")/__pycache__/startup_utils."*
 mkdir -p /etc/anaconda/profile.d /usr/libexec/tessera /usr/share/tessera-install
 cp "$SRC/anaconda-profile.conf" /etc/anaconda/profile.d/tessera.conf
 install -m 0755 "$SRC/live-install" /usr/libexec/tessera/live-install
