@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Quick checks on every push: the installer helper's tests, and its kickstarts checked by Fedora's own
+# kickstart validator (the same parser Anaconda uses).
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Validate the kickstarts
+        run: |
+          mkdir -p ks && python3 tests/print_kickstart.py ks
+          podman run --rm -v "$PWD/ks:/ks:Z" quay.io/fedora/fedora:latest bash -euc '
+            dnf -yq install pykickstart >/dev/null
+            for f in /ks/*.ks; do
+              out=$(ksvalidator "$f" 2>&1) || { echo "::error title=ksvalidator $(basename $f)::$(echo "$out" | head -c 900 | sed "s/%/%25/g" | awk 1 ORS=%0A)"; exit 1; }
+              [ -z "$out" ] || echo "::warning title=ksvalidator $(basename $f)::$(echo "$out" | head -c 900 | sed "s/%/%25/g" | awk 1 ORS=%0A)"
+              echo "ok $f"
+            done'
+      - name: Shell scripts parse
+        run: for f in tools/*.sh live/src/build.sh; do bash -n "$f"; done

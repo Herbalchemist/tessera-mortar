@@ -9,7 +9,8 @@ OUT=boot-test; mkdir -p "$OUT"; rm -f "$OUT"/*
 work=$(mktemp -d)
 # The kernel and initramfs from the ISO, so the test can add a serial console.
 xorriso -osirrox on -indev "$ISO" -extract /images/pxeboot/vmlinuz "$work/vmlinuz" -extract /images/pxeboot/initrd.img "$work/initrd.img" >/dev/null 2>&1
-OVMF=$(ls /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd /usr/share/edk2/ovmf/OVMF_CODE.fd 2>/dev/null | head -1)
+OVMF=""
+for f in /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/OVMF/OVMF_CODE.fd /usr/share/edk2/ovmf/OVMF_CODE.fd; do [ -f "$f" ] && { OVMF=$f; break; }; done
 accel=tcg; [ -w /dev/kvm ] && accel=kvm
 truncate -s 80G "$work/disk.img"
 qemu-system-x86_64 -machine q35,accel=$accel -cpu max -smp 4 -m 8192 \
