@@ -12,14 +12,14 @@
 set -euo pipefail
 LIVE_IMAGE=$1 IMAGES_DIR=$(realpath "$2") OUT=$(realpath -m "$3")
 mkdir -p "$OUT"
-podman run --rm -i --cap-add sys_admin --security-opt label=disable \
+podman run --rm -i --cap-add sys_admin --security-opt label=disable -e SQUASH_LEVEL="${SQUASH_LEVEL:-19}" \
   --mount type=image,source="$LIVE_IMAGE",dst=/rootfs \
   -v "$IMAGES_DIR":/tessera-images:ro -v "$OUT":/output \
   quay.io/fedora/fedora:latest bash -euxo pipefail -s <<'INNER'
 dnf install -y -q squashfs-tools xorriso yq mtools dosfstools
 mkdir -p /work/iso-root/boot/grub2 /work/iso-root/images/pxeboot /work/iso-root/LiveOS
 cd /work
-mksquashfs /rootfs /work/iso-root/LiveOS/squashfs.img -all-root -noappend -e sysroot -e ostree -comp zstd -Xcompression-level 19 -quiet
+mksquashfs /rootfs /work/iso-root/LiveOS/squashfs.img -all-root -noappend -e sysroot -e ostree -comp zstd -Xcompression-level "${SQUASH_LEVEL:-19}" -quiet
 conf=/rootfs/usr/lib/bootc-image-builder/iso.yaml
 label=$(yq '.label' <"$conf")
 cp -av /rootfs/usr/lib/modules/*/initramfs.img /work/iso-root/images/pxeboot/initrd.img

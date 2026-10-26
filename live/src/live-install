@@ -291,7 +291,20 @@ def install(choices):
     write_state(phase="running", percent=2, line="Starting the installer", stage="Starting", disk=c["disk"], variant=c["variant"])
     kmsg(f"start {c['image']} on {c['disk']}")
     log = open(os.path.join(STATE_DIR, "install.log"), "a")
-    p = subprocess.Popen([ANACONDA, "--liveinst", "--cmdline", f"--kickstart={ks_path}"],
+    # On a live system Anaconda runs some things (keyboard layouts) as the live user, whom it finds
+    # through PKEXEC_UID; we come in through sudo instead, so hand it on.
+    env = dict(os.environ)
+    if "PKEXEC_UID" not in env:
+        uid = env.get("SUDO_UID")
+        if not uid:
+            try:
+                import pwd
+                uid = str(pwd.getpwnam("liveuser").pw_uid)
+            except KeyError:
+                uid = None
+        if uid and uid != "0":
+            env["PKEXEC_UID"] = uid
+    p = subprocess.Popen([ANACONDA, "--liveinst", "--cmdline", f"--kickstart={ks_path}"], env=env,
                          stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
     percent, stage = 2, "Starting"
     for raw in p.stdout:
