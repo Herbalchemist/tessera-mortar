@@ -82,7 +82,7 @@ jobs:
         continue-on-error: true
         run: |
           sudo chmod 666 /dev/kvm || :
-          tools/boot-test.sh "$WS/out/Tessera-Live.iso" 300
+          BOOT_ARGS=tessera.debug=1 tools/boot-test.sh "$WS/out/Tessera-Live.iso" 300
           # Key lines from the serial console, as an annotation (job logs aren't always reachable).
           lines=$(grep -aE "tessera|livesys|gamescope|Failed|failed|error|Reached target|login:" boot-test/serial.log | tail -40 | cut -c1-160 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}' || true)
           echo "::notice title=Boot test (serial console)::${lines:-no serial output}"
@@ -113,3 +113,6 @@ jobs:
           NOTES
           gh release create "$tag" --prerelease --title "Tessera USB (test) $(date -u +%Y-%m-%d)" --notes-file notes.md Tessera-Live.iso.part* Tessera-Live.iso.sha256
           echo "::notice title=Published::$tag"
+          # Keep the three newest test builds (each is about 17 GB).
+          gh release list --limit 50 --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | grep '^usb-' | tail -n +4 |
+            while read -r old; do gh release delete "$old" --yes --cleanup-tag; done

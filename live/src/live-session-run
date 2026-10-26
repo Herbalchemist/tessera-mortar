@@ -1,0 +1,15 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# The Tessera session on the USB. Tessera's console session needs graphics that Gamescope can drive;
+# if it can't start here (it gives up after a few quick failures), this falls back to the KDE desktop,
+# where Install Tessera opens as a window by itself. Nobody is left at a black screen.
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/tessera"
+mkdir -p "$STATE"
+LOG="$STATE/live-session.log"
+echo "live session $(date -Is)" >>"$LOG"
+/usr/bin/tessera-session
+code=$?
+echo "tessera-session ended with $code" >>"$LOG"
+[ "$code" -eq 0 ] && exit 0
+echo "falling back to the KDE desktop" >>"$LOG"
+exec /usr/bin/startplasma-wayland
