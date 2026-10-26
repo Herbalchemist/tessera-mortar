@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# How big an offline Tessera USB has to be: reads the published images' manifests (nothing is
+# downloaded) and reports their sizes, alone and together with shared layers stored once.
+# A failure to read an image usually means its package isn't public yet.
+name: Measure images
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/measure-images.py'
+      - '.github/workflows/measure-images.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install skopeo
+        run: |
+          command -v skopeo || (sudo apt-get update -q && sudo apt-get install -y -q skopeo)
+      - name: Measure
+        run: |
+          python3 tools/measure-images.py \
+            ghcr.io/herbalchemist/tessera:latest \
+            ghcr.io/herbalchemist/tessera-nvidia:latest \
+            ghcr.io/herbalchemist/tessera-nvidia-open:latest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sizes
+          path: sizes.json
