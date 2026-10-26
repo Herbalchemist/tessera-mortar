@@ -16,7 +16,7 @@ truncate -s 80G "$work/disk.img"
 qemu-system-x86_64 -machine q35,accel=$accel -cpu max -smp 4 -m 8192 \
   ${OVMF:+-drive if=pflash,format=raw,readonly=on,file=$OVMF} \
   -kernel "$work/vmlinuz" -initrd "$work/initrd.img" \
-  -append "root=live:CDLABEL=Tessera-Live rd.live.image enforcing=0 console=tty0 console=ttyS0,115200" \
+  -append "root=live:CDLABEL=Tessera-Live rd.live.image enforcing=0 console=tty0 console=ttyS0,115200 ${BOOT_ARGS:-}" \
   -drive file="$ISO",media=cdrom,readonly=on -drive file="$work/disk.img",format=raw,if=virtio \
   -device virtio-vga -display none -serial file:"$OUT/serial.log" \
   -monitor unix:"$work/mon",server,nowait -daemonize -pidfile "$work/pid"

@@ -8,3 +8,6 @@ grub2:
     - name: "Try or install Tessera (safe graphics)"
       linux: "/images/pxeboot/vmlinuz quiet rhgb root=live:CDLABEL=Tessera-Live enforcing=0 rd.live.image nomodeset"
       initrd: "/images/pxeboot/initrd.img"
+    - name: "Try or install Tessera (desktop mode)"
+      linux: "/images/pxeboot/vmlinuz quiet rhgb root=live:CDLABEL=Tessera-Live enforcing=0 rd.live.image tessera.live=desktop"
+      initrd: "/images/pxeboot/initrd.img"

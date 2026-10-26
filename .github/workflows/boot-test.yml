@@ -10,6 +10,10 @@ on:
         description: Release tag (empty = the newest)
         required: false
         default: ''
+      args:
+        description: Extra kernel arguments (e.g. tessera.live=desktop)
+        required: false
+        default: ''
       seconds:
         description: How long to let it run
         required: false
@@ -51,7 +55,7 @@ jobs:
       - name: Boot it
         run: |
           sudo chmod 666 /dev/kvm || :
-          tools/boot-test.sh /mnt/iso/Tessera-Live.iso "${{ inputs.seconds || '300' }}"
+          BOOT_ARGS="${{ inputs.args }}" tools/boot-test.sh /mnt/iso/Tessera-Live.iso "${{ inputs.seconds || '300' }}"
       - name: Save the results to the boot-test branch
         if: always()
         run: |

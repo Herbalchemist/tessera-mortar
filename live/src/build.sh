@@ -47,7 +47,19 @@ touch /etc/tessera/live-installer            # the launcher shows Install Tesser
 echo liveuser > /etc/tessera/autologin-user  # livesys creates this user at boot
 mkdir -p /etc/systemd/system/tessera-autologin.service.d
 printf '[Unit]\nAfter=livesys.service\n' > /etc/systemd/system/tessera-autologin.service.d/live.conf
-# If the Tessera session can't start (unusual graphics), the KDE desktop comes up with this instead.
+install -m 0755 "$SRC/tessera-live-session" /usr/libexec/tessera/tessera-live-session
+install -m 0644 "$SRC/tessera-live-session.service" /etc/systemd/system/tessera-live-session.service
+systemctl enable tessera-live-session.service
+# In desktop mode (or if the Tessera session can't start), Install Tessera opens as a window by itself.
+mkdir -p /etc/skel/.config/autostart
+cp "$SRC/install-tessera.desktop" /etc/skel/.config/autostart/install-tessera.desktop
+# Fedora's own "Install to Hard Drive" would install the wrong thing, and Bazzite's welcome window
+# doesn't belong on an installer USB.
+rm -f /usr/share/applications/liveinst.desktop /etc/xdg/autostart/liveinst-setup.desktop
+for f in /etc/xdg/autostart/*.desktop /usr/share/autostart/*.desktop /etc/skel/.config/autostart/*.desktop; do
+  [ -f "$f" ] && grep -qiE '^(Name|Exec)=.*(bazzite[- ]portal|yafti)' "$f" && rm -f "$f"
+done
+# A shortcut on the desktop, too.
 install -m 0644 "$SRC/install-tessera.desktop" /usr/share/applications/install-tessera.desktop
 mkdir -p /etc/skel/Desktop
 cp /usr/share/applications/install-tessera.desktop /etc/skel/Desktop/

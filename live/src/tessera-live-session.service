@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Unit]
+Description=Tessera USB: start into the Tessera session (unless desktop mode was picked)
+After=livesys.service livesys-late.service tessera-autologin.service
+Before=display-manager.service sddm.service plasmalogin.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/libexec/tessera/tessera-live-session
+
+[Install]
+WantedBy=multi-user.target
