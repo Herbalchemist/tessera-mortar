@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Boots a published Tessera USB image in a virtual machine again, without rebuilding it.
+# Screenshots and the serial console land on the boot-test branch.
+name: Boot test a release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (empty = the newest)
+        required: false
+        default: ''
+      seconds:
+        description: How long to let it run
+        required: false
+        default: '300'
+  push:
+    branches: [main]
+    paths: ['tools/boot-test.sh', '.github/workflows/boot-test.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  boot:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash /tmp/ci-step.sh {0}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Step wrapper
+        shell: bash
+        run: cp tools/ci-step.sh /tmp/ci-step.sh
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@695eb75bc387dbcd9685a8e72d23439d8686cba6
+      - name: Install tools
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q xorriso qemu-system-x86 ovmf socat imagemagick netpbm
+      - name: Download and join the ISO
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ inputs.tag }}"
+          [ -n "$tag" ] || tag=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+          echo "::notice title=Testing::$tag"
+          mkdir -p /mnt/iso 2>/dev/null || sudo mkdir -p /mnt/iso; sudo chown "$(id -u)" /mnt/iso
+          gh release download "$tag" -D /mnt/iso -p 'Tessera-Live.iso.part*' -p 'Tessera-Live.iso.sha256'
+          cd /mnt/iso && cat Tessera-Live.iso.part* > Tessera-Live.iso && rm Tessera-Live.iso.part* && sha256sum -c Tessera-Live.iso.sha256
+      - name: Boot it
+        run: |
+          sudo chmod 666 /dev/kvm || :
+          tools/boot-test.sh /mnt/iso/Tessera-Live.iso "${{ inputs.seconds || '300' }}"
+      - name: Save the results to the boot-test branch
+        if: always()
+        run: |
+          [ -d boot-test ] || exit 0
+          mkdir -p /tmp/bt && cp boot-test/* /tmp/bt/ && tail -n 800 boot-test/serial.log > /tmp/bt/serial.log || :
+          git config user.name "Tessera CI"; git config user.email "actions@users.noreply.github.com"
+          git checkout -q --orphan boot-test && git rm -rq --cached . && git clean -fdq
+          cp /tmp/bt/* . && git add -A . && git commit -qm "Boot test" && git push -qf origin boot-test
