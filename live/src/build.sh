@@ -48,6 +48,11 @@ echo liveuser > /etc/tessera/autologin-user  # livesys creates this user at boot
 mkdir -p /etc/systemd/system/tessera-autologin.service.d
 printf '[Unit]\nAfter=livesys.service\n' > /etc/systemd/system/tessera-autologin.service.d/live.conf
 install -m 0755 "$SRC/tessera-live-session" /usr/libexec/tessera/tessera-live-session
+install -m 0755 "$SRC/live-session-run" /usr/libexec/tessera/live-session-run
+sed -i 's|^Exec=.*|Exec=/usr/libexec/tessera/live-session-run|' /usr/share/wayland-sessions/tessera.desktop
+install -m 0755 "$SRC/tessera-live-debug" /usr/libexec/tessera/tessera-live-debug
+install -m 0644 "$SRC/tessera-live-debug.service" /etc/systemd/system/tessera-live-debug.service
+systemctl enable tessera-live-debug.service
 install -m 0644 "$SRC/tessera-live-session.service" /etc/systemd/system/tessera-live-session.service
 systemctl enable tessera-live-session.service
 # In desktop mode (or if the Tessera session can't start), Install Tessera opens as a window by itself.

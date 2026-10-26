@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Unit]
+Description=Tessera USB: copy logs to the serial console (only with tessera.debug)
+ConditionKernelCommandLine=tessera.debug
+
+[Service]
+ExecStart=/usr/libexec/tessera/tessera-live-debug
+
+[Install]
+WantedBy=multi-user.target
