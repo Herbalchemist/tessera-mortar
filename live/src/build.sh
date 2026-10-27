@@ -46,8 +46,14 @@ cp "$SRC/anaconda-profile.conf" /etc/anaconda/profile.d/tessera.conf
 install -m 0755 "$SRC/live-install" /usr/libexec/tessera/live-install
 install -m 0440 "$SRC/sudoers" /etc/sudoers.d/tessera-live-install
 # Universal Blue's Secure Boot key: queued for enrollment so the installed system's kernel and drivers can boot.
-cp /etc/pki/akmods/certs/akmods-ublue.der /usr/share/tessera-install/secure-boot-key.der 2>/dev/null ||
-  curl --retry 3 -fLo /usr/share/tessera-install/secure-boot-key.der https://github.com/ublue-os/akmods/raw/main/certs/public_key.der
+# It comes from the image itself (Bazzite ships it), never from a download: every machine installed from
+# this USB is asked to trust it, so it must be the one the signed image carries.
+if [ ! -s /etc/pki/akmods/certs/akmods-ublue.der ]; then
+  echo "Universal Blue's Secure Boot key is missing from the image (/etc/pki/akmods/certs/akmods-ublue.der)" >&2
+  exit 1
+fi
+cp /etc/pki/akmods/certs/akmods-ublue.der /usr/share/tessera-install/secure-boot-key.der
+openssl x509 -inform der -in /usr/share/tessera-install/secure-boot-key.der -noout -subject -fingerprint -sha256 || true
 
 ### Start into Tessera, in installer mode
 mkdir -p /etc/tessera

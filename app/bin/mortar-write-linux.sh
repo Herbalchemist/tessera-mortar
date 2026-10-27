@@ -3,9 +3,9 @@
 # Mortar's Linux writer, run as root through pkexec: writes an image to a USB drive, then reads it
 # back so Mortar can check it. Prints progress lines Mortar reads:
 #   PHASE write|verify  /  BYTES n  /  SHA <hex>  /  ERROR <text>
-#   mortar-write-linux.sh IMAGE DEVICE
+#   mortar-write-linux.sh IMAGE DEVICE [SIZE]   (SIZE: the drive's size in bytes when it was picked)
 set -u
-IMG=$1 DEV=$2
+IMG=$1 DEV=$2 WANT=${3:-}
 fail() { echo "ERROR $*"; exit 1; }
 [ "$(id -u)" = 0 ] || fail "needs to run as root"
 [ -f "$IMG" ] || fail "image not found"
@@ -20,6 +20,11 @@ if [ -b "$DEV" ]; then
   tran=$(lsblk -dn -o TRAN "$DEV" 2>/dev/null | tr -d ' ')
   [ "$rm" = 1 ] || [ "$hp" = 1 ] || [ "$tran" = usb ] || fail "not a removable or USB drive" 
   if lsblk -nr -o MOUNTPOINTS "$DEV" | grep -qE '^/(boot|usr|home|var|sysroot)?$'; then fail "this drive holds the running system"; fi
+  # Still the drive that was picked (a different stick can get the same name), and not in use as swap.
+  if [ -n "$WANT" ] && [ "$(blockdev --getsize64 "$DEV" 2>/dev/null)" != "$WANT" ]; then fail "the drive changed since it was picked: choose it again"; fi
+  for p in $(lsblk -nr -o PATH "$DEV"); do
+    if swapon --show=NAME --noheadings 2>/dev/null | grep -qx "$p"; then fail "this drive is in use as swap"; fi
+  done
   for p in $(lsblk -nr -o PATH "$DEV" | tail -n +2); do umount "$p" 2>/dev/null; done
   umount "$DEV" 2>/dev/null
 fi
