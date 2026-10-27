@@ -21,7 +21,7 @@ function writeLinux(image, drive, { onProgress = () => {}, signal } = {}) {
     // pkexec has asked for the password.
     const script = fs.readFileSync(path.join(__dirname, '..', 'bin', 'mortar-write-linux.sh'), 'utf8');
     const asRoot = process.getuid && process.getuid() === 0;
-    const args = ['/bin/sh', '-c', script, 'mortar-write', image, drive.id];
+    const args = ['/bin/sh', '-c', script, 'mortar-write', image, drive.id, ...(Number.isInteger(drive.size) && drive.size > 0 ? [String(drive.size)] : [])];
     const cmd = asRoot || process.env.MORTAR_NO_PKEXEC === '1' ? args : ['pkexec', ...args];
     const total = fs.statSync(image).size;
     const child = spawn(cmd[0], cmd.slice(1), { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env } });
