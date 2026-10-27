@@ -13,19 +13,38 @@ const writer = require('../lib/writer');
 
 const asset = (name, size = 10) => ({ name, size, browser_download_url: `https://x/${name}` });
 
-test('picks the newest complete USB image', () => {
+test('picks the newest build and its ISOs', () => {
+  const p = (f, n, size = 10) => asset(`${f}.part${String(n).padStart(2, '0')}`, size);
   const imgs = pickImages([
-    { tag_name: 'usb-old', published_at: '2026-10-01T00:00:00Z', assets: [asset('Tessera-Live.iso.part00'), asset('Tessera-Live.iso.sha256')] },
-    { tag_name: 'usb-new', published_at: '2026-10-27T00:00:00Z', prerelease: true, assets: [asset('Tessera-Live.iso.part01', 5), asset('Tessera-Live.iso.part00'), asset('Tessera-Live.iso.part10', 1), asset('Tessera-Live.iso.part02'), asset('Tessera-Live.iso.part03'), asset('Tessera-Live.iso.part04'), asset('Tessera-Live.iso.part05'), asset('Tessera-Live.iso.part06'), asset('Tessera-Live.iso.part07'), asset('Tessera-Live.iso.part08'), asset('Tessera-Live.iso.part09'), asset('Tessera-Live.iso.sha256')] },
+    { tag_name: 'usb-old', published_at: '2026-10-01T00:00:00Z', assets: [p('Tessera-Live.iso', 0), asset('Tessera-Live.iso.sha256')] },
+    { tag_name: 'usb-new', published_at: '2026-10-27T00:00:00Z', prerelease: true, assets: [
+      ...Array.from({ length: 11 }, (_, i) => p('Tessera-Live.iso', i, i === 10 ? 1 : 10)), asset('Tessera-Live.iso.sha256'),
+      p('Tessera-Live-nvidia.iso', 0, 7), p('Tessera-Live-nvidia.iso', 1, 3), asset('Tessera-Live-nvidia.iso.sha256'),
+      p('Tessera-Live-amd-intel.iso', 0), // no checksum: not usable
+      p('Tessera-Live-nvidia-open.iso', 0), p('Tessera-Live-nvidia-open.iso', 2), asset('Tessera-Live-nvidia-open.iso.sha256'), // a gap
+    ] },
     { tag_name: 'usb-empty', published_at: '2026-10-28T00:00:00Z', assets: [] },
-    { tag_name: 'usb-gap', published_at: '2026-10-29T00:00:00Z', assets: [asset('Tessera-Live.iso.part00'), asset('Tessera-Live.iso.part02'), asset('Tessera-Live.iso.sha256')] },
-    { tag_name: 'v1.0', published_at: '2026-10-30T00:00:00Z', assets: [asset('Tessera-Live.iso.part00'), asset('Tessera-Live.iso.sha256')] },
+    { tag_name: 'v1.0', published_at: '2026-10-30T00:00:00Z', assets: [p('Tessera-Live.iso', 0), asset('Tessera-Live.iso.sha256')] },
   ]);
   assert.deepStrictEqual(imgs.map((i) => i.tag), ['usb-new', 'usb-old']);
-  assert.deepStrictEqual(imgs[0].parts.map((p) => p.name.slice(-2)), ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10'], 'numeric order');
-  assert.strictEqual(imgs[0].size, 10 * 9 + 5 + 1);
+  assert.deepStrictEqual(Object.keys(imgs[0].flavors).sort(), ['all', 'nvidia']);
+  assert.deepStrictEqual(imgs[0].flavors.all.parts.map((x) => x.name.slice(-2)), ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10'], 'numeric order');
+  assert.strictEqual(imgs[0].flavors.all.size, 101);
+  assert.strictEqual(imgs[0].flavors.nvidia.size, 10);
   assert.strictEqual(parseSha(`${'A'.repeat(64)}  Tessera-Live.iso\n`), 'a'.repeat(64));
   assert.strictEqual(parseSha('nonsense'), null);
+});
+
+test('this PC: graphics to build', () => {
+  const g = require('../lib/gpu');
+  assert.strictEqual(g.flavorFor([{ vendor: '10de', device: '1c81' }]), 'nvidia');
+  assert.strictEqual(g.flavorFor([{ vendor: '10de', device: '2684' }]), 'nvidia-open');
+  assert.strictEqual(g.flavorFor([{ vendor: '8086', device: '9a49' }, { vendor: '10de', device: '25a2' }]), 'nvidia-open');
+  assert.strictEqual(g.flavorFor([{ vendor: '1002', device: '73bf' }]), 'amd-intel');
+  assert.strictEqual(g.flavorFor([{ vendor: '10de', device: '1187' }]), 'amd-intel');
+  assert.strictEqual(g.flavorFor([]), null);
+  const w = g.parseWindows(JSON.stringify([{ Name: 'NVIDIA GeForce GTX 1050', PNPDeviceID: 'PCI\\VEN_10DE&DEV_1C81&SUBSYS_1' }, { Name: 'Microsoft Basic Display Adapter', PNPDeviceID: 'ROOT\\BasicDisplay' }]));
+  assert.deepStrictEqual(w, [{ vendor: '10de', device: '1c81', name: 'NVIDIA GeForce GTX 1050' }]);
 });
 
 test('resume point', () => {

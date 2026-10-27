@@ -8,12 +8,13 @@ const releases = require('./lib/releases');
 const { downloadParts, sha256File } = require('./lib/download');
 const drives = require('./lib/drives');
 const writer = require('./lib/writer');
+const gpu = require('./lib/gpu');
 
 let win = null;
 let job = null; // { controller }
 const send = (ch, payload) => { if (win && !win.isDestroyed()) win.webContents.send(ch, payload); };
 const downloadDir = () => process.env.MORTAR_DOWNLOAD_DIR || path.join(app.getPath('downloads'), 'Tessera Mortar');
-const isoFor = (img) => path.join(downloadDir(), `Tessera-Live-${img.tag}.iso`);
+const isoFor = (img, flavor) => path.join(downloadDir(), `Tessera-Live-${img.tag}${flavor === 'all' ? '' : `-${flavor}`}.iso`);
 const freeSpace = (dir) => { try { const s = fs.statfsSync(dir); return s.bavail * s.bsize; } catch { return Infinity; } };
 let newestCache = null;
 
@@ -26,12 +27,26 @@ ipcMain.handle('newest', async () => {
   try {
     const img = await releases.newest();
     newestCache = img;
-    const iso = isoFor(img);
-    const have = fs.existsSync(iso) && fs.statSync(iso).size === img.size;
-    const partial = fs.existsSync(`${iso}.partial`) ? fs.statSync(`${iso}.partial`).size : 0;
-    return { ok: true, image: { tag: img.tag, title: img.title, published: img.published, size: img.size, parts: img.parts.length, page: img.page }, downloaded: have, partial, folder: downloadDir() };
+    const flavors = {};
+    for (const [f, x] of Object.entries(img.flavors)) {
+      const iso = isoFor(img, f);
+      flavors[f] = {
+        size: x.size,
+        downloaded: fs.existsSync(iso) && fs.statSync(iso).size === x.size,
+        partial: fs.existsSync(`${iso}.partial`) ? fs.statSync(`${iso}.partial`).size : 0,
+      };
+    }
+    return { ok: true, image: { tag: img.tag, title: img.title, published: img.published, page: img.page }, flavors, folder: downloadDir() };
   } catch (e) {
     return { ok: false, error: e.message };
+  }
+});
+ipcMain.handle('gpu', async () => {
+  try {
+    const gpus = await gpu.detect();
+    return { ok: true, cards: gpus.map((g) => g.name || `${gpu.VENDORS[g.vendor] || 'Unknown'} graphics`), flavor: gpu.flavorFor(gpus) };
+  } catch (e) {
+    return { ok: false, error: e.message, cards: [], flavor: null };
   }
 });
 ipcMain.handle('drives', async () => {
@@ -75,9 +90,12 @@ ipcMain.handle('make', async (_e, req) => {
         if (got !== expected) throw new Error("The image file doesn't match its checksum file. It may be damaged; download it again.");
       }
     } else {
-      const img = newestCache || (await releases.newest());
-      image = isoFor(img);
-      expected = img.sha256;
+      const rel = newestCache || (await releases.newest());
+      const flavor = req.source && releases.FLAVORS.includes(req.source.flavor) ? req.source.flavor : 'all';
+      const img = rel.flavors[flavor];
+      if (!img) throw new Error("That kind of USB isn't in the newest Tessera build yet.");
+      image = isoFor(rel, flavor);
+      expected = await releases.shaOf(img);
       fs.mkdirSync(downloadDir(), { recursive: true });
       const need = img.size - (fs.existsSync(`${image}.partial`) ? fs.statSync(`${image}.partial`).size : 0);
       if (!(fs.existsSync(image) && fs.statSync(image).size === img.size) && freeSpace(downloadDir()) < need + 256 * 1024 * 1024) {

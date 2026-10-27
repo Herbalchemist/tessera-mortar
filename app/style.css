@@ -67,3 +67,20 @@ button:focus-visible, .drive:focus-visible, .choice:focus-within { outline: 3px 
 footer { color: var(--muted); font-size: 13px; text-align: center; }
 a { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.q { font-size: 18px; margin: 4px 0 6px; }
+.center { text-align: center; }
+.small { font-size: 13px; }
+.option { display: flex; align-items: center; gap: 16px; text-align: left; width: 100%; padding: 18px 20px; border-radius: var(--radius); background: color-mix(in srgb, var(--card) 92%, transparent); border: 1px solid var(--border); color: var(--text); }
+.option:hover:not(:disabled) { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.option:disabled { opacity: 0.55; cursor: not-allowed; }
+.option .oi { font-size: 26px; width: 40px; text-align: center; flex: none; }
+.option .ot { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.option .ot b { font-size: 16px; }
+.option .ot span { color: var(--muted); }
+.badge { flex: none; padding: 4px 10px; border-radius: 999px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 13px; white-space: nowrap; }
+.back { align-self: flex-start; text-decoration: none; }
+.flavors { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+.flavors .choice { justify-content: space-between; }
+.flavors .choice .sz { color: var(--muted); font-size: 13px; }
+.flavors .choice.off { opacity: 0.5; cursor: not-allowed; }

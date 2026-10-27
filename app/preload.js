@@ -2,6 +2,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('mortar', {
   newest: () => ipcRenderer.invoke('newest'),
+  gpu: () => ipcRenderer.invoke('gpu'),
   drives: () => ipcRenderer.invoke('drives'),
   chooseIso: () => ipcRenderer.invoke('chooseIso'),
   make: (req) => ipcRenderer.invoke('make', req),

@@ -1,30 +1,111 @@
 'use strict';
-// Mortar's window: pick an image and a USB drive, then make the USB and follow along.
+// Mortar's window. First a choice (quick, this PC, or customized), then the drive, then the work.
 const $ = (id) => document.getElementById(id);
 const gb = (n) => `${(n / 1e9).toFixed(1)} GB`;
-const MIN = 30e9; // a "32 GB" drive is a little under 32e9 bytes
-const state = { newest: null, file: null, drives: [], drive: null, src: 'release', busy: false };
+const FLAVOR_NAMES = { all: 'Every graphics build (any PC)', 'amd-intel': 'AMD / Intel', nvidia: 'NVIDIA, GTX 900–1000', 'nvidia-open': 'NVIDIA, GTX 16 / RTX' };
+// The usual size printed on a USB drive that holds this many bytes (drives hold a little less than they say).
+const usbFor = (bytes) => [8, 16, 32, 64, 128].find((g) => g * 1e9 * 0.93 >= bytes) || 256;
+const state = { newest: null, gpu: null, mode: null, flavor: 'all', src: 'release', file: null, drives: [], drive: null, busy: false };
 
 function dateOf(s) { try { return new Date(s).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch { return ''; } }
-function needed() { return state.src === 'file' ? (state.file ? state.file.size : 0) : state.newest && state.newest.ok ? state.newest.image.size : 0; }
+const flavorsAvail = () => (state.newest && state.newest.ok ? state.newest.flavors : {});
+function needed() {
+  if (state.src === 'file') return state.file ? state.file.size : 0;
+  const f = flavorsAvail()[state.flavor];
+  return f ? f.size : 0;
+}
 
+// ---- the first screen
 async function loadNewest() {
   const r = await window.mortar.newest();
   state.newest = r;
   const el = $('imageInfo');
   if (!r.ok) {
-    el.textContent = `Couldn't check GitHub: ${r.error} You can still use an image file you already have.`;
-    el.className = 'bad';
+    el.textContent = `Couldn't check GitHub: ${r.error} "Customize my install" can still use an image file you already have.`;
+    el.className = 'bad center';
   } else {
-    const have = r.downloaded ? 'Already downloaded.' : r.partial ? `Partly downloaded (${gb(r.partial)}); it carries on where it stopped.` : `A ${gb(r.image.size)} download.`;
-    el.innerHTML = '';
-    const b = document.createElement('b');
-    b.textContent = `Tessera USB, built ${dateOf(r.image.published)}`;
-    el.append(b, document.createTextNode(` · ${have} Installs offline, with every graphics build on it.`));
-    el.className = 'muted';
+    el.textContent = `Newest Tessera: built ${dateOf(r.image.published)}. Every option installs with no internet needed.`;
+    el.className = 'muted center';
     $('ver').textContent = r.image.tag;
   }
+  paintChoices();
+}
+async function loadGpu() {
+  state.gpu = await window.mortar.gpu();
+  paintChoices();
+}
+function paintChoices() {
+  const fl = flavorsAvail();
+  const ok = state.newest && state.newest.ok;
+  $('optQuick').disabled = !ok || !fl.all;
+  if (fl.all) $('badgeQuick').textContent = `${usbFor(fl.all.size)} GB USB`;
+  const g = state.gpu;
+  const mine = g && g.flavor;
+  if (!g) $('thisInfo').textContent = "Looking at this PC's graphics…";
+  else if (!mine) $('thisInfo').textContent = "Couldn't tell which graphics this PC has. Use Quick install, or pick a build under Customize.";
+  else if (ok && !fl[mine]) $('thisInfo').textContent = `This PC has ${g.cards.join(' + ')} (${FLAVOR_NAMES[mine]}). USBs for one PC aren't in the newest build yet; use Quick install for now.`;
+  else $('thisInfo').textContent = `This PC has ${g.cards.join(' + ') || 'its graphics'}, so only the ${FLAVOR_NAMES[mine]} build goes on the USB. For this PC, or one with the same kind of graphics.`;
+  $('optThis').disabled = !ok || !mine || !fl[mine];
+  if (mine && fl[mine]) $('badgeThis').textContent = `${usbFor(fl[mine].size)} GB USB`;
+}
+document.querySelectorAll('.option').forEach((b) => b.addEventListener('click', () => choose(b.dataset.mode)));
+
+function choose(mode) {
+  state.mode = mode;
+  state.src = 'release';
+  state.flavor = mode === 'thispc' ? state.gpu.flavor : 'all';
+  if (mode === 'custom' && !flavorsAvail().all) state.flavor = Object.keys(flavorsAvail())[0] || 'all';
+  $('choose').hidden = true; $('setup').hidden = false;
+  paintWhat();
+  renderDrives();
   refresh();
+}
+$('back').addEventListener('click', (e) => { e.preventDefault(); $('setup').hidden = true; $('choose').hidden = false; });
+
+function paintWhat() {
+  const fl = flavorsAvail();
+  const f = fl[state.flavor];
+  const have = (x) => (x && x.downloaded ? ' Already downloaded.' : x && x.partial ? ` Partly downloaded; it carries on where it stopped.` : '');
+  $('flavors').hidden = state.mode !== 'custom';
+  $('extrasInfo').hidden = state.mode !== 'custom';
+  $('fileInfo').hidden = !(state.mode === 'custom' && state.src === 'file' && state.file);
+  if (state.mode === 'quick') $('whatInfo').textContent = `Every graphics build: installs on any PC Tessera supports. A ${gb(f.size)} download.${have(f)}`;
+  else if (state.mode === 'thispc') $('whatInfo').textContent = `Only the ${FLAVOR_NAMES[state.flavor]} build, for this PC (${state.gpu.cards.join(' + ')}). A ${gb(f.size)} download.${have(f)}`;
+  else {
+    $('whatInfo').textContent = 'Pick one:';
+    const box = $('flavors');
+    box.replaceChildren();
+    const opts = [...['all', 'amd-intel', 'nvidia', 'nvidia-open'].map((k) => ({ k, x: fl[k] })), { k: 'file' }];
+    for (const { k, x } of opts) {
+      const lab = document.createElement('label');
+      const off = k !== 'file' && !x;
+      lab.className = 'choice' + (off ? ' off' : '');
+      const inp = document.createElement('input');
+      inp.type = 'radio'; inp.name = 'flavor'; inp.value = k; inp.disabled = off;
+      inp.checked = k === 'file' ? state.src === 'file' : state.src === 'release' && state.flavor === k;
+      const t = document.createElement('span');
+      const mineTag = state.gpu && state.gpu.flavor === k ? ' · this PC' : '';
+      t.textContent = k === 'file' ? 'An image file I already have' : FLAVOR_NAMES[k] + mineTag;
+      const sz = document.createElement('span');
+      sz.className = 'sz';
+      sz.textContent = k === 'file' ? (state.file ? `${state.file.name} · ${gb(state.file.size)}` : 'choose…') : x ? `${gb(x.size)} · ${usbFor(x.size)} GB USB${x.downloaded ? ' · downloaded' : ''}` : 'not in this build yet';
+      const left = document.createElement('span');
+      left.style.display = 'flex'; left.style.gap = '8px'; left.style.alignItems = 'center';
+      left.append(inp, t);
+      lab.append(left, sz);
+      inp.addEventListener('change', async () => {
+        if (k === 'file') {
+          const file = await window.mortar.chooseIso();
+          if (!file) { paintWhat(); return; }
+          state.file = file; state.src = 'file';
+        } else { state.src = 'release'; state.flavor = k; }
+        paintWhat(); renderDrives(); refresh();
+      });
+      box.append(lab);
+    }
+  }
+  const need = needed();
+  $('driveNeed').textContent = need ? `Plug in a USB drive of ${usbFor(need)} GB or more. Everything on it will be erased.` : 'Everything on it will be erased.';
 }
 
 const driveIcon = () => '<svg class="ico" viewBox="0 0 30 30"><rect x="9" y="3" width="12" height="7" rx="1.5"/><rect x="6" y="10" width="18" height="17" rx="3"/><path d="M13 6h1M16 6h1"/></svg>';
@@ -37,13 +118,16 @@ async function loadDrives() {
   state.sig = sig;
   state.drives = list;
   if (state.drive && !list.some((d) => d.id === state.drive)) state.drive = null;
-  if (!state.drive && list.length === 1 && list[0].size >= MIN) state.drive = list[0].id;
   renderDrives();
   refresh();
 }
 function renderDrives() {
   const box = $('drives');
   box.replaceChildren();
+  const need = needed();
+  const fits = state.drives.filter((d) => !need || d.size >= need);
+  if (!state.drive && fits.length === 1) state.drive = fits[0].id;
+  if (state.drive && need && !fits.some((d) => d.id === state.drive)) state.drive = null;
   if (!state.drives.length) {
     const e = document.createElement('div');
     e.className = 'empty';
@@ -55,13 +139,13 @@ function renderDrives() {
     const b = document.createElement('button');
     b.className = 'drive' + (state.drive === d.id ? ' sel' : '');
     b.dataset.id = d.id;
-    const small = d.size < Math.max(MIN, needed());
+    const small = Boolean(need) && d.size < need;
     b.disabled = small;
     b.innerHTML = driveIcon();
     const t = document.createElement('div');
     const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = d.name;
     const sub = document.createElement('div'); sub.className = 'sub';
-    sub.textContent = [gb(d.size), d.bus, small ? 'too small' : d.mounts && d.mounts.length ? `in use at ${d.mounts[0]}` : ''].filter(Boolean).join(' · ');
+    sub.textContent = [gb(d.size), d.bus, small ? 'too small for this' : d.mounts && d.mounts.length ? `in use at ${d.mounts[0]}` : ''].filter(Boolean).join(' · ');
     t.append(nm, sub);
     b.append(t);
     b.addEventListener('click', () => { state.drive = d.id; renderDrives(); refresh(); });
@@ -69,25 +153,11 @@ function renderDrives() {
   }
 }
 function refresh() {
-  const hasImage = state.src === 'file' ? Boolean(state.file) : Boolean(state.newest && state.newest.ok);
+  const hasImage = state.src === 'file' ? Boolean(state.file) : Boolean(flavorsAvail()[state.flavor]);
   const d = state.drives.find((x) => x.id === state.drive);
   $('go').disabled = !(hasImage && d);
-  $('goInfo').textContent = !hasImage ? 'Choose an image first.' : !d ? 'Choose a USB drive.' : `Ready to write to ${d.name} (${gb(d.size)}).`;
+  $('goInfo').textContent = !hasImage ? 'Choose what goes on the USB first.' : !d ? 'Choose a USB drive.' : `Ready to write to ${d.name} (${gb(d.size)}).`;
 }
-
-document.querySelectorAll('input[name=src]').forEach((r) => r.addEventListener('change', async () => {
-  state.src = r.value;
-  if (state.src === 'file' && !state.file) {
-    const f = await window.mortar.chooseIso();
-    if (!f) { state.src = 'release'; document.querySelector('input[value=release]').checked = true; }
-    else state.file = f;
-  }
-  $('fileInfo').hidden = state.src !== 'file' || !state.file;
-  if (state.file) $('fileInfo').textContent = `${state.file.name} · ${gb(state.file.size)}`;
-  renderDrives();
-  refresh();
-}));
-$('fileInfo').addEventListener('click', async () => { const f = await window.mortar.chooseIso(); if (f) { state.file = f; $('fileInfo').textContent = `${f.name} · ${gb(f.size)}`; refresh(); } });
 
 // ---- making it
 const STEPS = { release: ['download', 'check', 'write', 'verify'], file: ['check', 'write', 'verify'] };
@@ -147,7 +217,7 @@ $('go').addEventListener('click', async () => {
   $('workTitle').textContent = 'Making your Tessera USB';
   showSteps(STEPS[state.src], STEPS[state.src][0], null);
   $('workLine').textContent = 'Starting…';
-  const r = await window.mortar.make({ driveId: d.id, source: state.src === 'file' ? { type: 'file', path: state.file.path } : { type: 'release' } });
+  const r = await window.mortar.make({ driveId: d.id, source: state.src === 'file' ? { type: 'file', path: state.file.path } : { type: 'release', flavor: state.flavor } });
   state.busy = false;
   $('working').hidden = true; $('finished').hidden = false;
   const body = $('doneBody');
@@ -158,6 +228,7 @@ $('go').addEventListener('click', async () => {
     body.innerHTML = '<p>It took ' + fmtTime((Date.now() - t0) / 1000) + '. To install Tessera:</p><ol>'
       + '<li>Plug the USB into the PC that gets Tessera, and start it from the USB. The key for the boot menu is usually F12, F11, F8 or Esc.</li>'
       + '<li>Pick <b>Try or install Tessera</b>. If the screen stays black, restart and pick <b>safe graphics</b> or <b>desktop mode</b>.</li>'
+      + (state.src === 'release' && state.flavor !== 'all' ? `<li>This USB carries only the ${FLAVOR_NAMES[state.flavor]} build, so use it on PCs with that kind of graphics.</li>` : '')
       + '<li>Follow <b>Install Tessera</b>. It works with a controller, a keyboard or a mouse, and needs no internet.</li></ol>'
       + '<p class="muted">The disk you install to is erased. Windows may say the USB needs formatting: choose Cancel, the drive is fine.</p>';
   } else {
@@ -169,12 +240,13 @@ $('go').addEventListener('click', async () => {
   }
 });
 $('stop').addEventListener('click', async () => { if (await ask('Stop now? The download is kept for next time, but the USB drive will be incomplete.')) window.mortar.cancel(); });
-$('again').addEventListener('click', () => { $('finished').hidden = true; $('setup').hidden = false; state.sig = ''; loadNewest(); loadDrives(); });
+$('again').addEventListener('click', () => { $('finished').hidden = true; $('choose').hidden = false; state.sig = ''; loadNewest(); loadDrives(); });
 $('help').addEventListener('click', () => window.mortar.open('help'));
 $('releasesLink').addEventListener('click', (e) => { e.preventDefault(); window.mortar.open('releases'); });
 $('folderLink').addEventListener('click', (e) => { e.preventDefault(); window.mortar.open('folder'); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('confirm').hidden) $('confirmNo').click(); });
 
 loadNewest();
+loadGpu();
 loadDrives();
 setInterval(loadDrives, 2500);

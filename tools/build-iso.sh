@@ -9,17 +9,30 @@
 #     LIVE_IMAGE  the live system, in the local container storage (e.g. localhost/tessera-live:latest)
 #     IMAGES_DIR  an OCI image layout with the builds (see tools/fetch-images.sh); goes on the ISO as /tessera-images
 #     OUTPUT_DIR  where the ISO is written
+#   Env: ISO_NAME (file name, default Tessera-Live.iso), SQUASH_CACHE (a squashfs.img to reuse, or to
+#        keep for the next ISO: the live system is the same in every variant), SQUASH_LEVEL.
 set -euo pipefail
 LIVE_IMAGE=$1 IMAGES_DIR=$(realpath "$2") OUT=$(realpath -m "$3")
+ISO_NAME=${ISO_NAME:-Tessera-Live.iso}
 mkdir -p "$OUT"
-podman run --rm -i --cap-add sys_admin --security-opt label=disable -e SQUASH_LEVEL="${SQUASH_LEVEL:-19}" \
+CACHE_ARGS=()
+if [ -n "${SQUASH_CACHE:-}" ]; then
+  mkdir -p "$(dirname "$SQUASH_CACHE")"
+  CACHE_ARGS=(-v "$(realpath -m "$(dirname "$SQUASH_CACHE")")":/cache -e SQUASH_CACHE_FILE="/cache/$(basename "$SQUASH_CACHE")")
+fi
+podman run --rm -i --cap-add sys_admin --security-opt label=disable -e SQUASH_LEVEL="${SQUASH_LEVEL:-19}" -e ISO_NAME="$ISO_NAME" "${CACHE_ARGS[@]}" \
   --mount type=image,source="$LIVE_IMAGE",dst=/rootfs \
   -v "$IMAGES_DIR":/tessera-images:ro -v "$OUT":/output \
   quay.io/fedora/fedora:latest bash -euxo pipefail -s <<'INNER'
 dnf install -y -q squashfs-tools xorriso yq mtools dosfstools
 mkdir -p /work/iso-root/boot/grub2 /work/iso-root/images/pxeboot /work/iso-root/LiveOS
 cd /work
-mksquashfs /rootfs /work/iso-root/LiveOS/squashfs.img -all-root -noappend -e sysroot -e ostree -comp zstd -Xcompression-level "${SQUASH_LEVEL:-19}" -quiet
+if [ -n "${SQUASH_CACHE_FILE:-}" ] && [ -f "$SQUASH_CACHE_FILE" ]; then
+  cp "$SQUASH_CACHE_FILE" /work/iso-root/LiveOS/squashfs.img
+else
+  mksquashfs /rootfs /work/iso-root/LiveOS/squashfs.img -all-root -noappend -e sysroot -e ostree -comp zstd -Xcompression-level "${SQUASH_LEVEL:-19}" -quiet
+  [ -n "${SQUASH_CACHE_FILE:-}" ] && cp /work/iso-root/LiveOS/squashfs.img "$SQUASH_CACHE_FILE"
+fi
 conf=/rootfs/usr/lib/bootc-image-builder/iso.yaml
 label=$(yq '.label' <"$conf")
 cp -av /rootfs/usr/lib/modules/*/initramfs.img /work/iso-root/images/pxeboot/initrd.img
@@ -52,6 +65,6 @@ xorriso -as mkisofs -R -V "$label" \
   -append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B ./uefi.img \
   -iso_mbr_part_type EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 \
   -e --interval:appended_partition_2:all:: -no-emul-boot -iso-level 3 \
-  -graft-points -o "/output/$label.iso" iso-root /tessera-images=/tessera-images
+  -graft-points -o "/output/$ISO_NAME" iso-root /tessera-images=/tessera-images
 ls -la /output
 INNER
