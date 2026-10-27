@@ -87,8 +87,10 @@ jobs:
           # Screenshots go to the boot-test branch, where they can be looked at.
           mkdir -p /tmp/bt && cp boot-test/* /tmp/bt/ && tail -n 600 boot-test/serial.log > /tmp/bt/serial.log
           git config user.name "Tessera CI"; git config user.email "actions@users.noreply.github.com"
-          git checkout -q --orphan boot-test && git rm -rq --cached . && git clean -fdq -e out
-          cp /tmp/bt/* . && git add -A . ':!out' && git commit -qm "Boot test for ${GITHUB_SHA::7}" && git push -qf origin boot-test
+          git checkout -q --orphan boot-test && git rm -rq --cached . && git clean -fdq -e out -e images -e cache -e one
+          cp /tmp/bt/* . && git add -A . ':!out' ':!images' ':!cache' && git commit -qm "Boot test for ${GITHUB_SHA::7}" && git push -qf origin boot-test
+          # back to the sources: the next step needs tools/
+          git checkout -qf "$GITHUB_SHA" && git clean -fdq -e out -e images -e cache -e one
 
       - name: Publish as a pre-release
         if: github.event_name == 'push' || inputs.release
