@@ -72,7 +72,8 @@ class Kickstart(unittest.TestCase):
         self.assertIn("ignoredisk --only-use=nvme0n1", k)
         self.assertIn("user --name=alex --groups=wheel --iscrypted --password=$6$salt$hash --gecos=\"Alex\"", k)
         self.assertIn("timezone America/Phoenix --utc", k)
-        self.assertIn("ostree-unverified-registry:ghcr.io/herbalchemist/tessera-nvidia:latest", k)
+        self.assertIn("ostree-image-signed:docker://ghcr.io/herbalchemist/tessera-nvidia:latest", k)
+        self.assertNotIn("unverified", k)
         self.assertIn("mokutil --import /k.der", k)
         self.assertNotIn("hunter22", k)
 
