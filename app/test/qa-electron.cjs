@@ -65,12 +65,14 @@ const sha2 = crypto.createHash('sha256').update(data2).digest('hex');
     assert.match(await page.textContent('#thisInfo'), /only the NVIDIA, GTX 900–1000 build/);
     assert.equal(await page.locator('#optQuick').isEnabled(), true);
     assert.equal(await page.locator('#optThis').isEnabled(), true);
+    assert.equal(await page.locator('#optOnline').isEnabled(), false, 'no online image in this stand-in release');
     await page.screenshot({ path: path.join(out, '0-choose.png') });
     // Customize lists the builds, marks this PC's, and greys out the ones not published.
     await page.click('#optCustom');
     await page.waitForSelector('#flavors:not([hidden]) .choice');
     const opts = await page.$$eval('#flavors .choice', (els) => els.map((e) => e.textContent));
-    assert.equal(opts.length, 5);
+    assert.equal(opts.length, 6);
+    assert.match(opts[4], /Online: downloads the build while installing.*not in this build yet/);
     assert.match(opts[2], /NVIDIA, GTX 900–1000 · this PC/);
     assert.match(opts[1], /not in this build yet/);
     await page.screenshot({ path: path.join(out, '0b-custom.png') });

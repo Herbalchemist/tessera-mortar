@@ -6,11 +6,13 @@
 //   Tessera-Live-amd-intel.iso       AMD / Intel only                            flavor "amd-intel"
 //   Tessera-Live-nvidia.iso          NVIDIA GTX 900-1000 only                    flavor "nvidia"
 //   Tessera-Live-nvidia-open.iso     NVIDIA GTX 16 / RTX only                    flavor "nvidia-open"
+//   Tessera-Live-online.iso          the installer only; downloads the build      flavor "online"
+//                                    while installing (needs internet then)
 const { getText } = require('./http');
 
 const REPO = process.env.MORTAR_REPO || 'Herbalchemist/tessera-mortar';
 const API = process.env.MORTAR_API || 'https://api.github.com';
-const FLAVORS = ['all', 'amd-intel', 'nvidia', 'nvidia-open'];
+const FLAVORS = ['all', 'amd-intel', 'nvidia', 'nvidia-open', 'online'];
 const isoName = (flavor) => (flavor === 'all' ? 'Tessera-Live.iso' : `Tessera-Live-${flavor}.iso`);
 
 function flavorOf(assets, flavor) {
