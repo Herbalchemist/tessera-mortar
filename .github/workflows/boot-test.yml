@@ -10,6 +10,10 @@ on:
         description: Release tag (empty = the newest)
         required: false
         default: ''
+      iso:
+        description: Which ISO of the release (e.g. Tessera-Live-online.iso)
+        required: false
+        default: 'Tessera-Live.iso'
       mode:
         description: boot (screenshots of the live system) or install (install onto a virtual disk, then boot it)
         type: choice
@@ -52,8 +56,10 @@ jobs:
           [ -n "$tag" ] || tag=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
           echo "::notice title=Testing::$tag"
           mkdir -p /mnt/iso 2>/dev/null || sudo mkdir -p /mnt/iso; sudo chown "$(id -u)" /mnt/iso
-          gh release download "$tag" -D /mnt/iso -p 'Tessera-Live.iso.part*' -p 'Tessera-Live.iso.sha256'
-          cd /mnt/iso && cat Tessera-Live.iso.part* > Tessera-Live.iso && rm Tessera-Live.iso.part* && sha256sum -c Tessera-Live.iso.sha256
+          iso="${{ inputs.iso || 'Tessera-Live.iso' }}"
+          gh release download "$tag" -D /mnt/iso -p "$iso.part*" -p "$iso.sha256"
+          cd /mnt/iso && cat "$iso".part* > "$iso" && rm "$iso".part* && sha256sum -c "$iso.sha256"
+          [ "$iso" = Tessera-Live.iso ] || mv "$iso" Tessera-Live.iso
       - name: Boot it
         timeout-minutes: 90
         run: |
