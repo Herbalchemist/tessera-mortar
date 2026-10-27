@@ -139,14 +139,32 @@ def timezones():
     return zones or ["UTC"]
 
 
+def online(timeout=5):
+    """Can this machine reach the image registry? (Any HTTP answer counts; it says 401 without a login.)"""
+    import urllib.request
+    import urllib.error
+    host = REGISTRY.split("/")[0]
+    try:
+        urllib.request.urlopen(f"https://{host}/v2/", timeout=timeout)
+        return True
+    except urllib.error.HTTPError:
+        return True
+    except Exception:  # noqa: BLE001 - no network, no DNS, timeout: all mean offline
+        return False
+
+
 def probe():
     d = images_dir()
+    # A USB without builds on it (Mortar's "Online install") downloads the chosen build while installing.
+    source = "usb" if d else "online"
     return {
         "ok": True,
+        "source": source,
+        "online": online() if source == "online" else None,
         "disks": disks(live=live_device()),
         "gpus": gpus(),
         "secureBoot": secure_boot(),
-        "images": images_available(d),
+        "images": images_available(d) if d else sorted(IMAGE_FOR.values()),
         "imagesDir": d,
         "timezones": timezones(),
         "memory": os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES"),
@@ -170,6 +188,8 @@ def check(choices, offered):
         raise Bad("Unknown graphics build.")
     if IMAGE_FOR[variant] not in offered["images"]:
         raise Bad("That graphics build isn't on this USB.")
+    if offered.get("source") == "online" and not offered.get("online"):
+        raise Bad("This USB downloads Tessera while installing: connect to the internet first.")
     user = str(choices.get("user", "")).strip().lower()
     if not USER_RE.match(user) or user in RESERVED_USERS:
         raise Bad("Pick another user name: lowercase letters and numbers, starting with a letter.")
@@ -214,7 +234,8 @@ def kickstart(c, images, pw_hash, sb_key=SB_KEY, registry=REGISTRY):
         "rootpw --lock",
         f"user --name={c['user']} --groups=wheel --iscrypted --password={pw_hash}"
         + (f' --gecos="{c["fullName"]}"' if c["fullName"] else ""),
-        f"ostreecontainer --url={images}:{c['image']} --transport=oci --no-signature-verification",
+        (f"ostreecontainer --url={images}:{c['image']} --transport=oci --no-signature-verification" if images
+         else f"ostreecontainer --url={ref} --transport=registry --no-signature-verification"),
         "",
         # Bazzite's installer does these two; Bazzite's own tools look for the bazzite_xboot label.
         "%pre-install --erroronfail",
@@ -369,6 +390,9 @@ def install(choices):
 def main(argv):
     if argv[:1] == ["probe"]:
         print(json.dumps(probe()))
+        return 0
+    if argv[:1] == ["online"]:
+        print(json.dumps({"online": online()}))
         return 0
     if argv[:1] == ["state"]:
         try:

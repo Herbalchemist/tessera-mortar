@@ -2,7 +2,7 @@
 // Mortar's window. First a choice (quick, this PC, or customized), then the drive, then the work.
 const $ = (id) => document.getElementById(id);
 const gb = (n) => `${(n / 1e9).toFixed(1)} GB`;
-const FLAVOR_NAMES = { all: 'Every graphics build (any PC)', 'amd-intel': 'AMD / Intel', nvidia: 'NVIDIA, GTX 900–1000', 'nvidia-open': 'NVIDIA, GTX 16 / RTX' };
+const FLAVOR_NAMES = { all: 'Every graphics build (any PC)', 'amd-intel': 'AMD / Intel', nvidia: 'NVIDIA, GTX 900–1000', 'nvidia-open': 'NVIDIA, GTX 16 / RTX', online: 'Online: downloads the build while installing' };
 // The usual size printed on a USB drive that holds this many bytes (drives hold a little less than they say).
 const usbFor = (bytes) => [8, 16, 32, 64, 128].find((g) => g * 1e9 * 0.93 >= bytes) || 256;
 const state = { newest: null, gpu: null, mode: null, flavor: 'all', src: 'release', file: null, drives: [], drive: null, busy: false };
@@ -24,7 +24,7 @@ async function loadNewest() {
     el.textContent = `Couldn't check GitHub: ${r.error} "Customize my install" can still use an image file you already have.`;
     el.className = 'bad center';
   } else {
-    el.textContent = `Newest Tessera: built ${dateOf(r.image.published)}. Every option installs with no internet needed.`;
+    el.textContent = `Newest Tessera: built ${dateOf(r.image.published)}. All but Online install work with no internet at all.`;
     el.className = 'muted center';
     $('ver').textContent = r.image.tag;
   }
@@ -46,6 +46,9 @@ function paintChoices() {
   else if (ok && !fl[mine]) $('thisInfo').textContent = `This PC has ${g.cards.join(' + ')} (${FLAVOR_NAMES[mine]}). USBs for one PC aren't in the newest build yet; use Quick install for now.`;
   else $('thisInfo').textContent = `This PC has ${g.cards.join(' + ') || 'its graphics'}, so only the ${FLAVOR_NAMES[mine]} build goes on the USB. For this PC, or one with the same kind of graphics.`;
   $('optThis').disabled = !ok || !mine || !fl[mine];
+  $('optOnline').disabled = !ok || !fl.online;
+  if (fl.online) $('badgeOnline').textContent = `${usbFor(fl.online.size)} GB USB`;
+  else if (ok) $('badgeOnline').textContent = 'not in this build yet';
   if (mine && fl[mine]) $('badgeThis').textContent = `${usbFor(fl[mine].size)} GB USB`;
 }
 document.querySelectorAll('.option').forEach((b) => b.addEventListener('click', () => choose(b.dataset.mode)));
@@ -53,7 +56,7 @@ document.querySelectorAll('.option').forEach((b) => b.addEventListener('click', 
 function choose(mode) {
   state.mode = mode;
   state.src = 'release';
-  state.flavor = mode === 'thispc' ? state.gpu.flavor : 'all';
+  state.flavor = mode === 'thispc' ? state.gpu.flavor : mode === 'online' ? 'online' : 'all';
   if (mode === 'custom' && !flavorsAvail().all) state.flavor = Object.keys(flavorsAvail())[0] || 'all';
   $('choose').hidden = true; $('setup').hidden = false;
   paintWhat();
@@ -70,12 +73,13 @@ function paintWhat() {
   $('extrasInfo').hidden = state.mode !== 'custom';
   $('fileInfo').hidden = !(state.mode === 'custom' && state.src === 'file' && state.file);
   if (state.mode === 'quick') $('whatInfo').textContent = `Every graphics build: installs on any PC Tessera supports. A ${gb(f.size)} download.${have(f)}`;
+  else if (state.mode === 'online') $('whatInfo').textContent = `Just the installer (a ${gb(f.size)} download).${have(f)} When you install, it picks the build for that PC's graphics and downloads it (about 5–6 GB), so connect that PC to the internet with a cable or Wi-Fi.`;
   else if (state.mode === 'thispc') $('whatInfo').textContent = `Only the ${FLAVOR_NAMES[state.flavor]} build, for this PC (${state.gpu.cards.join(' + ')}). A ${gb(f.size)} download.${have(f)}`;
   else {
     $('whatInfo').textContent = 'Pick one:';
     const box = $('flavors');
     box.replaceChildren();
-    const opts = [...['all', 'amd-intel', 'nvidia', 'nvidia-open'].map((k) => ({ k, x: fl[k] })), { k: 'file' }];
+    const opts = [...['all', 'amd-intel', 'nvidia', 'nvidia-open', 'online'].map((k) => ({ k, x: fl[k] })), { k: 'file' }];
     for (const { k, x } of opts) {
       const lab = document.createElement('label');
       const off = k !== 'file' && !x;
@@ -229,7 +233,9 @@ $('go').addEventListener('click', async () => {
       + '<li>Plug the USB into the PC that gets Tessera, and start it from the USB. The key for the boot menu is usually F12, F11, F8 or Esc.</li>'
       + '<li>Pick <b>Try or install Tessera</b>. If the screen stays black, restart and pick <b>safe graphics</b> or <b>desktop mode</b>.</li>'
       + (state.src === 'release' && state.flavor !== 'all' ? `<li>This USB carries only the ${FLAVOR_NAMES[state.flavor]} build, so use it on PCs with that kind of graphics.</li>` : '')
-      + '<li>Follow <b>Install Tessera</b>. It works with a controller, a keyboard or a mouse, and needs no internet.</li></ol>'
+      + (state.src === 'release' && state.flavor === 'online'
+        ? '<li>Follow <b>Install Tessera</b>. It works with a controller, a keyboard or a mouse. Connect that PC to the internet (a cable, or Wi-Fi when it asks): it downloads the build for its graphics, about 5–6 GB.</li></ol>'
+        : '<li>Follow <b>Install Tessera</b>. It works with a controller, a keyboard or a mouse, and needs no internet.</li></ol>')
       + '<p class="muted">The disk you install to is erased. Windows may say the USB needs formatting: choose Cancel, the drive is fine.</p>';
   } else {
     $('doneTitle').textContent = "The USB isn't ready";

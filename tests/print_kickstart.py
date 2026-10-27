@@ -15,3 +15,6 @@ for sb in ("auto", "manual"):
     c = li.check({**t.GOOD, "secureBoot": sb}, t.OFFERED)
     with open(os.path.join(out, f"tessera-{sb}.ks"), "w") as f:
         f.write(li.kickstart(c, t.OFFERED["imagesDir"], "$6$salt$hash", sb_key="/k.der"))
+c = li.check(t.GOOD, {**t.OFFERED, "source": "online", "online": True, "imagesDir": None})
+with open(os.path.join(out, "tessera-online.ks"), "w") as f:
+    f.write(li.kickstart(c, None, "$6$salt$hash", sb_key="/k.der"))

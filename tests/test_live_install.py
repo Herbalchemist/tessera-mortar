@@ -84,6 +84,21 @@ class Kickstart(unittest.TestCase):
         self.assertEqual(k.count("\n%pre-install") + k.count("\n%post"), k.count("\n%end"))
 
 
+class Online(unittest.TestCase):
+    OFF = {**OFFERED, "source": "online", "imagesDir": None}
+
+    def test_online_kickstart_pulls_from_the_registry(self):
+        c = li.check(GOOD, {**self.OFF, "online": True})
+        k = li.kickstart(c, None, "$6$salt$hash", sb_key="/k.der", registry="ghcr.io/herbalchemist")
+        self.assertIn("ostreecontainer --url=ghcr.io/herbalchemist/tessera-nvidia:latest --transport=registry", k)
+        self.assertNotIn("--transport=oci", k)
+
+    def test_offline_online_usb_is_refused(self):
+        with self.assertRaises(li.Bad) as e:
+            li.check(GOOD, {**self.OFF, "online": False})
+        self.assertIn("internet", str(e.exception))
+
+
 class Images(unittest.TestCase):
     def test_reads_ref_names(self):
         with tempfile.TemporaryDirectory() as d:

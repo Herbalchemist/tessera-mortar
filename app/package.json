@@ -1,7 +1,7 @@
 {
   "name": "tessera-mortar",
   "productName": "Tessera Mortar",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Makes a Tessera USB installer",
   "license": "GPL-3.0-or-later",
   "author": "Tessera contributors",

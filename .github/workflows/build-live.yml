@@ -87,10 +87,10 @@ jobs:
           # Screenshots go to the boot-test branch, where they can be looked at.
           mkdir -p /tmp/bt && cp boot-test/* /tmp/bt/ && tail -n 600 boot-test/serial.log > /tmp/bt/serial.log
           git config user.name "Tessera CI"; git config user.email "actions@users.noreply.github.com"
-          git checkout -q --orphan boot-test && git rm -rq --cached . && git clean -fdq -e out -e images -e cache -e one
+          git checkout -q --orphan boot-test && git rm -rq --cached . && git clean -fdq -e out -e images -e cache -e one -e none
           cp /tmp/bt/* . && git add -A . ':!out' ':!images' ':!cache' && git commit -qm "Boot test for ${GITHUB_SHA::7}" && git push -qf origin boot-test
           # back to the sources: the next step needs tools/
-          git checkout -qf "$GITHUB_SHA" && git clean -fdq -e out -e images -e cache -e one
+          git checkout -qf "$GITHUB_SHA" && git clean -fdq -e out -e images -e cache -e one -e none
 
       - name: Publish as a pre-release
         if: github.event_name == 'push' || inputs.release
@@ -114,6 +114,7 @@ jobs:
           | `Tessera-Live-amd-intel.iso.part*` | AMD / Intel only | 16 GB |
           | `Tessera-Live-nvidia.iso.part*` | NVIDIA GTX 900–1000 only | 16 GB |
           | `Tessera-Live-nvidia-open.iso.part*` | NVIDIA GTX 16 / RTX only | 16 GB |
+          | `Tessera-Live-online.iso.part*` | the installer only; downloads the build while installing (needs internet then) | 8 GB |
 
           By hand: join the parts (`cat X.iso.part* > X.iso` on Linux, `copy /b X.iso.part00+X.iso.part01+... X.iso` on Windows), check against `X.iso.sha256`, and write with Rufus (DD mode), balenaEtcher or `dd`.
           NOTES
@@ -129,6 +130,12 @@ jobs:
             echo "::notice title=Tessera-Live-$name.iso::$(stat -c %s "$WS/out/Tessera-Live-$name.iso" | awk '{printf "%.2f GB", $1/1e9}')"
             upload "$WS/out/Tessera-Live-$name.iso"
           done
+          # The installer on its own, for "Online install": it downloads the build while installing.
+          sudo rm -rf "$WS/none" && mkdir -p "$WS/none"
+          sudo ISO_NAME="Tessera-Live-online.iso" SQUASH_CACHE="$WS/cache/squashfs.img" tools/build-iso.sh localhost/tessera-live:latest "$WS/none" "$WS/out"
+          sudo chown -R "$(id -u):$(id -g)" "$WS/out"
+          echo "::notice title=Tessera-Live-online.iso::$(stat -c %s "$WS/out/Tessera-Live-online.iso" | awk '{printf "%.2f GB", $1/1e9}')"
+          upload "$WS/out/Tessera-Live-online.iso"
           echo "::notice title=Published::$tag"
           # Keep the three newest test builds.
           gh release list --limit 50 --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | grep '^usb-' | tail -n +4 |
