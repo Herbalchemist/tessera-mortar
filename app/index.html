@@ -19,17 +19,36 @@
     </div>
   </header>
 
-  <main id="setup">
-    <section class="card" id="imageCard">
+  <main id="choose">
+    <h2 class="q">How do you want to make your Tessera USB?</h2>
+    <button class="option" id="optQuick" data-mode="quick">
+      <span class="oi">⚡</span>
+      <span class="ot"><b>Quick install</b><span>Works on any PC: every graphics build is on the USB, and the installer picks the right one for the PC you install on.</span></span>
+      <span class="badge" id="badgeQuick">32 GB USB</span>
+    </button>
+    <button class="option" id="optThis" data-mode="thispc">
+      <span class="oi">🖥️</span>
+      <span class="ot"><b>Create media for this PC</b><span id="thisInfo">Looking at this PC's graphics…</span></span>
+      <span class="badge" id="badgeThis">16 GB USB</span>
+    </button>
+    <button class="option" id="optCustom" data-mode="custom">
+      <span class="oi">🧩</span>
+      <span class="ot"><b>Customize my install</b><span>Choose which graphics build goes on it, or use an image file you already have.</span></span>
+      <span class="badge">16–32 GB USB</span>
+    </button>
+    <p id="imageInfo" class="muted center">Looking for the newest Tessera…</p>
+  </main>
+
+  <main id="setup" hidden>
+    <a href="#" id="back" class="back">‹ Back</a>
+    <section class="card" id="whatCard">
       <div class="num">1</div>
       <div class="body">
-        <h2>Installer image</h2>
-        <p id="imageInfo" class="muted">Looking for the newest Tessera…</p>
-        <div class="row">
-          <label class="choice"><input type="radio" name="src" value="release" checked> <span>Newest Tessera from GitHub</span></label>
-          <label class="choice"><input type="radio" name="src" value="file"> <span>An image file I already have</span></label>
-        </div>
+        <h2>What goes on the USB</h2>
+        <p id="whatInfo" class="muted"></p>
+        <div id="flavors" class="flavors" hidden></div>
         <p id="fileInfo" class="muted" hidden></p>
+        <p id="extrasInfo" class="muted small" hidden>Extras (optional add-ons, like Xbox app compatibility) are coming to this step.</p>
       </div>
     </section>
 
@@ -37,7 +56,7 @@
       <div class="num">2</div>
       <div class="body">
         <h2>USB drive</h2>
-        <p class="muted">Plug in a USB drive of <b>32 GB or more</b>. Everything on it will be erased.</p>
+        <p class="muted" id="driveNeed">Everything on it will be erased.</p>
         <div id="drives" class="drives"></div>
       </div>
     </section>
@@ -46,7 +65,7 @@
       <div class="num">3</div>
       <div class="body">
         <h2>Make the USB</h2>
-        <p id="goInfo" class="muted">Choose an image and a drive first.</p>
+        <p id="goInfo" class="muted">Choose a drive first.</p>
         <button id="go" class="primary" disabled>Make the USB</button>
       </div>
     </section>

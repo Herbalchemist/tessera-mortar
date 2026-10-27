@@ -68,12 +68,10 @@ jobs:
           sudo tools/fetch-images.sh "$WS/images" "$@"
           df -h /
 
-      - name: Make the ISO
+      - name: Make the ISO (every build)
         run: |
-          sudo tools/build-iso.sh localhost/tessera-live:latest "$WS/images" "$WS/out"
+          sudo SQUASH_CACHE="$WS/cache/squashfs.img" tools/build-iso.sh localhost/tessera-live:latest "$WS/images" "$WS/out"
           sudo chown -R "$(id -u):$(id -g)" "$WS/out"
-          sudo rm -rf "$WS/images"
-          sudo podman rmi -a -f >/dev/null || :
           ls -la "$WS/out"; df -h /
           size=$(stat -c %s "$WS/out/Tessera-Live.iso")
           echo "::notice title=ISO size::$(awk -v s=$size 'BEGIN{printf "%.2f GB", s/1e9}')"
@@ -97,22 +95,39 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cd "$WS/out"
           tag="usb-$(date -u +%Y%m%d-%H%M)-${GITHUB_SHA::7}"
-          sha256sum Tessera-Live.iso > Tessera-Live.iso.sha256
-          split -b 1900M -d -a 2 Tessera-Live.iso Tessera-Live.iso.part
-          rm Tessera-Live.iso
+          # GitHub limits each file to 2 GB, so every ISO goes up in parts (Mortar joins them).
+          upload() { # upload FILE (then deletes it)
+            local f=$1 n; n=$(basename "$f")
+            (cd "$(dirname "$f")" && sha256sum "$n" > "$n.sha256" && split -b 1900M -d -a 2 "$n" "$n.part" && rm "$n")
+            gh release upload "$tag" "$f".part* "$f.sha256"
+            rm -f "$f".part* "$f.sha256"
+          }
           cat > notes.md <<'NOTES'
-          **Test build of the Tessera USB image.** Not ready for everyday use yet.
+          **Test build of the Tessera USB image.** Make the USB with [Tessera Mortar](https://github.com/Herbalchemist/tessera-mortar#make-a-tessera-usb-with-mortar), which downloads, joins, checks and writes it for you.
 
-          GitHub limits each file to 2 GB, so the ISO comes in parts. Download every `Tessera-Live.iso.partNN` and join them:
-          - **Linux / macOS:** `cat Tessera-Live.iso.part* > Tessera-Live.iso`
-          - **Windows (Command Prompt):** `copy /b Tessera-Live.iso.part00+Tessera-Live.iso.part01+... Tessera-Live.iso` (every part, in order)
+          | Files | What's on it | USB drive |
+          |---|---|---|
+          | `Tessera-Live.iso.part*` | every graphics build; installs on any PC | 32 GB |
+          | `Tessera-Live-amd-intel.iso.part*` | AMD / Intel only | 16 GB |
+          | `Tessera-Live-nvidia.iso.part*` | NVIDIA GTX 900–1000 only | 16 GB |
+          | `Tessera-Live-nvidia-open.iso.part*` | NVIDIA GTX 16 / RTX only | 16 GB |
 
-          Check it with `Tessera-Live.iso.sha256`, then write it to a USB drive of 32 GB or more (balenaEtcher, Fedora Media Writer, Rufus in DD mode, or `dd`). Mortar will do all of this for you once it's ready.
+          By hand: join the parts (`cat X.iso.part* > X.iso` on Linux, `copy /b X.iso.part00+X.iso.part01+... X.iso` on Windows), check against `X.iso.sha256`, and write with Rufus (DD mode), balenaEtcher or `dd`.
           NOTES
-          gh release create "$tag" --prerelease --title "Tessera USB (test) $(date -u +%Y-%m-%d)" --notes-file notes.md Tessera-Live.iso.part* Tessera-Live.iso.sha256
+          gh release create "$tag" --prerelease --title "Tessera USB (test) $(date -u +%Y-%m-%d)" --notes-file notes.md
+          upload "$WS/out/Tessera-Live.iso"
+          # One ISO per graphics build, for USBs made for one PC (smaller drives). The live system is reused.
+          for pair in tessera:amd-intel tessera-nvidia:nvidia tessera-nvidia-open:nvidia-open; do
+            img=${pair%%:*} name=${pair##*:}
+            sudo rm -rf "$WS/one"
+            sudo skopeo copy "oci:$WS/images:$img" "oci:$WS/one:$img"
+            sudo ISO_NAME="Tessera-Live-$name.iso" SQUASH_CACHE="$WS/cache/squashfs.img" tools/build-iso.sh localhost/tessera-live:latest "$WS/one" "$WS/out"
+            sudo chown -R "$(id -u):$(id -g)" "$WS/out"
+            echo "::notice title=Tessera-Live-$name.iso::$(stat -c %s "$WS/out/Tessera-Live-$name.iso" | awk '{printf "%.2f GB", $1/1e9}')"
+            upload "$WS/out/Tessera-Live-$name.iso"
+          done
           echo "::notice title=Published::$tag"
-          # Keep the three newest test builds (each is about 17 GB).
+          # Keep the three newest test builds.
           gh release list --limit 50 --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | grep '^usb-' | tail -n +4 |
             while read -r old; do gh release delete "$old" --yes --cleanup-tag; done

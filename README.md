@@ -28,7 +28,11 @@ controller-first gaming OS built on Bazzite. Mortar is what holds the tiles toge
    - **Windows:** the `.exe`. It asks for administrator rights, because writing a USB drive needs them. Mortar isn't code-signed yet, so SmartScreen may say "Windows protected your PC": choose **More info**, then **Run anyway**.
    - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties › Allow executing), then run it. It asks for your password when it writes the drive.
 2. Plug in a USB drive of **32 GB or more**. Everything on it is erased.
-3. In Mortar, check the image (the newest Tessera, or an image file you already have) and the drive, then choose **Make the USB**.
+3. In Mortar, choose how to make it:
+   - **Quick install:** every graphics build is on the USB, so it installs on any PC (32 GB USB).
+   - **Create media for this PC:** Mortar checks this PC's graphics and puts only that build on the USB (16 GB USB).
+   - **Customize my install:** pick the build yourself, or use an image file you already have. Extras are coming here.
+   Then pick the drive and choose **Make the USB**.
 4. Mortar downloads the image (about 17 GB; it resumes if interrupted, and the download is kept for your next USB), checks it, writes it, and reads the drive back to make sure it's right.
 
 Then start the PC you want Tessera on from the USB and follow **Install Tessera**.
