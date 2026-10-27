@@ -132,4 +132,4 @@ jobs:
           echo "::notice title=Published::$tag"
           # Keep the three newest test builds.
           gh release list --limit 50 --json tagName,isPrerelease --jq '.[] | select(.isPrerelease) | .tagName' | grep '^usb-' | tail -n +4 |
-            while read -r old; do gh release delete "$old" --yes --cleanup-tag; done
+            while read -r old; do gh release delete "$old" --yes --cleanup-tag || gh release delete "$old" --yes || :; done
