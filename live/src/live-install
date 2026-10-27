@@ -247,9 +247,10 @@ def kickstart(c, images, pw_hash, sb_key=SB_KEY, registry=REGISTRY):
         '[ -n "$xboot_dev" ] && e2label "$xboot_dev" bazzite_xboot',
         "%end",
         "",
-        # Updates come from the registry once the machine is online.
+        # Updates come from the registry once the machine is online, and must carry Tessera's
+        # signature (the image's /etc/containers/policy.json and /etc/pki/containers/tessera.pub).
         "%post --erroronfail --log=/tmp/tessera-origin.log",
-        f"sed -i 's|^container-image-reference=.*|container-image-reference=ostree-unverified-registry:{ref}|' /ostree/deploy/default/deploy/*.origin",
+        f"sed -i 's|^container-image-reference=.*|container-image-reference=ostree-image-signed:docker://{ref}|' /ostree/deploy/default/deploy/*.origin",
         "mkdir -p /etc/tessera",
         f"echo {q(c['user'])} > /etc/tessera/autologin-user",
         "%end",
