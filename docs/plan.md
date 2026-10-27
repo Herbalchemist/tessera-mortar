@@ -45,7 +45,7 @@ Steps:
 ## Order of work
 
 1. ✅ Measure the image sizes (`tools/measure-images.py`), to know what USB size to ask for.
-2. 🧪 Live USB plus the installer: disk, graphics, Secure Boot, install. Built by GitHub and boot-tested in a VM; next comes testing on real hardware.
+2. 🧪 Live USB plus the installer: disk, graphics, Secure Boot, install. A full offline install passes in a VM ("Iterate on the installer": about 7 minutes, then the installed system boots); next is testing on real hardware.
 3. Extras, starting with Xbox app compatibility.
 4. The Mortar app for Windows and Linux.
 
@@ -78,6 +78,14 @@ With the live boot system (a few GB) and Extras, an **every-build USB needs 32 G
 Sharing is only about 30%, because each build is chunked on its own. Two ways to shrink it later:
 - Boot the live USB from the standard build itself, so the system on the USB doubles as one of the three images (saves about 5 GB).
 - Chunk the three builds so their common parts land in identical layers.
+
+## Lessons from the VM tests
+
+- On a live system Anaconda ignores `--kickstart` (it only reads `interactive-defaults.ks`), so the live image changes that one line; the build stops if Anaconda changes there.
+- Anaconda finds the live user through `PKEXEC_UID`; live-install sets it, since it comes in through sudo.
+- Anaconda's last prompt ("Installation complete. Press ENTER") has no newline; live-install reads its output in chunks and answers it.
+- Gamescope can't run on a VM's plain virtual GPU, so in a VM the USB falls back to the KDE desktop with Install Tessera in a window. Real graphics cards get the console session.
+- The live desktop mustn't lock or blank during the install; it's set not to, and the install runs under `systemd-inhibit`.
 
 ## Open questions
 
