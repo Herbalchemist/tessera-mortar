@@ -304,32 +304,47 @@ def install(choices):
                 uid = None
         if uid and uid != "0":
             env["PKEXEC_UID"] = uid
-    p = subprocess.Popen([ANACONDA, "--liveinst", "--cmdline", f"--kickstart={ks_path}"], env=env,
-                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+    cmd = [ANACONDA, "--liveinst", "--cmdline", f"--kickstart={ks_path}"]
+    if os.path.exists("/usr/bin/systemd-inhibit"):  # no sleep or screen blanking in the middle of it
+        cmd = ["/usr/bin/systemd-inhibit", "--what=idle:sleep:handle-lid-switch", "--who=Install Tessera", "--why=Installing Tessera", *cmd]
+    p = subprocess.Popen(cmd, env=env,
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     percent, stage = 2, "Starting"
-    for raw in p.stdout:
-        line = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", raw).strip()
-        log.write(raw)
+    buf, answered = "", False
+    fd = p.stdout.fileno()
+    while True:
+        chunk = os.read(fd, 4096)
+        if not chunk:
+            break
+        text = chunk.decode("utf-8", errors="replace")
+        log.write(text)
         log.flush()
-        if not line:
-            continue
-        if "Installation complete" in line:
-            # Without a reboot command Anaconda waits for Enter at the end; the screens take it from here.
+        buf += text
+        # Without a reboot command Anaconda ends with "Installation complete. Press ENTER to quit"
+        # (no newline after it); the screens take it from there.
+        if not answered and "Installation complete" in buf:
+            answered = True
+            kmsg("anaconda finished")
             try:
-                p.stdin.write("\n")
+                p.stdin.write(b"\n")
                 p.stdin.flush()
             except OSError:
                 pass
-        for rx, pc, name in STAGES:
-            if rx.search(line) and pc >= percent:
-                if name != stage:
-                    kmsg(f"stage {name}")
-                percent, stage = pc, name
-                break
-        else:
-            if stage == "Copying Tessera onto the disk" and percent < 84:
-                percent += 0.25  # the long copy: creep forward so the bar never looks stuck
-        write_state(phase="running", percent=int(percent), line=line[:160], stage=stage, disk=c["disk"], variant=c["variant"])
+        *lines, buf = re.split(r"[\r\n]", buf)
+        for raw in lines:
+            line = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", raw).strip()
+            if not line:
+                continue
+            for rx, pc, name in STAGES:
+                if rx.search(line) and pc >= percent:
+                    if name != stage:
+                        kmsg(f"stage {name}")
+                    percent, stage = pc, name
+                    break
+            else:
+                if stage == "Copying Tessera onto the disk" and percent < 84:
+                    percent += 0.25  # the long copy: creep forward so the bar never looks stuck
+            write_state(phase="running", percent=int(percent), line=line[:160], stage=stage, disk=c["disk"], variant=c["variant"])
     code = p.wait()
     log.close()
     if code != 0:

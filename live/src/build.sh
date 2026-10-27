@@ -106,4 +106,10 @@ UNIT
 systemctl enable var-tmp.mount
 mkdir -p /etc/skel/.config
 printf '[Wallet]\nEnabled=false\n' > /etc/skel/.config/kwalletrc
+# An install takes a while: the live desktop must never lock (nobody knows the live user's password)
+# or turn the screen off.
+printf '[Daemon]\nAutolock=false\nLockOnResume=false\nTimeout=0\n' > /etc/skel/.config/kscreenlockerrc
+for p in AC Battery LowBattery; do
+  printf '[%s][Display]\nDimDisplayWhenIdle=false\nTurnOffDisplayWhenIdle=false\n\n[%s][SuspendAndShutdown]\nAutoSuspendAction=0\n\n' "$p" "$p"
+done > /etc/skel/.config/powerdevilrc
 dnf clean all
