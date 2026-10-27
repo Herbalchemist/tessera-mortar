@@ -1,0 +1,29 @@
+{
+  "name": "tessera-mortar",
+  "productName": "Tessera Mortar",
+  "version": "0.1.0",
+  "description": "Makes a Tessera USB installer",
+  "license": "GPL-3.0-or-later",
+  "author": "Tessera contributors",
+  "homepage": "https://github.com/Herbalchemist/tessera-mortar",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "dist:linux": "electron-builder --linux AppImage --publish never",
+    "dist:win": "electron-builder --win portable --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.9.1",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "io.github.herbalchemist.tessera-mortar",
+    "productName": "Tessera Mortar",
+    "artifactName": "Tessera-Mortar-${version}-${os}-${arch}.${ext}",
+    "files": ["main.js", "preload.js", "renderer.js", "index.html", "style.css", "lib/**", "bin/**", "assets/**", "package.json"],
+    "asarUnpack": ["bin/**"],
+    "linux": { "target": ["AppImage"], "category": "Utility", "icon": "assets/icon.png" },
+    "win": { "target": ["portable"], "requestedExecutionLevel": "requireAdministrator", "icon": "assets/icon.png" }
+  }
+}

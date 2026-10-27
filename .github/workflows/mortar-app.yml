@@ -1,0 +1,105 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# The Mortar app: tests, a real write test on Windows (to a virtual disk), and the downloadable
+# builds (Windows portable .exe, Linux AppImage), published as a release.
+name: Mortar app
+
+on:
+  push:
+    branches: [main]
+    paths: ['app/**', '.github/workflows/mortar-app.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Unit tests (the write test runs as root)
+        working-directory: app
+        run: sudo env "PATH=$PATH" node --test test/*.test.js
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Unit tests
+        working-directory: app
+        run: node --test test/core.test.js
+      - name: Write to a virtual disk
+        working-directory: app
+        shell: pwsh
+        run: |
+          $vhd = "$env:RUNNER_TEMP\mortar-test.vhdx"
+          "create vdisk file=`"$vhd`" maximum=256 type=expandable`nselect vdisk file=`"$vhd`"`nattach vdisk" | Set-Content "$env:RUNNER_TEMP\dp.txt" -Encoding ascii
+          diskpart /s "$env:RUNNER_TEMP\dp.txt"
+          Start-Sleep -Seconds 3
+          $n = (Get-Disk | Where-Object { $_.Location -like "*mortar-test.vhdx*" }).Number
+          if ($null -eq $n) { Get-Disk | Format-Table -AutoSize; throw "virtual disk not found" }
+          node test/windows-write.cjs $n
+
+  build:
+    needs: [test-linux, test-windows]
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: dist:linux
+          - os: windows-latest
+            target: dist:win
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Build
+        working-directory: app
+        shell: bash
+        run: |
+          npm install --no-audit --no-fund
+          npm run ${{ matrix.target }}
+          ls -la dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mortar-${{ matrix.os }}
+          path: |
+            app/dist/*.exe
+            app/dist/*.AppImage
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ver=$(node -p "require('./app/package.json').version")
+          tag="mortar-v$ver"
+          ls -la dist
+          (cd dist && sha256sum * > SHA256SUMS)
+          cat > notes.md <<'NOTES'
+          **Tessera Mortar** makes a Tessera USB installer: pick a USB drive (32 GB or more) and it downloads the newest Tessera USB image, checks it, writes it, and checks the drive.
+
+          - **Windows:** download `Tessera-Mortar-…-win-x64.exe` and run it. It asks for administrator rights (needed to write a USB drive). Mortar isn't code-signed yet, so Windows SmartScreen may say "Windows protected your PC": choose **More info**, then **Run anyway**.
+          - **Linux:** download `Tessera-Mortar-…-linux-x86_64.AppImage`, make it executable (`chmod +x`, or Properties > Allow executing), and run it. It asks for your password when it writes the drive.
+          - **macOS:** not yet. Make the USB from Windows (Boot Camp works) or Linux.
+
+          In testing: please report problems as issues.
+          NOTES
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/* --clobber
+          else
+            gh release create "$tag" --prerelease --title "Tessera Mortar $ver (testing)" --notes-file notes.md dist/*
+          fi
+          echo "::notice title=Published::$tag"
