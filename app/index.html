@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tessera Mortar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="3" y="3" width="15" height="15" rx="4" class="t1"/><rect x="22" y="3" width="15" height="15" rx="4" class="t2"/>
+      <rect x="3" y="22" width="15" height="15" rx="4" class="t3"/><rect x="22" y="22" width="15" height="15" rx="4" class="t4"/>
+    </svg>
+    <div>
+      <h1>Tessera Mortar</h1>
+      <p class="tag">Make a Tessera USB installer</p>
+    </div>
+  </header>
+
+  <main id="setup">
+    <section class="card" id="imageCard">
+      <div class="num">1</div>
+      <div class="body">
+        <h2>Installer image</h2>
+        <p id="imageInfo" class="muted">Looking for the newest Tessera…</p>
+        <div class="row">
+          <label class="choice"><input type="radio" name="src" value="release" checked> <span>Newest Tessera from GitHub</span></label>
+          <label class="choice"><input type="radio" name="src" value="file"> <span>An image file I already have</span></label>
+        </div>
+        <p id="fileInfo" class="muted" hidden></p>
+      </div>
+    </section>
+
+    <section class="card" id="driveCard">
+      <div class="num">2</div>
+      <div class="body">
+        <h2>USB drive</h2>
+        <p class="muted">Plug in a USB drive of <b>32 GB or more</b>. Everything on it will be erased.</p>
+        <div id="drives" class="drives"></div>
+      </div>
+    </section>
+
+    <section class="card go">
+      <div class="num">3</div>
+      <div class="body">
+        <h2>Make the USB</h2>
+        <p id="goInfo" class="muted">Choose an image and a drive first.</p>
+        <button id="go" class="primary" disabled>Make the USB</button>
+      </div>
+    </section>
+  </main>
+
+  <main id="working" hidden>
+    <section class="card wide">
+      <h2 id="workTitle">Making your Tessera USB</h2>
+      <ol class="steps" id="steps"></ol>
+      <div class="bar"><div id="barFill"></div></div>
+      <p id="workLine" class="muted"></p>
+      <button id="stop" class="ghost">Stop</button>
+    </section>
+  </main>
+
+  <main id="finished" hidden>
+    <section class="card wide">
+      <h2 id="doneTitle"></h2>
+      <div id="doneBody"></div>
+      <div class="row buttons">
+        <button id="again" class="primary">Make another</button>
+        <button id="help" class="ghost">How to install Tessera</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="confirm" class="overlay" hidden>
+    <div class="dialog">
+      <h2>Erase this drive?</h2>
+      <p id="confirmText"></p>
+      <div class="row buttons">
+        <button id="confirmNo" class="ghost">Cancel</button>
+        <button id="confirmYes" class="danger">Erase and write</button>
+      </div>
+    </div>
+  </div>
+
+  <footer><span id="ver"></span> · <a href="#" id="releasesLink">All builds</a> · <a href="#" id="folderLink">Download folder</a></footer>
+  <script src="renderer.js"></script>
+</body>
+</html>

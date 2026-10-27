@@ -3,7 +3,7 @@
 **The media creation tool for [Tessera](https://github.com/Herbalchemist/tessera)**, the
 controller-first gaming OS built on Bazzite. Mortar is what holds the tiles together.
 
-> **Status: testing.** The bootable Tessera USB is being tested on real hardware; the Mortar app itself comes next. The plan is in [docs/plan.md](docs/plan.md).
+> **Status: testing.** The Mortar app and the Tessera USB it makes are being tested on real hardware. The plan is in [docs/plan.md](docs/plan.md).
 
 ## What it will do
 
@@ -18,11 +18,22 @@ controller-first gaming OS built on Bazzite. Mortar is what holds the tiles toge
 
 | Making the USB on | Status |
 |---|---|
-| Linux | Planned, first |
-| Windows | Planned, first. Mortar isn't code-signed yet, so Windows shows an "unknown publisher" warning: choose *More info › Run anyway*. |
+| Linux | AppImage (testing) |
+| Windows | Portable .exe (testing). Mortar isn't code-signed yet, so Windows shows an "unknown publisher" warning: choose *More info › Run anyway*. |
 | macOS | Not yet. Signing costs money, so until then Mac users can make the USB from Windows (Boot Camp works) or Linux. |
 
-## Try the test USB (for testers)
+## Make a Tessera USB with Mortar
+
+1. Download Mortar from [Releases](https://github.com/Herbalchemist/tessera-mortar/releases) (the **Tessera Mortar** release):
+   - **Windows:** the `.exe`. It asks for administrator rights, because writing a USB drive needs them. Mortar isn't code-signed yet, so SmartScreen may say "Windows protected your PC": choose **More info**, then **Run anyway**.
+   - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties › Allow executing), then run it. It asks for your password when it writes the drive.
+2. Plug in a USB drive of **32 GB or more**. Everything on it is erased.
+3. In Mortar, check the image (the newest Tessera, or an image file you already have) and the drive, then choose **Make the USB**.
+4. Mortar downloads the image (about 17 GB; it resumes if interrupted, and the download is kept for your next USB), checks it, writes it, and reads the drive back to make sure it's right.
+
+Then start the PC you want Tessera on from the USB and follow **Install Tessera**.
+
+## Try the test USB without Mortar
 
 GitHub builds a test image of the USB after every change: see [Releases](https://github.com/Herbalchemist/tessera-mortar/releases). It's about 17 GB, so it comes in parts.
 
