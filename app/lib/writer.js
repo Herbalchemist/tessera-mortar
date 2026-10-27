@@ -15,12 +15,14 @@ const ALIGN = 4096;
 
 function writeLinux(image, drive, { onProgress = () => {}, signal } = {}) {
   return new Promise((resolve, reject) => {
-    // pkexec runs as root, which can't read inside a running AppImage, so the script goes to /tmp first.
-    const src = path.join(__dirname, '..', 'bin', 'mortar-write-linux.sh');
-    const script = path.join(os.tmpdir(), `mortar-write-${process.pid}.sh`);
-    fs.writeFileSync(script, fs.readFileSync(src), { mode: 0o755 });
+    // pkexec runs as root, which can't read inside a running AppImage. The script's text goes on the
+    // command line itself (sh -c) rather than into a file: a file in /tmp could be swapped by someone
+    // else between writing it and root running it, and the command line can't be changed once
+    // pkexec has asked for the password.
+    const script = fs.readFileSync(path.join(__dirname, '..', 'bin', 'mortar-write-linux.sh'), 'utf8');
     const asRoot = process.getuid && process.getuid() === 0;
-    const cmd = asRoot || process.env.MORTAR_NO_PKEXEC === '1' ? ['/bin/sh', script, image, drive.id] : ['pkexec', '/bin/sh', script, image, drive.id];
+    const args = ['/bin/sh', '-c', script, 'mortar-write', image, drive.id];
+    const cmd = asRoot || process.env.MORTAR_NO_PKEXEC === '1' ? args : ['pkexec', ...args];
     const total = fs.statSync(image).size;
     const child = spawn(cmd[0], cmd.slice(1), { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env } });
     let phase = 'write';
@@ -42,7 +44,6 @@ function writeLinux(image, drive, { onProgress = () => {}, signal } = {}) {
     child.stderr.on('data', (d) => { if (!error) error = String(d).trim().split('\n').pop(); });
     child.on('error', (e) => reject(new Error(e.code === 'ENOENT' ? 'pkexec is missing, so Mortar can\'t ask for permission to write the drive.' : e.message)));
     child.on('close', (code) => {
-      try { fs.rmSync(script, { force: true }); } catch { /* fine */ }
       if (signal && signal.aborted) return reject(new Error('Cancelled.'));
       if (code === 126 || code === 127) return reject(new Error('Permission to write the drive was refused.'));
       if (code !== 0 || !sha) return reject(new Error(error || `Writing the drive failed (${code}).`));
