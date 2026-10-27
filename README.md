@@ -27,15 +27,53 @@ controller-first gaming OS built on Bazzite. Mortar is what holds the tiles toge
 1. Download Mortar from [Releases](https://github.com/Herbalchemist/tessera-mortar/releases) (the **Tessera Mortar** release):
    - **Windows:** the `.exe`. It asks for administrator rights, because writing a USB drive needs them. Mortar isn't code-signed yet, so SmartScreen may say "Windows protected your PC": choose **More info**, then **Run anyway**.
    - **Linux:** the `.AppImage`. Make it executable (`chmod +x`, or Properties › Allow executing), then run it. It asks for your password when it writes the drive.
-2. Plug in a USB drive of **32 GB or more**. Everything on it is erased.
+2. Plug in a USB drive. How big depends on what goes on it (step 3); everything on it is erased.
 3. In Mortar, choose how to make it:
-   - **Quick install:** every graphics build is on the USB, so it installs on any PC (32 GB USB).
+   - **Quick install:** every graphics build is on the USB, so it installs on any PC, with no internet (32 GB USB).
    - **Create media for this PC:** Mortar checks this PC's graphics and puts only that build on the USB (16 GB USB).
    - **Customize my install:** pick the build yourself, or use an image file you already have. Extras are coming here.
+   - **Online install:** the smallest USB. It carries only the installer and downloads the right build for the PC while installing, so that PC needs internet (8 GB USB).
+
    Then pick the drive and choose **Make the USB**.
-4. Mortar downloads the image (about 17 GB; it resumes if interrupted, and the download is kept for your next USB), checks it, writes it, and reads the drive back to make sure it's right.
+4. Mortar downloads the image (5–17 GB depending on your choice; it resumes if interrupted, and the download is kept for your next USB), checks it, writes it, and reads the drive back to make sure it's right.
 
 Then start the PC you want Tessera on from the USB and follow **Install Tessera**.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/mortar-1-choose.png" alt="Mortar's first screen: Quick install, Create media for this PC, Customize my install, Online install"><br><sub>Four ways to make the USB. Mortar has spotted this PC's GTX 1050.</sub></td>
+<td width="50%"><img src="docs/screenshots/mortar-2-customize.png" alt="Customize my install: every build, AMD / Intel, two NVIDIA builds, online, or an image file"><br><sub>Customize: pick the build, with its download and USB size.</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/mortar-3-drive.png" alt="Picking a USB drive; one too small for the choice is greyed out"><br><sub>Pick the drive. Drives too small for your choice are greyed out.</sub></td>
+<td><img src="docs/screenshots/mortar-4-confirm.png" alt="Erase this drive? confirmation"><br><sub>Mortar asks before it erases anything.</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/mortar-5-writing.png" alt="Progress: download, check, write, check the USB drive"><br><sub>Download, check, write, then read the USB back.</sub></td>
+<td><img src="docs/screenshots/mortar-6-done.png" alt="Your Tessera USB is ready, with what to do next"><br><sub>Done, with what to do next.</sub></td>
+</tr>
+</table>
+
+### On the PC you install to
+
+The USB starts into **Install Tessera**, which works with a controller, a keyboard or a mouse.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/installer-1-welcome.png" alt="Welcome to Tessera: Install Tessera or Try it first"><br><sub>Install, or try it first. Nothing changes until you choose Erase and install.</sub></td>
+<td width="50%"><img src="docs/screenshots/installer-2-graphics.png" alt="Graphics: the recommended build for this computer is picked"><br><sub>The build for this PC's graphics is picked for you.</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/installer-3-secureboot.png" alt="Secure Boot: Set it up for me, or I'll handle it myself"><br><sub>Secure Boot: set it up for me, or handle it yourself.</sub></td>
+<td><img src="docs/screenshots/installer-4-summary.png" alt="Ready to install: summary of disk, graphics, account, time zone and Secure Boot"><br><sub>A summary before anything is erased.</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/installer-5-installing.png" alt="Installing Tessera: copying onto the disk, 20%"><br><sub>Installing: about 8 minutes in testing.</sub></td>
+<td><img src="docs/screenshots/installer-6-done.png" alt="Tessera is installed: Restart now"><br><sub>Installed. Take the USB out and restart.</sub></td>
+</tr>
+</table>
+
+<sub>Mortar screenshots use a stand-in drive list and GPU, so no real USB drive was written. Installer screenshots come from the automatic install test in a virtual machine, which runs Install Tessera in desktop mode (that is why it shows the VM's "Virtio" graphics).</sub>
 
 ## Try the test USB without Mortar
 
