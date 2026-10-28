@@ -1,0 +1,600 @@
+[  108.300415] localhost-live setroubleshoot[4254]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.300444] localhost-live setroubleshoot[4254]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:569): avc:  denied  { sys_admin } for  pid=3782 comm="(pcscd)" capability=21  scontext=system_u:system_r:kernel_t:s
+[  108.806660] localhost-live setroubleshoot[4257]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.806687] localhost-live setroubleshoot[4257]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:570): avc:  denied  { read_policy } for  pid=3681 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tco
+[  109.307471] localhost-live setroubleshoot[4260]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.307499] localhost-live setroubleshoot[4260]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:571): avc:  denied  { sys_ptrace } for  pid=3782 comm="(pcscd)" capability=19  scontext=system_u:system_r:kernel_t:
+[  109.811243] localhost-live setroubleshoot[4264]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.811272] localhost-live setroubleshoot[4264]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:572): avc:  denied  { read open } for  pid=3782 comm="(pcscd)" path="user:[4026532881]" dev="nsfs" ino=4026532881 s
+[  110.307939] localhost-live setroubleshoot[4268]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.307966] localhost-live setroubleshoot[4268]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:573): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/" dev="overlay" ino=2 scontext=system_u:system_
+[  110.801593] localhost-live setroubleshoot[4271]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.801617] localhost-live setroubleshoot[4271]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:574): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs" dev="tmpfs" ino=4 sco
+[  111.302727] localhost-live setroubleshoot[4275]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.302756] localhost-live setroubleshoot[4275]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:575): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/dev/kmsg" dev="devtmpf
+[  111.832265] localhost-live setroubleshoot[4278]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.832292] localhost-live setroubleshoot[4278]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.53:576): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/latency_stats" de
+[  112.335907] localhost-live setroubleshoot[4296]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.335932] localhost-live setroubleshoot[4296]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.54:577): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/sysrq-trigger" de
+[  112.830879] localhost-live setroubleshoot[4299]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.830936] localhost-live setroubleshoot[4299]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.55:578): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/run/pcscd" dev="tmpfs"
+[  113.331815] localhost-live setroubleshoot[4302]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.331841] localhost-live setroubleshoot[4302]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.57:579): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/tmp" dev="tmpfs" ino=1
+[  113.838241] localhost-live setroubleshoot[4305]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.838282] localhost-live setroubleshoot[4305]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:580): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.336887] localhost-live setroubleshoot[4308]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.336913] localhost-live setroubleshoot[4308]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:581): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.836327] localhost-live setroubleshoot[4312]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.836354] localhost-live setroubleshoot[4312]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.68:582): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.343559] localhost-live setroubleshoot[4315]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.343583] localhost-live setroubleshoot[4315]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.69:583): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.868509] localhost-live setroubleshoot[4319]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.868533] localhost-live setroubleshoot[4319]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:584): avc:  denied  { setpcap } for  pid=3782 comm="(pcscd)" capability=8  scontext=system_u:system_r:kernel_t:s0 t
+[  116.411743] localhost-live setroubleshoot[4323]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.411767] localhost-live setroubleshoot[4323]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:585): avc:  denied  { setuid } for  pid=3782 comm="(pcscd)" capability=7  scontext=system_u:system_r:kernel_t:s0 tc
+[  116.895930] localhost-live setroubleshoot[4326]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.895955] localhost-live setroubleshoot[4326]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145587.717:679): avc:  denied  { compute_av } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=syste
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-10-27T23:59:06+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS   TTY  IDLE SINCE
+      1 1000 liveuser seat0 1773   user    tty1 no   -
+      2 1000 liveuser -     1965   manager -    no   -
+
+2 sessions listed.
+==== tessera debug 2026-10-28T00:02:03+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  102.770312] localhost-live setroubleshoot[4216]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  102.770337] localhost-live setroubleshoot[4216]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145551.820:517): avc:  denied  { setsched } for  pid=1155 comm="rtkit-daemon" scontext=system_u:system_r:kernel_t:s0 tcontext
+[  103.263288] localhost-live setroubleshoot[4219]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  103.263319] localhost-live setroubleshoot[4219]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145552.886:523): avc:  denied  { name_bind } for  pid=3339 comm="cupsd" src=631 scontext=system_u:system_r:kernel_t:s0 tconte
+[  103.757150] localhost-live setroubleshoot[4222]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  103.757181] localhost-live setroubleshoot[4222]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145552.886:524): avc:  denied  { node_bind } for  pid=3339 comm="cupsd" saddr=::1 src=631 scontext=system_u:system_r:kernel_t
+[  104.242430] localhost-live setroubleshoot[4225]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  104.242456] localhost-live setroubleshoot[4225]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.79:530): avc:  denied  { read } for  pid=1599 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:s
+[  104.773808] localhost-live setroubleshoot[4231]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  104.773836] localhost-live setroubleshoot[4231]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:531): avc:  denied  { read } for  pid=908 comm="systemd-journal" name="comm" dev="proc" ino=20949 scontext=system_u
+[  105.293033] localhost-live setroubleshoot[4235]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  105.293072] localhost-live setroubleshoot[4235]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:532): avc:  denied  { open } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 sconte
+[  105.814778] localhost-live setroubleshoot[4238]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  105.814806] localhost-live setroubleshoot[4238]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:533): avc:  denied  { getattr } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 sco
+[  106.323510] localhost-live setroubleshoot[4242]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  106.323534] localhost-live setroubleshoot[4242]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:534): avc:  denied  { ioctl } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 ioctl
+[  106.813653] localhost-live setroubleshoot[4245]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  106.813676] localhost-live setroubleshoot[4245]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.155:535): avc:  denied  { name_connect } for  pid=1404 comm="NetworkManager" dest=80 scontext=system_u:system_r:kernel
+[  107.328056] localhost-live setroubleshoot[4248]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  107.328085] localhost-live setroubleshoot[4248]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145565.56:565): avc:  denied  { execute_no_trans } for  pid=3681 comm="systemd" path="/usr/lib/systemd/systemd-executor" dev=
+[  107.814628] localhost-live setroubleshoot[4251]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  107.814656] localhost-live setroubleshoot[4251]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.42:568): avc:  denied  { create } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system_
+[  108.300415] localhost-live setroubleshoot[4254]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.300444] localhost-live setroubleshoot[4254]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:569): avc:  denied  { sys_admin } for  pid=3782 comm="(pcscd)" capability=21  scontext=system_u:system_r:kernel_t:s
+[  108.806660] localhost-live setroubleshoot[4257]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.806687] localhost-live setroubleshoot[4257]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:570): avc:  denied  { read_policy } for  pid=3681 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tco
+[  109.307471] localhost-live setroubleshoot[4260]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.307499] localhost-live setroubleshoot[4260]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:571): avc:  denied  { sys_ptrace } for  pid=3782 comm="(pcscd)" capability=19  scontext=system_u:system_r:kernel_t:
+[  109.811243] localhost-live setroubleshoot[4264]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.811272] localhost-live setroubleshoot[4264]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:572): avc:  denied  { read open } for  pid=3782 comm="(pcscd)" path="user:[4026532881]" dev="nsfs" ino=4026532881 s
+[  110.307939] localhost-live setroubleshoot[4268]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.307966] localhost-live setroubleshoot[4268]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:573): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/" dev="overlay" ino=2 scontext=system_u:system_
+[  110.801593] localhost-live setroubleshoot[4271]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.801617] localhost-live setroubleshoot[4271]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:574): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs" dev="tmpfs" ino=4 sco
+[  111.302727] localhost-live setroubleshoot[4275]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.302756] localhost-live setroubleshoot[4275]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:575): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/dev/kmsg" dev="devtmpf
+[  111.832265] localhost-live setroubleshoot[4278]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.832292] localhost-live setroubleshoot[4278]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.53:576): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/latency_stats" de
+[  112.335907] localhost-live setroubleshoot[4296]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.335932] localhost-live setroubleshoot[4296]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.54:577): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/sysrq-trigger" de
+[  112.830879] localhost-live setroubleshoot[4299]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.830936] localhost-live setroubleshoot[4299]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.55:578): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/run/pcscd" dev="tmpfs"
+[  113.331815] localhost-live setroubleshoot[4302]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.331841] localhost-live setroubleshoot[4302]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.57:579): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/tmp" dev="tmpfs" ino=1
+[  113.838241] localhost-live setroubleshoot[4305]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.838282] localhost-live setroubleshoot[4305]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:580): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.336887] localhost-live setroubleshoot[4308]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.336913] localhost-live setroubleshoot[4308]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:581): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.836327] localhost-live setroubleshoot[4312]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.836354] localhost-live setroubleshoot[4312]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.68:582): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.343559] localhost-live setroubleshoot[4315]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.343583] localhost-live setroubleshoot[4315]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.69:583): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.868509] localhost-live setroubleshoot[4319]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.868533] localhost-live setroubleshoot[4319]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:584): avc:  denied  { setpcap } for  pid=3782 comm="(pcscd)" capability=8  scontext=system_u:system_r:kernel_t:s0 t
+[  116.411743] localhost-live setroubleshoot[4323]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.411767] localhost-live setroubleshoot[4323]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:585): avc:  denied  { setuid } for  pid=3782 comm="(pcscd)" capability=7  scontext=system_u:system_r:kernel_t:s0 tc
+[  116.895930] localhost-live setroubleshoot[4326]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.895955] localhost-live setroubleshoot[4326]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145587.717:679): avc:  denied  { compute_av } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=syste
+[  191.521813] localhost-live systemd[1965]: grub-boot-success.service: Failed with result 'exit-code'.
+[  191.522348] localhost-live systemd[1965]: Failed to start grub-boot-success.service - Mark boot as successful.
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-10-27T23:59:06+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS   TTY  IDLE SINCE
+      1 1000 liveuser seat0 1773   user    tty1 no   -
+      2 1000 liveuser -     1965   manager -    no   -
+
+2 sessions listed.
+==== tessera debug 2026-10-28T00:02:48+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  102.770312] localhost-live setroubleshoot[4216]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  102.770337] localhost-live setroubleshoot[4216]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145551.820:517): avc:  denied  { setsched } for  pid=1155 comm="rtkit-daemon" scontext=system_u:system_r:kernel_t:s0 tcontext
+[  103.263288] localhost-live setroubleshoot[4219]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  103.263319] localhost-live setroubleshoot[4219]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145552.886:523): avc:  denied  { name_bind } for  pid=3339 comm="cupsd" src=631 scontext=system_u:system_r:kernel_t:s0 tconte
+[  103.757150] localhost-live setroubleshoot[4222]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  103.757181] localhost-live setroubleshoot[4222]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145552.886:524): avc:  denied  { node_bind } for  pid=3339 comm="cupsd" saddr=::1 src=631 scontext=system_u:system_r:kernel_t
+[  104.242430] localhost-live setroubleshoot[4225]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  104.242456] localhost-live setroubleshoot[4225]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.79:530): avc:  denied  { read } for  pid=1599 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:s
+[  104.773808] localhost-live setroubleshoot[4231]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  104.773836] localhost-live setroubleshoot[4231]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:531): avc:  denied  { read } for  pid=908 comm="systemd-journal" name="comm" dev="proc" ino=20949 scontext=system_u
+[  105.293033] localhost-live setroubleshoot[4235]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  105.293072] localhost-live setroubleshoot[4235]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:532): avc:  denied  { open } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 sconte
+[  105.814778] localhost-live setroubleshoot[4238]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  105.814806] localhost-live setroubleshoot[4238]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:533): avc:  denied  { getattr } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 sco
+[  106.323510] localhost-live setroubleshoot[4242]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  106.323534] localhost-live setroubleshoot[4242]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:534): avc:  denied  { ioctl } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 ioctl
+[  106.813653] localhost-live setroubleshoot[4245]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  106.813676] localhost-live setroubleshoot[4245]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.155:535): avc:  denied  { name_connect } for  pid=1404 comm="NetworkManager" dest=80 scontext=system_u:system_r:kernel
+[  107.328056] localhost-live setroubleshoot[4248]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  107.328085] localhost-live setroubleshoot[4248]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145565.56:565): avc:  denied  { execute_no_trans } for  pid=3681 comm="systemd" path="/usr/lib/systemd/systemd-executor" dev=
+[  107.814628] localhost-live setroubleshoot[4251]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  107.814656] localhost-live setroubleshoot[4251]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.42:568): avc:  denied  { create } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system_
+[  108.300415] localhost-live setroubleshoot[4254]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.300444] localhost-live setroubleshoot[4254]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:569): avc:  denied  { sys_admin } for  pid=3782 comm="(pcscd)" capability=21  scontext=system_u:system_r:kernel_t:s
+[  108.806660] localhost-live setroubleshoot[4257]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.806687] localhost-live setroubleshoot[4257]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:570): avc:  denied  { read_policy } for  pid=3681 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tco
+[  109.307471] localhost-live setroubleshoot[4260]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.307499] localhost-live setroubleshoot[4260]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:571): avc:  denied  { sys_ptrace } for  pid=3782 comm="(pcscd)" capability=19  scontext=system_u:system_r:kernel_t:
+[  109.811243] localhost-live setroubleshoot[4264]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.811272] localhost-live setroubleshoot[4264]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:572): avc:  denied  { read open } for  pid=3782 comm="(pcscd)" path="user:[4026532881]" dev="nsfs" ino=4026532881 s
+[  110.307939] localhost-live setroubleshoot[4268]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.307966] localhost-live setroubleshoot[4268]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:573): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/" dev="overlay" ino=2 scontext=system_u:system_
+[  110.801593] localhost-live setroubleshoot[4271]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.801617] localhost-live setroubleshoot[4271]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:574): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs" dev="tmpfs" ino=4 sco
+[  111.302727] localhost-live setroubleshoot[4275]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.302756] localhost-live setroubleshoot[4275]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:575): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/dev/kmsg" dev="devtmpf
+[  111.832265] localhost-live setroubleshoot[4278]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.832292] localhost-live setroubleshoot[4278]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.53:576): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/latency_stats" de
+[  112.335907] localhost-live setroubleshoot[4296]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.335932] localhost-live setroubleshoot[4296]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.54:577): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/sysrq-trigger" de
+[  112.830879] localhost-live setroubleshoot[4299]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.830936] localhost-live setroubleshoot[4299]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.55:578): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/run/pcscd" dev="tmpfs"
+[  113.331815] localhost-live setroubleshoot[4302]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.331841] localhost-live setroubleshoot[4302]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.57:579): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/tmp" dev="tmpfs" ino=1
+[  113.838241] localhost-live setroubleshoot[4305]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.838282] localhost-live setroubleshoot[4305]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:580): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.336887] localhost-live setroubleshoot[4308]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.336913] localhost-live setroubleshoot[4308]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:581): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.836327] localhost-live setroubleshoot[4312]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.836354] localhost-live setroubleshoot[4312]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.68:582): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.343559] localhost-live setroubleshoot[4315]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.343583] localhost-live setroubleshoot[4315]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.69:583): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.868509] localhost-live setroubleshoot[4319]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.868533] localhost-live setroubleshoot[4319]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:584): avc:  denied  { setpcap } for  pid=3782 comm="(pcscd)" capability=8  scontext=system_u:system_r:kernel_t:s0 t
+[  116.411743] localhost-live setroubleshoot[4323]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.411767] localhost-live setroubleshoot[4323]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:585): avc:  denied  { setuid } for  pid=3782 comm="(pcscd)" capability=7  scontext=system_u:system_r:kernel_t:s0 tc
+[  116.895930] localhost-live setroubleshoot[4326]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.895955] localhost-live setroubleshoot[4326]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145587.717:679): avc:  denied  { compute_av } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=syste
+[  191.521813] localhost-live systemd[1965]: grub-boot-success.service: Failed with result 'exit-code'.
+[  191.522348] localhost-live systemd[1965]: Failed to start grub-boot-success.service - Mark boot as successful.
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-10-27T23:59:06+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS   TTY  IDLE SINCE
+      1 1000 liveuser seat0 1773   user    tty1 no   -
+      2 1000 liveuser -     1965   manager -    no   -
+
+2 sessions listed.
+==== tessera debug 2026-10-28T00:03:34+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  102.770312] localhost-live setroubleshoot[4216]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  102.770337] localhost-live setroubleshoot[4216]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145551.820:517): avc:  denied  { setsched } for  pid=1155 comm="rtkit-daemon" scontext=system_u:system_r:kernel_t:s0 tcontext
+[  103.263288] localhost-live setroubleshoot[4219]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  103.263319] localhost-live setroubleshoot[4219]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145552.886:523): avc:  denied  { name_bind } for  pid=3339 comm="cupsd" src=631 scontext=system_u:system_r:kernel_t:s0 tconte
+[  103.757150] localhost-live setroubleshoot[4222]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  103.757181] localhost-live setroubleshoot[4222]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145552.886:524): avc:  denied  { node_bind } for  pid=3339 comm="cupsd" saddr=::1 src=631 scontext=system_u:system_r:kernel_t
+[  104.242430] localhost-live setroubleshoot[4225]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  104.242456] localhost-live setroubleshoot[4225]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.79:530): avc:  denied  { read } for  pid=1599 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:s
+[  104.773808] localhost-live setroubleshoot[4231]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  104.773836] localhost-live setroubleshoot[4231]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:531): avc:  denied  { read } for  pid=908 comm="systemd-journal" name="comm" dev="proc" ino=20949 scontext=system_u
+[  105.293033] localhost-live setroubleshoot[4235]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  105.293072] localhost-live setroubleshoot[4235]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:532): avc:  denied  { open } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 sconte
+[  105.814778] localhost-live setroubleshoot[4238]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  105.814806] localhost-live setroubleshoot[4238]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:533): avc:  denied  { getattr } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 sco
+[  106.323510] localhost-live setroubleshoot[4242]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  106.323534] localhost-live setroubleshoot[4242]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.95:534): avc:  denied  { ioctl } for  pid=908 comm="systemd-journal" path="/proc/1965/comm" dev="proc" ino=20949 ioctl
+[  106.813653] localhost-live setroubleshoot[4245]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  106.813676] localhost-live setroubleshoot[4245]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145554.155:535): avc:  denied  { name_connect } for  pid=1404 comm="NetworkManager" dest=80 scontext=system_u:system_r:kernel
+[  107.328056] localhost-live setroubleshoot[4248]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  107.328085] localhost-live setroubleshoot[4248]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145565.56:565): avc:  denied  { execute_no_trans } for  pid=3681 comm="systemd" path="/usr/lib/systemd/systemd-executor" dev=
+[  107.814628] localhost-live setroubleshoot[4251]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  107.814656] localhost-live setroubleshoot[4251]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.42:568): avc:  denied  { create } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system_
+[  108.300415] localhost-live setroubleshoot[4254]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.300444] localhost-live setroubleshoot[4254]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:569): avc:  denied  { sys_admin } for  pid=3782 comm="(pcscd)" capability=21  scontext=system_u:system_r:kernel_t:s
+[  108.806660] localhost-live setroubleshoot[4257]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  108.806687] localhost-live setroubleshoot[4257]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:570): avc:  denied  { read_policy } for  pid=3681 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tco
+[  109.307471] localhost-live setroubleshoot[4260]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.307499] localhost-live setroubleshoot[4260]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:571): avc:  denied  { sys_ptrace } for  pid=3782 comm="(pcscd)" capability=19  scontext=system_u:system_r:kernel_t:
+[  109.811243] localhost-live setroubleshoot[4264]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  109.811272] localhost-live setroubleshoot[4264]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.43:572): avc:  denied  { read open } for  pid=3782 comm="(pcscd)" path="user:[4026532881]" dev="nsfs" ino=4026532881 s
+[  110.307939] localhost-live setroubleshoot[4268]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.307966] localhost-live setroubleshoot[4268]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:573): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/" dev="overlay" ino=2 scontext=system_u:system_
+[  110.801593] localhost-live setroubleshoot[4271]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  110.801617] localhost-live setroubleshoot[4271]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:574): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs" dev="tmpfs" ino=4 sco
+[  111.302727] localhost-live setroubleshoot[4275]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.302756] localhost-live setroubleshoot[4275]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.48:575): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/dev/kmsg" dev="devtmpf
+[  111.832265] localhost-live setroubleshoot[4278]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  111.832292] localhost-live setroubleshoot[4278]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.53:576): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/latency_stats" de
+[  112.335907] localhost-live setroubleshoot[4296]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.335932] localhost-live setroubleshoot[4296]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.54:577): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/proc/sysrq-trigger" de
+[  112.830879] localhost-live setroubleshoot[4299]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  112.830936] localhost-live setroubleshoot[4299]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.55:578): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/run/pcscd" dev="tmpfs"
+[  113.331815] localhost-live setroubleshoot[4302]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.331841] localhost-live setroubleshoot[4302]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.57:579): avc:  denied  { mounton } for  pid=3782 comm="(pcscd)" path="/run/systemd/mount-rootfs/tmp" dev="tmpfs" ino=1
+[  113.838241] localhost-live setroubleshoot[4305]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  113.838282] localhost-live setroubleshoot[4305]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:580): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.336887] localhost-live setroubleshoot[4308]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.336913] localhost-live setroubleshoot[4308]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.58:581): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  114.836327] localhost-live setroubleshoot[4312]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  114.836354] localhost-live setroubleshoot[4312]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.68:582): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.343559] localhost-live setroubleshoot[4315]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.343583] localhost-live setroubleshoot[4315]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.69:583): avc:  denied  { remount } for  pid=3782 comm="(pcscd)" scontext=system_u:system_r:kernel_t:s0 tcontext=system
+[  115.868509] localhost-live setroubleshoot[4319]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  115.868533] localhost-live setroubleshoot[4319]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:584): avc:  denied  { setpcap } for  pid=3782 comm="(pcscd)" capability=8  scontext=system_u:system_r:kernel_t:s0 t
+[  116.411743] localhost-live setroubleshoot[4323]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.411767] localhost-live setroubleshoot[4323]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145566.78:585): avc:  denied  { setuid } for  pid=3782 comm="(pcscd)" capability=7  scontext=system_u:system_r:kernel_t:s0 tc
+[  116.895930] localhost-live setroubleshoot[4326]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  116.895955] localhost-live setroubleshoot[4326]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793145587.717:679): avc:  denied  { compute_av } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=syste
+[  191.521813] localhost-live systemd[1965]: grub-boot-success.service: Failed with result 'exit-code'.
+[  191.522348] localhost-live systemd[1965]: Failed to start grub-boot-success.service - Mark boot as successful.
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-10-27T23:59:06+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS   TTY  IDLE SINCE
+      1 1000 liveuser seat0 1773   user    tty1 no   -
+      2 1000 liveuser -     1965   manager -    no   -
+
+2 sessions listed.
