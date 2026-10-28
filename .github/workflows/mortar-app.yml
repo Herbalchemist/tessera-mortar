@@ -89,7 +89,9 @@ jobs:
           ls -la dist
           (cd dist && sha256sum * > SHA256SUMS)
           cat > notes.md <<'NOTES'
-          **Tessera Mortar** makes a Tessera USB installer: pick a USB drive (32 GB or more) and it downloads the newest Tessera USB image, checks it, writes it, and checks the drive.
+          **Tessera Mortar** makes a Tessera USB installer: pick how (Quick install, Create media for this PC, Customize, or Online install; 8 to 32 GB USB drives) and it downloads the newest Tessera USB image, checks it, writes it, and checks the drive.
+
+          New in 0.3.1 (security): on Linux, the step that writes the drive as root no longer runs from a file in /tmp that another account could swap; it also refuses a drive that changed since you picked it, or one in use as swap. Please use this version rather than 0.3.0.
 
           - **Windows:** download `Tessera-Mortar-…-win-x64.exe` and run it. It asks for administrator rights (needed to write a USB drive). Mortar isn't code-signed yet, so Windows SmartScreen may say "Windows protected your PC": choose **More info**, then **Run anyway**.
           - **Linux:** download `Tessera-Mortar-…-linux-x86_64.AppImage`, make it executable (`chmod +x`, or Properties > Allow executing), and run it. It asks for your password when it writes the drive.
