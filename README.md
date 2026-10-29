@@ -1,4 +1,4 @@
-# Tessera Mortar
+<h1><img src="https://raw.githubusercontent.com/Herbalchemist/tessera/main/system_files/usr/share/tessera/branding/tessera-logo.svg" height="44" alt=""> Tessera Mortar</h1>
 
 **The media creation tool for [Tessera](https://github.com/Herbalchemist/tessera)**, the
 controller-first gaming OS built on Bazzite. Mortar is what holds the tiles together.
