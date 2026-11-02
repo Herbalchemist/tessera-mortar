@@ -598,5 +598,70 @@ exit $rc
         self.assertIn("Tessera starts first again", str(e.exception))
 
 
+class Graphics(Stand):
+    def setUp(self):
+        super().setUp()
+        self.pci = os.path.join(self.tmp, "pci")
+        self.card("0000:01:00.0", "0x10de", "0x2684")  # an RTX 4090: needs nvidia-open
+        os.environ["TESSERA_RECOVER_PCI"] = self.pci
+        self.bin = os.path.join(self.tmp, "bin")
+        self.calls = os.path.join(self.tmp, "calls")
+        write(os.path.join(self.bin, "grub2-editenv"), f"#!/bin/sh\nprintf '%s\\n' \"grub2-editenv $*\" >> {self.calls}\n", 0o755)
+        lr.EDITENV = os.path.join(self.bin, "grub2-editenv")
+        self.inst["boot"] = {"device": "/dev/nvme0n1p2", "path": self.boot, "uuid": "b"}
+        self.dep = self.inst["deployments"][0]["dir"]
+        write(os.path.join(self.dep, "usr", "libexec", "tessera", "boot-once"), "")
+        write(os.path.join(self.dep, "usr", "lib", "systemd", "system", "tessera-graphics-switch-once.service"), "")
+
+    def tearDown(self):
+        os.environ.pop("TESSERA_RECOVER_PCI", None)
+        lr.EDITENV = "grub2-editenv"
+        super().tearDown()
+
+    def card(self, slot, vendor, device, cls="0x030000"):
+        for n, v in (("vendor", vendor), ("device", device), ("class", cls)):
+            write(os.path.join(self.pci, slot, n), v + "\n")
+
+    def test_the_wrong_build_for_this_card_is_found(self):
+        g = lr.graphics_state(self.inst)
+        self.assertEqual((g["have"], g["want"], g["cards"]), ("standard", "nvidia-open", ["NVIDIA"]))
+        self.assertIn("needs the NVIDIA GTX 16 / RTX build".replace("needs", "need"), lr.graphics_findings(g)[0]["text"])
+
+    def test_the_right_build_has_no_finding(self):
+        shutil.rmtree(self.pci)
+        self.card("0000:03:00.0", "0x1002", "0x73bf")  # AMD
+        self.card("0000:00:02.0", "0x8086", "0x4680")  # Intel
+        self.assertEqual(lr.graphics_findings(lr.graphics_state(self.inst)), [])
+
+    def test_builds_read_from_image_names(self):
+        self.assertEqual(lr.gfx_build("ghcr.io/herbalchemist/tessera-nvidia-open:latest"), "nvidia-open")
+        self.assertEqual(lr.gfx_build("ghcr.io/herbalchemist/tessera-nvidia:stable"), "nvidia")
+        self.assertEqual(lr.gfx_build("ghcr.io/herbalchemist/tessera:latest"), "standard")
+        self.assertEqual(lr.gfx_need([{"vendor": "10de", "device": "1b80"}, {"vendor": "8086", "device": "3e92"}]), "nvidia")  # GTX 1080
+
+    def test_a_one_time_start(self):
+        self.assertIn("safe settings", lr.fix_graphics(self.inst, {"action": "safe"})[0])
+        self.assertEqual(open(self.calls).read().strip(), f"grub2-editenv {self.boot}/grub2/grubenv set tessera_once=safe")
+        with self.assertRaises(RuntimeError):
+            lr.fix_graphics(self.inst, {"action": "rm -rf"})
+
+    def test_switch_leaves_the_request_and_starts_safe(self):
+        done = lr.fix_graphics(self.inst, {"action": "switch"})
+        self.assertEqual(open(os.path.join(self.dep, "etc", "tessera", "switch-graphics")).read(), "nvidia-open\n")
+        self.assertIn("tessera_once=safe", open(self.calls).read())
+        self.assertIn("NVIDIA GTX 16 / RTX", done[0])
+        with self.assertRaises(RuntimeError):
+            lr.fix_graphics(self.inst, {"action": "switch", "to": "../../etc"})
+
+    def test_an_install_too_old_for_it_is_told_so(self):
+        os.remove(os.path.join(self.dep, "usr", "lib", "systemd", "system", "tessera-graphics-switch-once.service"))
+        with self.assertRaises(RuntimeError) as e:
+            lr.fix_graphics(self.inst, {"action": "switch"})
+        self.assertIn("Start with safe settings", str(e.exception))
+        os.remove(os.path.join(self.dep, "usr", "libexec", "tessera", "boot-once"))
+        with self.assertRaises(RuntimeError):
+            lr.fix_graphics(self.inst, {"action": "safe"})
+
+
 if __name__ == "__main__":
     unittest.main()

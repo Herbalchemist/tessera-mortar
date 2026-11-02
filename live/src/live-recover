@@ -47,7 +47,7 @@ MNT = os.environ.get("TESSERA_RECOVER_MNT", "/run/tessera-recover")
 TESSERA_ORIGIN = re.compile(r"herbalchemist/tessera", re.I)
 ID_RE = re.compile(r"^[0-9a-fA-F-]{8,40}:[A-Za-z0-9._-]{1,40}$")
 USER_RE = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
-TOOLS = ("signin", "pin", "shards", "version", "clean", "boot")
+TOOLS = ("signin", "pin", "shards", "version", "clean", "boot", "graphics")
 VERSION_ACTIONS = ("default", "keep", "unkeep")
 OSTREE = os.environ.get("TESSERA_OSTREE") or shutil.which("ostree") or "/usr/bin/ostree"
 
@@ -377,6 +377,8 @@ def diagnose(inst):
         findings.append({"key": "disk", "text": "The disk itself reports it is failing. Back up what matters as soon as you can.", "fix": None})
     bs = boot_state(inst)
     findings += boot_findings(bs)
+    gs = graphics_state(inst)
+    findings += graphics_findings(gs)
     shards_on = []
     for u in inst["users"]:
         if not u.get("path"):
@@ -389,7 +391,7 @@ def diagnose(inst):
         findings.append({"key": "shards", "text": "Shards are turned on (" + "; ".join(shards_on) + "). If one breaks start-up, turning them all off helps.", "fix": "shards"})
     if len(inst["deployments"]) > 1:
         findings.append({"key": "versions", "text": f"An earlier version ({inst['deployments'][1]['version'] or 'previous'}) is kept: Boot options can start it.", "fix": None})
-    return {"signin": si, "space": sp, "health": h, "boot": bs, "last_start": last_start(inst), "findings": findings}
+    return {"signin": si, "space": sp, "health": h, "boot": bs, "graphics": gs, "last_start": last_start(inst), "findings": findings}
 
 
 # ---------------------------------------------------------------- report
@@ -836,6 +838,107 @@ class install_target:
         return False
 
 
+# ---------------------------------------------------------------- graphics
+# The USB runs on this very machine, so it sees the graphics cards; the install's build is in its
+# image name. The rules match tessera-fix-graphics (and gpu-match.js in the launcher).
+GFX_NAMES = {"standard": "AMD / Intel", "nvidia": "NVIDIA GTX 900-1000", "nvidia-open": "NVIDIA GTX 16 / RTX"}
+ONCE = ("safe", "desktop", "console")
+GFX_ACTIONS = ONCE + ("switch",)
+EDITENV = os.environ.get("TESSERA_RECOVER_EDITENV", "grub2-editenv")
+
+
+def gfx_cards(base=None):
+    base = base or os.environ.get("TESSERA_RECOVER_PCI", "/sys/bus/pci/devices")
+    out = []
+    try:
+        names = sorted(os.listdir(base))
+    except OSError:
+        return out
+    for d in names:
+        rd = lambda n: (read(os.path.join(base, d, n)) or "").strip().lower().replace("0x", "")  # noqa: E731
+        if rd("class").startswith("03"):
+            out.append({"slot": d, "vendor": rd("vendor"), "device": rd("device")})
+    return out
+
+
+def gfx_need(cards):
+    gens = []
+    for c in cards:
+        if c["vendor"] != "10de":
+            continue
+        try:
+            dev = int(c["device"], 16)
+        except ValueError:
+            gens.append("unknown")
+            continue
+        gens.append("open" if dev >= 0x1E00 else "legacy" if dev >= 0x1300 else "unsupported")
+    if "legacy" in gens:
+        return "nvidia"
+    if "open" in gens:
+        return "nvidia-open"
+    if "unknown" in gens or not cards:
+        return None
+    return "standard"
+
+
+def gfx_build(image):
+    m = re.match(r"^(?:.*/)?[a-z0-9._-]+?(-nvidia-open|-nvidia)?(?::[A-Za-z0-9._-]+|@sha256:[0-9a-f]{64})?$", (image or "").strip())
+    if not m:
+        return None
+    return {"-nvidia-open": "nvidia-open", "-nvidia": "nvidia"}.get(m.group(1) or "", "standard")
+
+
+def graphics_state(inst):
+    have = gfx_build(inst["deployments"][0]["image"]) if inst["deployments"] else None
+    want = gfx_need(gfx_cards())
+    vendors = sorted({{"10de": "NVIDIA", "1002": "AMD", "8086": "Intel"}.get(c["vendor"], c["vendor"]) for c in gfx_cards()})
+    return {"have": have, "want": want, "cards": vendors}
+
+
+def graphics_findings(g):
+    if g["have"] and g["want"] and g["have"] != g["want"]:
+        return [{"key": "graphics", "text": f"This Tessera is the {GFX_NAMES[g['have']]} build, but this computer's graphics need the {GFX_NAMES[g['want']]} build (after a graphics card swap, a black screen at start-up is typical).", "fix": "graphics"}]
+    return []
+
+
+def set_once(inst, mode):
+    """tessera_once in the install's GRUB settings: its boot-once service reads and clears it."""
+    with boot_mounted(inst) as bm:
+        env = os.path.join(bm.target if not os.environ.get("TESSERA_RECOVER_MNT") else inst["boot"]["path"], "grub2", "grubenv")
+        r = run_tool([EDITENV, env, "set", f"tessera_once={mode}"], timeout=30)
+    if r.returncode != 0:
+        raise RuntimeError("The next start couldn't be set: " + ((r.stderr or r.stdout or "").strip()[-200:] or "grub2-editenv failed"))
+
+
+def fix_graphics(inst, req):
+    action = req.get("action")
+    if action not in GFX_ACTIONS:
+        raise RuntimeError("Unknown change.")
+    d = inst["deployments"][0]
+    has = lambda rel: os.path.exists(os.path.join(d["dir"], rel))  # noqa: E731
+    if not has("usr/libexec/tessera/boot-once"):
+        raise RuntimeError("This Tessera is too old for this: start it once with a working screen and update it, or reinstall.")
+    if action in ONCE:
+        set_once(inst, action)
+        return [{"safe": "the next start uses safe settings (no display calibration, no shards); the one after is normal",
+                 "desktop": "the next start shows the login screen (Desktop Mode, with the password); the one after is normal",
+                 "console": "the next start is a text repair console (log in with your account); the one after is normal"}[action]]
+    want = req.get("to") or graphics_state(inst)["want"]
+    if want not in GFX_NAMES:
+        raise RuntimeError("Couldn't tell which build suits these graphics.")
+    if not has("usr/lib/systemd/system/tessera-graphics-switch-once.service"):
+        raise RuntimeError("This Tessera's version can't switch builds from here yet: choose Start with safe settings, then Settings > Update software offers the switch.")
+    with writable(inst):
+        path = os.path.join(d["dir"], "etc", "tessera", "switch-graphics")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            f.write(want + "\n")
+        os.chmod(path, 0o644)
+    set_once(inst, "safe")
+    return [f"at the next start Tessera starts with safe settings and switches to the {GFX_NAMES[want]} build once it's online (a download of a few GB; keep it plugged in)",
+            "then restart once more to start the new build"]
+
+
 # ---------------------------------------------------------------- free up space
 # What can be cleared safely: all of it comes back by itself (caches, shaders) or was thrown away.
 CLEAR = {
@@ -907,7 +1010,7 @@ def fix_clean(inst, req):
     return done or ["There was nothing to clear."]
 
 
-FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version, "clean": fix_clean, "boot": fix_boot}
+FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version, "clean": fix_clean, "boot": fix_boot, "graphics": fix_graphics}
 
 
 # ---------------------------------------------------------------- back up to a USB drive
@@ -1356,7 +1459,7 @@ def main(argv):
             return out(start_check(inst, False))
         if cmd == "diagnose":
             d = diagnose(inst)
-            return out({"ok": True, "install": public(inst), "findings": d["findings"], "signin": d["signin"], "space": d["space"], "health": d["health"],
+            return out({"ok": True, "install": public(inst), "findings": d["findings"], "signin": d["signin"], "space": d["space"], "health": d["health"], "graphics": d["graphics"],
                         "lastStart": {k: v for k, v in d["last_start"].items() if k in ("recorded", "boot")}})
         if cmd == "report":
             text = report_text(inst, diagnose(inst))
@@ -1380,7 +1483,7 @@ def main(argv):
         if not password_ok(inst, req.get("user"), req.get("password")):
             return out({"ok": False, "error": "That isn't the password of an administrator account on this Tessera.", "needPassword": True})
         try:
-            return out({"ok": True, "done": FIXES[tool](inst, req) if tool in ("version", "clean") else FIXES[tool](inst)})
+            return out({"ok": True, "done": FIXES[tool](inst, req) if tool in ("version", "clean", "graphics") else FIXES[tool](inst)})
         except (OSError, RuntimeError) as e:
             return out({"ok": False, "error": f"The repair didn't finish: {e}"})
     print(__doc__)
