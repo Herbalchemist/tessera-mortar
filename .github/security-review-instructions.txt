@@ -1,0 +1,8 @@
+Tessera Mortar is an Electron app that downloads Tessera's USB image and writes it to a USB drive
+(as root through pkexec on Linux, as administrator on Windows). Pay particular attention to:
+- The drive to erase must always be re-checked in the main process against a fresh drive list that
+  never includes the system or boot disk; nothing from the page may pick another device or path.
+- Downloads must be verified against the release's SHA-256 before writing; the written USB is
+  verified afterwards.
+- Every IPC request is checked for its sender; programs run with execFile/spawn and argument lists.
+- The page's Content-Security-Policy must stay strict; no remote content in the window.

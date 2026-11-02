@@ -1,0 +1,11 @@
+# Dependabot keeps Mortar's Electron and build tools, and the workflows' actions, up to date.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/app"
+    schedule:
+      interval: "weekly"
