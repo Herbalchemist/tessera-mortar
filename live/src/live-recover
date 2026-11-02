@@ -1,0 +1,568 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Recover a Tessera that won't start, from the Tessera USB.
+
+Runs as root (the live user may run exactly this program through sudo, see sudoers.d) and is driven by
+the Recover screens in the launcher. Like live-install, it only ever acts on what `probe` found: the
+screens hand over an install's id from that list, never a path or a command of their own.
+
+  live-recover probe            the Tessera installs on this machine's disks (JSON)
+  live-recover diagnose ID      what's wrong, as far as can be seen: versions, sign-in at boot, space,
+                                the disk's health, errors from the last start (JSON)
+  live-recover report ID        a problem report from that, saved in the install's Tessera folder (JSON)
+  live-recover fix ID           a repair; JSON on stdin: {"tool": ..., "user": ..., "password": ...}
+      signin   start in Tessera at boot again (turns the automatic sign-in back on)
+      pin      remove the admin PIN (Tessera then starts without one; set a new one in Settings)
+      shards   turn off every shard (code add-on), in case one stops Tessera from starting
+    Every repair needs the password of an administrator account of that install (checked against its
+    own /etc/shadow); the password comes on stdin, never on the command line.
+
+Nothing is mounted for writing except during a repair, and only the files that repair changes are
+touched. Files in people's home folders keep their owner and permissions.
+
+TESSERA_RECOVER_MNT, TESSERA_RECOVER_LSBLK, TESSERA_LIBCRYPT are only for tests.
+"""
+import ctypes
+import ctypes.util
+import datetime
+import hmac
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+
+MNT = os.environ.get("TESSERA_RECOVER_MNT", "/run/tessera-recover")
+TESSERA_ORIGIN = re.compile(r"herbalchemist/tessera", re.I)
+ID_RE = re.compile(r"^[0-9a-fA-F-]{8,40}:[A-Za-z0-9._-]{1,40}$")
+USER_RE = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
+TOOLS = ("signin", "pin", "shards")
+
+
+def run(cmd, **kw):
+    return subprocess.run(cmd, capture_output=True, text=True, **kw)
+
+
+def read(path, limit=1 << 20):
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            return f.read(limit)
+    except OSError:
+        return None
+
+
+def kv(text):
+    """KEY=value lines (os-release, .origin) -> dict."""
+    out = {}
+    for line in (text or "").splitlines():
+        if "=" in line and not line.lstrip().startswith("#"):
+            k, v = line.split("=", 1)
+            out[k.strip()] = v.strip().strip('"')
+    return out
+
+
+# ---------------------------------------------------------------- finding installs
+def deployments(sysroot, stateroot):
+    """The deployments of one stateroot: [{dir, name, version, image, tessera}]."""
+    base = os.path.join(sysroot, "ostree", "deploy", stateroot, "deploy")
+    out = []
+    try:
+        names = sorted(os.listdir(base))
+    except OSError:
+        return out
+    for name in names:
+        d = os.path.join(base, name)
+        if name.endswith(".origin") or not os.path.isdir(d) or os.path.islink(d):
+            continue
+        rel = kv(read(os.path.join(d, "usr", "lib", "os-release")))
+        origin = read(os.path.join(base, name + ".origin")) or ""
+        image = (re.search(r"container-image-reference=\S*?docker://(\S+)", origin) or [None, ""])[1]
+        tessera = bool(TESSERA_ORIGIN.search(origin)) or "tessera" in (rel.get("NAME", "") + rel.get("PRETTY_NAME", "")).lower()
+        out.append({"dir": d, "name": name, "version": rel.get("VERSION", "") or rel.get("OSTREE_VERSION", ""),
+                    "pretty": rel.get("PRETTY_NAME", ""), "image": image, "tessera": tessera})
+    return out
+
+
+def boot_entries(boot, sysroot, stateroot):
+    """Which deployment each boot entry starts, in the boot menu's order: [{index, title, name}]."""
+    entries_dir = os.path.join(boot, "loader", "entries")
+    out = []
+    try:
+        files = sorted(f for f in os.listdir(entries_dir) if f.endswith(".conf"))
+    except OSError:
+        return out
+    for f in files:
+        conf = {}
+        for line in (read(os.path.join(entries_dir, f)) or "").splitlines():
+            parts = line.strip().split(None, 1)
+            if len(parts) == 2:
+                conf[parts[0]] = parts[1]
+        m = re.search(r"(?:^|\s)ostree=(/ostree/boot\.\d+/([^/\s]+)/[^\s]+)", conf.get("options", ""))
+        if not m or m.group(2) != stateroot:
+            continue
+        name = None
+        try:
+            target = os.readlink(os.path.join(sysroot, m.group(1).lstrip("/")))
+            name = os.path.basename(os.path.normpath(target))
+        except OSError:
+            pass
+        idx = re.search(r"\(ostree:(\d+)\)", conf.get("title", ""))
+        out.append({"index": int(idx.group(1)) if idx else len(out), "title": conf.get("title", ""), "name": name})
+    return sorted(out, key=lambda e: e["index"])
+
+
+def passwd_users(etc):
+    users = []
+    for line in (read(os.path.join(etc, "passwd")) or "").splitlines():
+        p = line.split(":")
+        if len(p) >= 7 and USER_RE.match(p[0]) and p[2].isdigit() and 1000 <= int(p[2]) < 60000 and not re.search(r"(nologin|false)$", p[6]):
+            users.append({"name": p[0], "uid": int(p[2]), "gid": int(p[3]) if p[3].isdigit() else int(p[2]), "home": p[5]})
+    return users
+
+
+def wheel(etc):
+    for line in (read(os.path.join(etc, "group")) or "").splitlines():
+        p = line.split(":")
+        if len(p) >= 4 and p[0] == "wheel":
+            return [u for u in p[3].split(",") if u]
+    return []
+
+
+def homes_root(mnt, sysroot, stateroot, users):
+    """Where the home folders are: the 'home' subvolume, or the install's /var/home."""
+    for cand in (os.path.join(mnt, "home"), os.path.join(sysroot, "ostree", "deploy", stateroot, "var", "home"), os.path.join(sysroot, "var", "home")):
+        if os.path.isdir(cand) and (not users or any(os.path.isdir(os.path.join(cand, u["name"])) for u in users)):
+            return cand
+    return None
+
+
+def find_installs(mnt, boot=None, fs=None):
+    """Tessera installs in one mounted file system (and its boot partition, if found)."""
+    found = []
+    for sysroot in (mnt, os.path.join(mnt, "root")):
+        base = os.path.join(sysroot, "ostree", "deploy")
+        try:
+            staterooots = sorted(os.listdir(base))
+        except OSError:
+            continue
+        for sr in staterooots:
+            deps = deployments(sysroot, sr)
+            if not any(d["tessera"] for d in deps):
+                continue
+            entries = boot_entries(boot, sysroot, sr) if boot else []
+            by_name = {d["name"]: d for d in deps}
+            ordered = [dict(by_name[e["name"]], index=e["index"]) for e in entries if e["name"] in by_name]
+            for d in deps:  # deployments without a boot entry (shouldn't happen) go last
+                if d["name"] not in {o["name"] for o in ordered}:
+                    ordered.append(dict(d, index=len(ordered)))
+            newest = ordered[0]
+            etc = os.path.join(newest["dir"], "etc")
+            users = passwd_users(etc)
+            hr = homes_root(mnt, sysroot, sr, users)
+            found.append({
+                "sysroot": sysroot, "stateroot": sr, "deployments": ordered, "etc": etc,
+                "users": [dict(u, admin=u["name"] in wheel(etc), path=os.path.join(hr, u["name"]) if hr else None) for u in users],
+                "hostname": (read(os.path.join(etc, "hostname")) or "").strip(),
+                "fs": fs,
+            })
+    return found
+
+
+def lsblk():
+    if os.environ.get("TESSERA_RECOVER_LSBLK"):
+        return json.loads(read(os.environ["TESSERA_RECOVER_LSBLK"]))
+    r = run(["lsblk", "-J", "-b", "-o", "NAME,PATH,PKNAME,TYPE,FSTYPE,LABEL,UUID,SIZE,RM,TRAN,MODEL,MOUNTPOINTS"])
+    return json.loads(r.stdout or '{"blockdevices": []}')
+
+
+def flat(devs, parent=None):
+    for d in devs or []:
+        yield d, parent
+        yield from flat(d.get("children"), d)
+
+
+def live_disk():
+    """The disk the live system started from (never touched)."""
+    for line in (read("/proc/mounts") or "").splitlines():
+        p = line.split()
+        if len(p) > 1 and p[1] in ("/run/initramfs/live", "/run/initramfs/isoscan"):
+            r = run(["lsblk", "-no", "PKNAME", p[0]])
+            return (r.stdout or "").strip() or os.path.basename(p[0])
+    return None
+
+
+def mount(dev, fstype, where, rw=False):
+    os.makedirs(where, exist_ok=True)
+    if os.path.ismount(where):
+        return True
+    opts = "rw" if rw else "ro"
+    if fstype == "btrfs":
+        opts += ",subvolid=5"
+    return run(["mount", "-o", opts, dev, where]).returncode == 0
+
+
+def probe():
+    """[{id, device, ...install}] for every Tessera install on this machine's disks."""
+    devs = list(flat(lsblk().get("blockdevices")))
+    skip = live_disk()
+    installs = []
+    for d, parent in devs:
+        if d.get("type") != "part" or d.get("fstype") not in ("btrfs", "xfs", "ext4") or not d.get("uuid"):
+            continue
+        disk = d.get("pkname") or (parent or {}).get("name")
+        if skip and disk == skip:
+            continue
+        where = os.path.join(MNT, d["uuid"])
+        if not mount(d["path"], d["fstype"], where):
+            continue
+        boot = None
+        for b, bp in devs:  # the boot partition: same disk, has loader/entries
+            if b.get("type") == "part" and (b.get("pkname") or (bp or {}).get("name")) == disk and b.get("fstype") in ("ext4", "xfs") and b.get("uuid") and b is not d:
+                bw = os.path.join(MNT, "boot-" + b["uuid"])
+                if mount(b["path"], b["fstype"], bw) and os.path.isdir(os.path.join(bw, "loader", "entries")):
+                    boot = {"path": bw, "device": b["path"], "uuid": b["uuid"]}
+                    break
+        for inst in find_installs(where, boot["path"] if boot else None, {"device": d["path"], "uuid": d["uuid"], "type": d["fstype"]}):
+            inst["id"] = f"{d['uuid']}:{inst['stateroot']}"
+            inst["mount"] = where
+            inst["disk"] = {"name": disk, "model": ((parent or {}).get("model") or "").strip(), "size": int((parent or {}).get("size") or 0)}
+            inst["boot"] = boot
+            installs.append(inst)
+    return installs
+
+
+def public(inst):
+    """What the screens see of an install (no paths)."""
+    return {
+        "id": inst["id"], "disk": inst.get("disk"), "hostname": inst["hostname"],
+        "versions": [{"index": d["index"], "version": d["version"], "image": d["image"]} for d in inst["deployments"]],
+        "users": [{"name": u["name"], "admin": u["admin"]} for u in inst["users"]],
+    }
+
+
+def find(install_id):
+    if not ID_RE.match(install_id or ""):
+        return None
+    for inst in probe():
+        if inst["id"] == install_id:
+            return inst
+    return None
+
+
+# ---------------------------------------------------------------- what's wrong
+def tessera_paths(user_home):
+    data = os.path.join(user_home, ".local", "share", "tessera")
+    state = os.path.join(user_home, ".local", "state", "tessera")
+    return {"settings": os.path.join(data, "settings.json"), "state": state, "vault": os.path.join(user_home, "Tessera")}
+
+
+def signin_state(inst):
+    etc = inst["etc"]
+    wants = os.path.join(etc, "systemd", "system", "multi-user.target.wants", "tessera-autologin.service")
+    return {"enabled": os.path.lexists(wants), "turned_off": os.path.exists(os.path.join(etc, "tessera", "no-autologin"))}
+
+
+def journal_dir(inst):
+    base = os.path.join(inst["sysroot"], "ostree", "deploy", inst["stateroot"], "var", "log", "journal")
+    try:
+        subs = [os.path.join(base, s) for s in os.listdir(base) if os.path.isdir(os.path.join(base, s))]
+    except OSError:
+        return None
+    return max(subs, key=os.path.getmtime) if subs else None
+
+
+def last_start(inst):
+    """Errors from the last start the install recorded."""
+    j = journal_dir(inst)
+    if not j or not shutil.which("journalctl"):
+        return {"recorded": False}
+    base = ["journalctl", "-D", j, "-b", "--no-pager", "-q", "-o", "short-monotonic"]
+    errors = run(base + ["-p", "0..3", "-n", "60"], timeout=60).stdout
+    failed = run(base + ["-g", "Failed to start|failed with result|Failed with result", "-n", "30"], timeout=60).stdout
+    when = run(["journalctl", "-D", j, "--list-boots", "--no-pager", "-q"], timeout=60).stdout.strip().splitlines()
+    return {"recorded": True, "errors": errors[-6000:], "failed": failed[-4000:], "boot": when[-1][:160] if when else ""}
+
+
+def space(path):
+    try:
+        s = os.statvfs(path)
+        return {"free": s.f_bavail * s.f_frsize, "total": s.f_blocks * s.f_frsize}
+    except OSError:
+        return None
+
+
+def health(inst):
+    out = {}
+    fs = inst.get("fs") or {}
+    if fs.get("type") == "btrfs" and shutil.which("btrfs"):
+        r = run(["btrfs", "device", "stats", inst["mount"]], timeout=30)
+        errs = {}
+        for line in r.stdout.splitlines():
+            m = re.match(r"\[(.+)\]\.(\w+)\s+(\d+)", line.strip())
+            if m and int(m.group(3)):
+                errs[m.group(2)] = errs.get(m.group(2), 0) + int(m.group(3))
+        out["filesystem_errors"] = errs
+    disk = (inst.get("disk") or {}).get("name")
+    if disk and shutil.which("smartctl"):
+        r = run(["smartctl", "-H", "-j", f"/dev/{disk}"], timeout=30)
+        try:
+            j = json.loads(r.stdout)
+            out["disk_ok"] = bool(j.get("smart_status", {}).get("passed")) if "smart_status" in j else None
+        except ValueError:
+            out["disk_ok"] = None
+    return out
+
+
+def diagnose(inst):
+    findings = []
+    si = signin_state(inst)
+    if not si["enabled"]:
+        findings.append({"key": "signin", "text": "Tessera isn't set to start at boot (its automatic sign-in is off). That shows a login screen or a text screen instead.", "fix": "signin"})
+    elif si["turned_off"]:
+        findings.append({"key": "signin", "text": "Starting in Tessera at boot was turned off on purpose (/etc/tessera/no-autologin).", "fix": "signin"})
+    sp = space(inst["mount"])
+    if sp and sp["total"] and sp["free"] < max(2 << 30, sp["total"] // 50):
+        findings.append({"key": "space", "text": f"The disk is nearly full ({sp['free'] // (1 << 20)} MB free). A full disk can stop Tessera from starting.", "fix": None})
+    h = health(inst)
+    if h.get("filesystem_errors"):
+        findings.append({"key": "fs", "text": "The file system has recorded errors: " + ", ".join(f"{k} {v}" for k, v in h["filesystem_errors"].items()) + ".", "fix": None})
+    if h.get("disk_ok") is False:
+        findings.append({"key": "disk", "text": "The disk itself reports it is failing. Back up what matters as soon as you can.", "fix": None})
+    shards_on = []
+    for u in inst["users"]:
+        if not u.get("path"):
+            continue
+        s = load_json(tessera_paths(u["path"])["settings"])
+        on = ((s or {}).get("codeAddons") or {}).get("enabled") or []
+        if on:
+            shards_on.append(f"{u['name']}: {len(on)}")
+    if shards_on:
+        findings.append({"key": "shards", "text": "Shards are turned on (" + "; ".join(shards_on) + "). If one breaks start-up, turning them all off helps.", "fix": "shards"})
+    if len(inst["deployments"]) > 1:
+        findings.append({"key": "versions", "text": f"An earlier version ({inst['deployments'][1]['version'] or 'previous'}) is kept: Boot options can start it.", "fix": None})
+    return {"signin": si, "space": sp, "health": h, "last_start": last_start(inst), "findings": findings}
+
+
+# ---------------------------------------------------------------- report
+def scrub(text, inst):
+    t = text
+    for u in inst["users"]:
+        if len(u["name"]) > 1:
+            t = re.sub(rf"\b{re.escape(u['name'])}\b", "[user]", t, flags=re.I)
+    if inst["hostname"] and inst["hostname"] not in ("tessera", "localhost"):
+        t = re.sub(rf"\b{re.escape(inst['hostname'])}\b", "[computer]", t, flags=re.I)
+    t = re.sub(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", "[e-mail]", t)
+    t = re.sub(r"\b([0-9a-f]{2}[:-]){5}[0-9a-f]{2}\b", "[hardware address]", t, flags=re.I)
+    t = re.sub(r"\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b", lambda m: m.group(0) if m.group(0) in ("127.0.0.1", "0.0.0.0") else "[ip]", t)
+    return t
+
+
+def report_text(inst, diag):
+    lines = [f"Tessera recovery report, made {datetime.datetime.now().isoformat(timespec='seconds')} from the Tessera USB.",
+             "Made on this machine when asked. Nothing in it was sent anywhere.", ""]
+    lines.append("== Versions (newest first)")
+    lines += [f"{d['index']}: {d['version'] or '?'}  {d['image']}" for d in inst["deployments"]]
+    lines += ["", "== What was found"] + [f"- {f['text']}" for f in diag["findings"]] + (["- Nothing obviously wrong."] if not diag["findings"] else [])
+    sp = diag["space"]
+    lines += ["", "== Disk", f"free {sp['free'] // (1 << 20)} MB of {sp['total'] // (1 << 20)} MB" if sp else "space unknown", f"health: {json.dumps(diag['health'])}"]
+    ls = diag["last_start"]
+    lines += ["", "== The last start", ls.get("boot", "") if ls.get("recorded") else "no system log recorded"]
+    if ls.get("recorded"):
+        lines += ["-- errors", ls["errors"].strip() or "(none)", "-- failed", ls["failed"].strip() or "(none)"]
+    return scrub("\n".join(lines) + "\n", inst)
+
+
+def save_report(inst, text):
+    """Into the first person's Tessera/Reports folder, owned by them."""
+    for u in inst["users"]:
+        if not u.get("path") or not os.path.isdir(u["path"]):
+            continue
+        with writable(inst):
+            folder = os.path.join(tessera_paths(u["path"])["vault"], "Reports")
+            os.makedirs(folder, exist_ok=True)
+            os.chown(folder, u["uid"], u["gid"])
+            name = f"tessera-recovery-report-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.txt"
+            p = os.path.join(folder, name)
+            with open(p, "w") as f:
+                f.write(text)
+            os.chown(p, u["uid"], u["gid"])
+            os.chmod(p, 0o644)
+        return f"~/Tessera/Reports/{name} ({u['name']})"
+    return None
+
+
+# ---------------------------------------------------------------- repairs
+class writable:
+    """Mounts the install's file system read-write for one repair, and back to read-only after."""
+
+    def __init__(self, inst):
+        self.inst = inst
+
+    def __enter__(self):
+        if os.environ.get("TESSERA_RECOVER_MNT"):
+            return self  # tests: plain folders
+        r = run(["mount", "-o", "remount,rw", self.inst["mount"]])
+        if r.returncode != 0:
+            raise RuntimeError("The disk couldn't be opened for changes: " + (r.stderr.strip() or "mount failed"))
+        return self
+
+    def __exit__(self, *exc):
+        if not os.environ.get("TESSERA_RECOVER_MNT"):
+            run(["sync"])
+            run(["mount", "-o", "remount,ro", self.inst["mount"]])
+        return False
+
+
+def libcrypt():
+    name = os.environ.get("TESSERA_LIBCRYPT") or ctypes.util.find_library("crypt") or "libcrypt.so.2"
+    lib = ctypes.CDLL(name)
+    lib.crypt.restype = ctypes.c_char_p
+    lib.crypt.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
+    return lib
+
+
+def password_ok(inst, user, password):
+    """The password of an administrator (wheel) of the install, checked against its own /etc/shadow."""
+    if not isinstance(user, str) or not USER_RE.match(user) or not isinstance(password, str) or not password:
+        return False
+    if user not in [u["name"] for u in inst["users"] if u["admin"]]:
+        return False
+    for line in (read(os.path.join(inst["etc"], "shadow")) or "").splitlines():
+        p = line.split(":")
+        if len(p) > 1 and p[0] == user:
+            stored = p[1]
+            if not stored.startswith("$"):
+                return False  # locked or no password
+            got = libcrypt().crypt(password.encode(), stored.encode())
+            return bool(got) and hmac.compare_digest(got.decode(), stored)
+    return False
+
+
+def load_json(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def save_json_as_owner(path, data):
+    """Rewrite a person's file keeping its owner and permissions."""
+    st = os.stat(path)
+    tmp = path + ".tessera-recover"
+    with open(tmp, "w") as f:
+        json.dump(data, f, indent=2)
+    os.chown(tmp, st.st_uid, st.st_gid)
+    os.chmod(tmp, st.st_mode & 0o7777)
+    os.replace(tmp, path)
+
+
+def fix_signin(inst):
+    done = []
+    unit = "/usr/lib/systemd/system/tessera-autologin.service"
+    with writable(inst):
+        for d in inst["deployments"]:
+            etc = os.path.join(d["dir"], "etc")
+            wants = os.path.join(etc, "systemd", "system", "multi-user.target.wants")
+            os.makedirs(wants, exist_ok=True)
+            link = os.path.join(wants, "tessera-autologin.service")
+            if not os.path.lexists(link):
+                os.symlink(unit, link)
+                done.append(f"turned on for version {d['version'] or d['index']}")
+            off = os.path.join(etc, "tessera", "no-autologin")
+            if os.path.exists(off):
+                os.remove(off)
+                done.append(f"removed /etc/tessera/no-autologin from version {d['version'] or d['index']}")
+    return done or ["It was already on."]
+
+
+def fix_settings(inst, change):
+    done = []
+    with writable(inst):
+        for u in inst["users"]:
+            if not u.get("path"):
+                continue
+            paths = tessera_paths(u["path"])
+            s = load_json(paths["settings"])
+            if s is None:
+                continue
+            said = change(s, paths)
+            if said:
+                save_json_as_owner(paths["settings"], s)
+                done.append(f"{u['name']}: {said}")
+    return done
+
+
+def fix_pin(inst):
+    def change(s, paths):
+        had = s.pop("pin", None) is not None
+        tries = os.path.join(paths["state"], "pin-tries.json")
+        if os.path.exists(tries):
+            os.remove(tries)
+        return "the admin PIN was removed" if had else None
+    return fix_settings(inst, change) or ["No admin PIN was set."]
+
+
+def fix_shards(inst):
+    def change(s, _paths):
+        ca = s.get("codeAddons")
+        if isinstance(ca, dict) and ca.get("enabled"):
+            n = len(ca["enabled"])
+            ca["enabled"] = []
+            return f"{n} shard{'s' if n != 1 else ''} turned off"
+        return None
+    return fix_settings(inst, change) or ["No shards were on."]
+
+
+FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards}
+
+
+# ---------------------------------------------------------------- command line
+def out(obj):
+    print(json.dumps(obj))
+    return 0 if obj.get("ok") else 1
+
+
+def main(argv):
+    if not argv:
+        print(__doc__)
+        return 2
+    cmd = argv[0]
+    if cmd == "probe":
+        return out({"ok": True, "installs": [public(i) for i in probe()]})
+    if cmd in ("diagnose", "report", "fix"):
+        inst = find(argv[1] if len(argv) > 1 else "")
+        if not inst:
+            return out({"ok": False, "error": "That Tessera install isn't there any more."})
+        if cmd == "diagnose":
+            d = diagnose(inst)
+            return out({"ok": True, "install": public(inst), "findings": d["findings"], "signin": d["signin"], "space": d["space"], "health": d["health"],
+                        "lastStart": {k: v for k, v in d["last_start"].items() if k in ("recorded", "boot")}})
+        if cmd == "report":
+            text = report_text(inst, diagnose(inst))
+            try:
+                saved = save_report(inst, text)
+            except (OSError, RuntimeError) as e:
+                saved = None
+                text += f"\n(Couldn't save it on the disk: {e})\n"
+            return out({"ok": True, "text": text, "saved": saved})
+        try:
+            req = json.loads(sys.stdin.read(65536) or "{}")
+        except ValueError:
+            req = {}
+        tool = req.get("tool")
+        if tool not in TOOLS:
+            return out({"ok": False, "error": "Unknown repair."})
+        if not password_ok(inst, req.get("user"), req.get("password")):
+            return out({"ok": False, "error": "That isn't the password of an administrator account on this Tessera.", "needPassword": True})
+        try:
+            return out({"ok": True, "done": FIXES[tool](inst)})
+        except (OSError, RuntimeError) as e:
+            return out({"ok": False, "error": f"The repair didn't finish: {e}"})
+    print(__doc__)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

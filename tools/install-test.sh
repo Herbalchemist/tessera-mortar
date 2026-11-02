@@ -60,5 +60,17 @@ echo "== first boot from the disk"
 vm installed
 for t in 60 120 180 240 300; do sleep 60; shot "firstboot-${t}s"; done
 stop
+
+# Recover, on the disk Anaconda just made: the USB again, with the installed disk attached. With
+# tessera.recovertest the live system runs live-recover's look-only commands once and writes what
+# they found to the serial console (serial-recover.log), between "tessera-recovertest" markers.
+echo "== recover: the USB again, finding the installed Tessera"
+vm recover -kernel "$work/vmlinuz" -initrd "$work/initrd.img" \
+  -append "root=live:CDLABEL=Tessera-Live rd.live.image enforcing=0 console=tty0 console=ttyS0,115200 tessera.recovertest ${BOOT_ARGS:-}" \
+  -drive file="$ISO",media=cdrom,readonly=on
+for t in 1 2 3 4 5 6; do sleep 60; grep -aq "tessera-recovertest: end" "$OUT/serial-recover.log" 2>/dev/null && break; done
+shot recover
+stop
+sed -n '/tessera-recovertest: begin/,/tessera-recovertest: end/p' "$OUT/serial-recover.log" > "$OUT/recover.txt" 2>/dev/null || :
 for f in "$OUT"/*.ppm; do [ -f "$f" ] && convert "$f" "${f%.ppm}.png" && rm -f "$f"; done
 ls -la "$OUT"

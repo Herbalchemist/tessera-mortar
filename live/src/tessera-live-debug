@@ -2,6 +2,23 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Live USB, only with "tessera.debug" on the kernel command line: every 45 seconds, copies the recent
 # system log and Tessera's session log to the serial console, for testing in virtual machines.
+# With "tessera.recovertest" instead: once, runs live-recover's look-only commands (probe, diagnose)
+# and writes what they found to the serial console, for the install test (tools/install-test.sh).
+if grep -qw 'tessera.recovertest' /proc/cmdline; then
+  sleep 40
+  out=/dev/ttyS0; [ -w "$out" ] || out=/dev/console
+  {
+    echo "tessera-recovertest: begin"
+    /usr/libexec/tessera/live-recover probe
+    for id in $(/usr/libexec/tessera/live-recover probe | python3 -c 'import json,sys; [print(i["id"]) for i in json.load(sys.stdin).get("installs", [])]'); do
+      echo "-- diagnose $id"; /usr/libexec/tessera/live-recover diagnose "$id"
+    done
+    echo "-- mounts"; grep tessera-recover /proc/mounts
+    echo "-- lsblk"; lsblk -o NAME,FSTYPE,LABEL,SIZE,MOUNTPOINTS
+    echo "tessera-recovertest: end"
+  } > "$out" 2>&1
+  exit 0
+fi
 grep -qw 'tessera.debug' /proc/cmdline || exit 0
 out=/dev/ttyS0
 [ -w "$out" ] || out=/dev/console

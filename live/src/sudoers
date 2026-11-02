@@ -1,3 +1,4 @@
-# The live user (the person trying Tessera from the USB) may run the installer helper as root, and
-# nothing else through this rule. live-install checks everything it's handed.
-liveuser ALL=(root) NOPASSWD: /usr/libexec/tessera/live-install
+# The live user (the person trying Tessera from the USB) may run the installer and recovery helpers as
+# root, and nothing else through this rule. Both check everything they're handed, and every repair
+# live-recover makes needs the password of an administrator of the install it repairs.
+liveuser ALL=(root) NOPASSWD: /usr/libexec/tessera/live-install, /usr/libexec/tessera/live-recover

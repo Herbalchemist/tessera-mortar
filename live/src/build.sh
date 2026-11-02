@@ -44,6 +44,7 @@ rm -rf "$(dirname "$ana")/__pycache__/startup_utils."*
 mkdir -p /etc/anaconda/profile.d /usr/libexec/tessera /usr/share/tessera-install
 cp "$SRC/anaconda-profile.conf" /etc/anaconda/profile.d/tessera.conf
 install -m 0755 "$SRC/live-install" /usr/libexec/tessera/live-install
+install -m 0755 "$SRC/live-recover" /usr/libexec/tessera/live-recover   # Recover: repairs an installed Tessera
 install -m 0440 "$SRC/sudoers" /etc/sudoers.d/tessera-live-install
 # Universal Blue's Secure Boot key: queued for enrollment so the installed system's kernel and drivers can boot.
 # It comes from the image itself (Bazzite ships it), never from a download: every machine installed from
