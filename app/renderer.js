@@ -145,6 +145,7 @@ function renderDrives() {
     b.dataset.id = d.id;
     const small = Boolean(need) && d.size < need;
     b.disabled = small;
+    // safe-html: driveIcon() returns a fixed SVG
     b.innerHTML = driveIcon();
     const t = document.createElement('div');
     const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = d.name;
@@ -229,6 +230,7 @@ $('go').addEventListener('click', async () => {
   if (r.ok) {
     $('doneTitle').textContent = 'Your Tessera USB is ready';
     $('doneTitle').className = 'ok';
+    // safe-html: Mortar's own wording, a duration it formats itself and its own build names; the error text below goes in as text
     body.innerHTML = '<p>It took ' + fmtTime((Date.now() - t0) / 1000) + '. To install Tessera:</p><ol>'
       + '<li>Plug the USB into the PC that gets Tessera, and start it from the USB. The key for the boot menu is usually F12, F11, F8 or Esc.</li>'
       + '<li>Pick <b>Try or install Tessera</b>. If the screen stays black, restart and pick <b>safe graphics</b> or <b>desktop mode</b>.</li>'

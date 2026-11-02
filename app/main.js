@@ -17,6 +17,14 @@ const downloadDir = () => process.env.MORTAR_DOWNLOAD_DIR || path.join(app.getPa
 const isoFor = (img, flavor) => path.join(downloadDir(), `Tessera-Live-${img.tag}${flavor === 'all' ? '' : `-${flavor}`}.iso`);
 const freeSpace = (dir) => { try { const s = fs.statfsSync(dir); return s.bavail * s.bsize; } catch { return Infinity; } };
 let newestCache = null;
+// The image file the person picked in the file dialog: the only file Mortar will write from disk.
+let chosenIso = null;
+
+// Every request must come from Mortar's own page (the main frame of its window); anything else is
+// refused before a handler sees it. Set up before the handlers below are added.
+const trusted = (e) => Boolean(e && win && !win.isDestroyed() && e.sender === win.webContents && e.senderFrame === win.webContents.mainFrame);
+const handle = ipcMain.handle.bind(ipcMain);
+ipcMain.handle = (channel, fn) => handle(channel, (e, ...args) => (trusted(e) ? fn(e, ...args) : { ok: false, error: 'Not allowed.' }));
 
 async function listDrives() {
   if (process.env.MORTAR_FAKE_DRIVES) return JSON.parse(process.env.MORTAR_FAKE_DRIVES);
@@ -56,6 +64,7 @@ ipcMain.handle('chooseIso', async () => {
   const r = await dialog.showOpenDialog(win, { title: 'Choose a Tessera USB image', filters: [{ name: 'Disk images', extensions: ['iso', 'img'] }], properties: ['openFile'] });
   if (r.canceled || !r.filePaths[0]) return null;
   const p = r.filePaths[0];
+  chosenIso = p;
   return { path: p, name: path.basename(p), size: fs.statSync(p).size };
 });
 ipcMain.handle('open', (_e, what) => {
@@ -80,7 +89,8 @@ ipcMain.handle('make', async (_e, req) => {
     let image;
     let expected = null;
     if (req.source && req.source.type === 'file') {
-      image = req.source.path;
+      if (!chosenIso || req.source.path !== chosenIso) throw new Error('Choose the image file again.');
+      image = chosenIso;
       if (!fs.existsSync(image)) throw new Error("The image file isn't there any more.");
       const shaFile = `${image}.sha256`;
       if (fs.existsSync(shaFile)) expected = releases.parseSha(fs.readFileSync(shaFile, 'utf8'));
@@ -130,7 +140,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 940, height: 720, minWidth: 720, minHeight: 600, title: 'Tessera Mortar', backgroundColor: '#120f1c', show: false,
     autoHideMenuBar: true,
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, devTools: !app.isPackaged || process.env.MORTAR_DEV === '1' },
   });
   win.removeMenu();
   win.once('ready-to-show', () => win.show());
