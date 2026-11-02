@@ -31,9 +31,9 @@ reaching Boot options, is never enough to change anything.
 | Start in Tessera at boot again | Turns the automatic sign-in back on (the "stuck at a text screen" case) | ✅ 1 |
 | Remove the admin PIN | For a forgotten PIN (and its waiting time) | ✅ 1 |
 | Turn off all shards | In case an add-on stops Tessera from starting | ✅ 1 |
-| Versions | Start or make default any kept version; keep the original install for good; undo the last update | 2 |
+| Versions | Start or make default any kept version; keep the original install for good; undo the last update | ✅ 2 |
 | Back up to a USB drive | One person's home folder: "my files" (all but installed games and caches; saves kept) or everything. In the background with progress; links and 4 GB+ files a FAT drive can't hold are listed in "not copied.txt" | ✅ 2 |
-| Free up space | What's using it; clear caches and old versions | 2 |
+| Free up space | What uses the disk per person; clear caches, shader caches and the trash (games and files never) | ✅ 2 |
 | Check and repair the disk | File system check and repair, the drive's health, said plainly | 2 |
 | Repair the boot menu | When Windows or a firmware update broke it | 2 |
 | Graphics | Switch the graphics build; start with safe graphics | 2 |
