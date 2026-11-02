@@ -31,6 +31,9 @@ cp -v /boot/efi/EFI/fedora/grubx64.efi /boot/efi/EFI/BOOT/fbx64.efi
 mkdir -p /usr/lib/bootc-image-builder
 cp "$SRC/iso.yaml" /usr/lib/bootc-image-builder/iso.yaml
 
+### Recover's disk tools (Check and repair the disk); most are in the image already
+dnf install -y smartmontools e2fsprogs dosfstools btrfs-progs xfsprogs
+
 ### The install engine: Anaconda, driven by a kickstart from live-install
 dnf install -y --allowerasing anaconda-live libblockdev-{btrfs,lvm,dm} mokutil openssl
 # Anaconda ignores a kickstart given with --kickstart when it runs on a live system (--liveinst), and

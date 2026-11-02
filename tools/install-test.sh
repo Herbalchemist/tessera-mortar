@@ -72,7 +72,7 @@ vm recover -kernel "$work/vmlinuz" -initrd "$work/initrd.img" \
   -append "root=live:CDLABEL=Tessera-Live rd.live.image enforcing=0 console=tty0 console=ttyS0,115200 tessera.recovertest ${BOOT_ARGS:-}" \
   -drive file="$ISO",media=cdrom,readonly=on \
   -device qemu-xhci,id=xhci -drive if=none,id=stick,format=raw,file="$work/stick.img" -device usb-storage,bus=xhci.0,drive=stick
-for t in 1 2 3 4 5 6; do sleep 60; grep -aq "tessera-recovertest: end" "$OUT/serial-recover.log" 2>/dev/null && break; done
+for t in $(seq 1 15); do sleep 60; grep -aq "tessera-recovertest: end" "$OUT/serial-recover.log" 2>/dev/null && break; done
 shot recover
 stop
 sed -n '/tessera-recovertest: begin/,/tessera-recovertest: end/p' "$OUT/serial-recover.log" > "$OUT/recover.txt" 2>/dev/null || :

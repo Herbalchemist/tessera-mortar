@@ -28,6 +28,12 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
                  '{"tool": "version", "action": "default", "index": 1, "user": "tesstester", "password": "tessera1"}'; do
         echo "-- fix $req"; echo "$req" | /usr/libexec/tessera/live-recover fix "$id"
       done
+      for mode in look repair; do
+        echo "-- check ($mode)"
+        if [ $mode = look ]; then /usr/libexec/tessera/live-recover check "$id"; else echo '{"user": "tesstester", "password": "tessera1"}' | /usr/libexec/tessera/live-recover check "$id" --repair; fi
+        for t in $(seq 1 600); do /usr/libexec/tessera/live-recover state | grep -q '"phase": "checking"' || break; sleep 1; done
+        /usr/libexec/tessera/live-recover state
+      done
       echo "-- drives"; /usr/libexec/tessera/live-recover drives
       stick=$(/usr/libexec/tessera/live-recover drives | python3 -c 'import json,sys; d=json.load(sys.stdin).get("drives") or [{}]; print(d[0].get("uuid",""))')
       if [ -n "$stick" ]; then

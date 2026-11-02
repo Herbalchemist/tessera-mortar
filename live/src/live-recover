@@ -14,8 +14,10 @@ screens hand over an install's id from that list, never a path or a command of t
   live-recover drives           USB drives a backup can go to (JSON)
   live-recover backup ID        copy a home folder to a USB drive, in the background; JSON on stdin:
                                 {"user": admin, "password": ..., "who": person, "drive": uuid, "what": "mine"|"all"}
-  live-recover state            the backup's progress (JSON)
-  live-recover cancel           stop the backup
+  live-recover check ID         check the disk, read-only, in the background
+  live-recover check ID --repair   ...and repair what is safe to; JSON on stdin: {"user": admin, "password": ...}
+  live-recover state            the backup's or check's progress (JSON)
+  live-recover cancel           stop it
   live-recover fix ID           a repair; JSON on stdin: {"tool": ..., "user": ..., "password": ...}
       clean    free up space: {"what": ["caches", "shaders", "trash"]} in everyone's home folder
       signin   start in Tessera at boot again (turns the automatic sign-in back on)
@@ -39,6 +41,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 MNT = os.environ.get("TESSERA_RECOVER_MNT", "/run/tessera-recover")
 TESSERA_ORIGIN = re.compile(r"herbalchemist/tessera", re.I)
@@ -835,9 +838,9 @@ def backup_job(inst, who, drive, what):
         now = datetime.datetime.now().timestamp()
         if now - last[0] > 0.5:
             last[0] = now
-            write_state(phase="copying", done=done, total=total, line=name[-120:], pid=os.getpid())
+            write_state(job="backup", phase="copying", done=done, total=total, line=name[-120:], pid=os.getpid())
 
-    write_state(phase="copying", done=0, total=0, line="Counting what to copy…", pid=os.getpid())
+    write_state(job="backup", phase="copying", done=0, total=0, line="Counting what to copy…", pid=os.getpid())
     try:
         r = copy_tree(who["path"], dest, SKIP_MINE if what == "mine" else SKIP_ALL, drive["fstype"], progress, lambda: os.path.exists(stopfile))
         run(["sync"])
@@ -847,13 +850,13 @@ def backup_job(inst, who, drive, what):
                 f.write(listing + "\n")
         if not os.environ.get("TESSERA_RECOVER_MNT"):
             run(["umount", drive["path"]])  # safe to unplug
-        write_state(phase="done", done=r["bytes"], total=r["total"], copied=r["copied"], skipped=len(r["skipped"]),
+        write_state(job="backup", phase="done", done=r["bytes"], total=r["total"], copied=r["copied"], skipped=len(r["skipped"]),
                     folder=os.path.basename(os.path.dirname(dest)), drive=drive.get("label") or drive.get("model") or "the USB drive")
     except (OSError, RuntimeError) as e:
         if not os.environ.get("TESSERA_RECOVER_MNT"):
             run(["sync"])
             run(["umount", drive["path"]])
-        write_state(phase="error" if str(e) != "Stopped." else "canceled", error=str(e))
+        write_state(job="backup", phase="error" if str(e) != "Stopped." else "canceled", error=str(e))
 
 
 def start_backup(inst, req):
@@ -867,11 +870,20 @@ def start_backup(inst, req):
         return {"ok": False, "error": "That USB drive can't be written to (is it locked, or full of errors?)."}
     if req.get("what") not in ("mine", "all"):
         return {"ok": False, "error": "Unknown choice."}
+    if job_running():
+        return {"ok": False, "error": "A backup or disk check is already running."}
+    return background(lambda: backup_job(inst, who, drive, req["what"]))
+
+
+def job_running():
     st = load_json(state_file()) or {}
-    if st.get("phase") == "copying" and st.get("pid") and os.path.exists(f"/proc/{st['pid']}"):
-        return {"ok": False, "error": "A backup is already running."}
+    return st.get("phase") in ("copying", "checking") and bool(st.get("pid")) and os.path.exists(f"/proc/{st['pid']}")
+
+
+def background(job):
+    """Runs a long job after answering (the screens follow it with "state")."""
     if os.environ.get("TESSERA_RECOVER_FOREGROUND"):
-        backup_job(inst, who, drive, req["what"])
+        job()
         return {"ok": True, "started": True}
     pid = os.fork()
     if pid:
@@ -882,9 +894,213 @@ def start_backup(inst, req):
         os.dup2(dn_out.fileno(), 1)
         os.dup2(dn_out.fileno(), 2)
     try:
-        backup_job(inst, who, drive, req["what"])
+        job()
     finally:
         os._exit(0)
+
+
+# ---------------------------------------------------------------- check and repair the disk
+# Look: every check is read-only. Repair: only repairs that are safe to run unattended. The
+# boot partitions get their file system tools' automatic ("preen") repairs; the main btrfs file
+# system gets a scrub, which rewrites damaged blocks from their second copy (btrfs keeps two of its
+# own records, not of files). "btrfs check --repair" is never run: its own manual warns it can make
+# things worse. What can't be repaired safely is said plainly, with damaged files named.
+
+def run_tool(cmd, timeout=1800):
+    try:
+        return run(cmd, timeout=timeout)
+    except FileNotFoundError:
+        return subprocess.CompletedProcess(cmd, 127, "", f"{cmd[0]} isn't on this USB")
+    except subprocess.TimeoutExpired:
+        return subprocess.CompletedProcess(cmd, 124, "", "took too long")
+
+
+def drive_health(disk):
+    """The drive's own health report (SMART), said plainly: (ok, text)."""
+    r = run_tool(["smartctl", "-a", "-j", f"/dev/{disk}"], timeout=60)
+    try:
+        j = json.loads(r.stdout or "")
+    except ValueError:
+        return None, "The drive's health report couldn't be read (not every drive or adapter has one)."
+    notes = []
+    passed = (j.get("smart_status") or {}).get("passed")
+    nv = j.get("nvme_smart_health_information_log") or {}
+    if nv:
+        if nv.get("critical_warning"):
+            notes.append("the drive reports a critical warning")
+        if nv.get("media_errors"):
+            notes.append(f"{nv['media_errors']} unreadable-data errors recorded")
+        if (nv.get("percentage_used") or 0) >= 90:
+            notes.append(f"{nv['percentage_used']}% of its rated life used")
+    for a in (j.get("ata_smart_attributes") or {}).get("table") or []:
+        raw = ((a.get("raw") or {}).get("value")) or 0
+        if a.get("id") in (5, 197, 198) and raw:
+            notes.append({5: f"{raw} worn-out sectors replaced", 197: f"{raw} sectors waiting to be replaced", 198: f"{raw} sectors that can't be read"}[a["id"]])
+    if passed is False:
+        return False, "The drive says it is failing. Back up what you can now and replace it." + (f" ({'; '.join(notes)})" if notes else "")
+    if notes:
+        return False, "The drive is wearing out: " + "; ".join(notes) + ". Back up your files soon."
+    if passed is None:
+        return None, "The drive gives no health report."
+    return True, "The drive reports good health."
+
+
+def disk_parts(inst):
+    """The install disk's EFI and boot partitions: [(label, device, fstype)]."""
+    disk = (inst.get("disk") or {}).get("name")
+    out = []
+    for d, parent in flat(lsblk().get("blockdevices")):
+        if d.get("type") != "part" or (d.get("pkname") or (parent or {}).get("name")) != disk:
+            continue
+        if d.get("fstype") == "vfat":
+            out.append(("The start-up (EFI) partition", d["path"], "vfat"))
+        elif (inst.get("boot") or {}).get("device") == d.get("path"):
+            out.append(("The boot partition", d["path"], d.get("fstype") or "ext4"))
+    return out
+
+
+def check_partition(label, dev, fstype, repair):
+    """(ok, text) for a small partition, unmounted first."""
+    release(dev)
+    if mounts_of(dev):
+        return None, f"{label} is in use and couldn't be checked."
+    if fstype == "vfat":
+        r = run_tool(["fsck.fat", "-a" if repair else "-n", "-w", dev], timeout=600)
+        if r.returncode == 0:
+            return True, f"{label}: no problems."
+        if r.returncode == 1:
+            return (True, f"{label}: problems found and repaired.") if repair else (False, f"{label}: problems found (Repair can fix them).")
+    elif fstype in ("ext4", "ext3", "ext2"):
+        r = run_tool(["e2fsck", "-f", "-p" if repair else "-n", dev], timeout=1800)
+        if r.returncode == 0:
+            return True, f"{label}: no problems."
+        if r.returncode in (1, 2) and repair:
+            return True, f"{label}: problems found and repaired."
+        if r.returncode == 4 and not repair:
+            return False, f"{label}: problems found (Repair can try to fix them)."
+        if r.returncode == 4:
+            return False, f"{label}: problems that are not safe to repair automatically. Reinstall, keep my stuff, rebuilds it."
+    elif fstype == "xfs":
+        r = run_tool(["xfs_repair"] + ([] if repair else ["-n"]) + [dev], timeout=1800)
+        if r.returncode == 0:
+            return True, f"{label}: no problems." if not repair else f"{label}: checked and repaired where needed."
+        if r.returncode == 1 and not repair:
+            return False, f"{label}: problems found (Repair can try to fix them)."
+    else:
+        return None, f"{label}: its file system ({fstype}) isn't checked here."
+    return False, f"{label}: the check didn't finish ({(r.stderr or r.stdout or '').strip()[-200:]})."
+
+
+SCRUB_NUM = re.compile(r"^\s*(\w+):\s+(\d+)\s*$")
+
+
+def scrub_status(mnt):
+    r = run_tool(["btrfs", "scrub", "status", "-R", mnt], timeout=60)
+    st = {"status": ""}
+    for line in (r.stdout or "").splitlines():
+        m = SCRUB_NUM.match(line)
+        if m:
+            st[m.group(1)] = int(m.group(2))
+        elif line.strip().lower().startswith("status:"):
+            st["status"] = line.split(":", 1)[1].strip().lower()
+    return st
+
+
+def damaged_files(since):
+    """Files the kernel named while checking (btrfs logs "path: ..." for each bad block it reads)."""
+    r = run_tool(["dmesg", "--since", since] if since else ["dmesg"], timeout=30)
+    files = []
+    for line in (r.stdout or "").splitlines():
+        m = re.search(r"BTRFS.*(?:checksum error|unable to fixup).*path: (.+?)\)?$", line)
+        if m and m.group(1) not in files:
+            files.append(m.group(1))
+    return files[:200]
+
+
+def fs_scrub(inst, repair, progress, stop):
+    """(ok, text, files) for the main file system."""
+    mnt = inst["mount"]
+    sp = space(mnt) or {"total": 0, "free": 0}
+    used = max(1, sp["total"] - sp["free"])
+    since = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    r = run_tool(["btrfs", "scrub", "start"] + ([] if repair else ["-r"]) + [mnt], timeout=60)
+    if r.returncode != 0:
+        return False, "The main file system couldn't be checked: " + ((r.stderr or r.stdout or "").strip()[-200:] or "scrub didn't start"), []
+    while True:
+        time.sleep(0 if os.environ.get("TESSERA_RECOVER_MNT") else 2)
+        st = scrub_status(mnt)
+        progress(st.get("data_bytes_scrubbed", 0) + st.get("tree_bytes_scrubbed", 0), used)
+        if stop():
+            run_tool(["btrfs", "scrub", "cancel", mnt], timeout=60)
+            raise RuntimeError("Stopped.")
+        if st["status"] and st["status"] != "running":
+            break
+    errors = sum(st.get(k, 0) for k in ("read_errors", "csum_errors", "verify_errors", "super_errors"))
+    bad = st.get("uncorrectable_errors", 0)
+    fixed = st.get("corrected_errors", 0)
+    files = damaged_files(since) if errors or bad else []
+    if st["status"] not in ("finished",):
+        return False, f"The check of the main file system stopped ({st['status'] or 'unknown'}).", files
+    if not errors and not bad:
+        return True, "The main file system: every block checked, no damage.", []
+    if repair and not bad:
+        return True, f"The main file system: {fixed} damaged block{'s' if fixed != 1 else ''} repaired from their second copy.", files
+    if repair:
+        return False, f"The main file system: {bad} damaged block{'s' if bad != 1 else ''} with no second copy to repair from." + (" The files they belong to are listed; copy what you can with Back up, and get them again (games: verify them in Steam)." if files else " Back up what you can."), files
+    return False, f"The main file system: {errors} damaged block{'s' if errors != 1 else ''} found (Repair rewrites what has a second copy).", files
+
+
+def check_job(inst, repair):
+    stopfile = os.path.join(MNT, "check.stop")
+    if os.path.exists(stopfile):
+        os.remove(stopfile)
+    stop = lambda: os.path.exists(stopfile)  # noqa: E731
+    results, files = [], []
+
+    def step(n, text, done=0, total=0):
+        write_state(job="check", phase="checking", step=n, steps=4, line=text, done=done, total=total, repair=repair, pid=os.getpid())
+
+    try:
+        step(1, "The drive's health")
+        disk = (inst.get("disk") or {}).get("name")
+        results.append(drive_health(disk) if disk else (None, "The drive wasn't found."))
+        step(2, "The start-up and boot partitions")
+        for label, dev, fstype in disk_parts(inst):
+            if stop():
+                raise RuntimeError("Stopped.")
+            results.append(check_partition(label, dev, fstype, repair))
+        step(3, "The main file system")
+        if (inst.get("fs") or {}).get("type") == "btrfs":
+            def progress(done, total):
+                step(3, "The main file system (every block is read)", done, total)
+            if repair:
+                with writable(inst):
+                    ok, text, files = fs_scrub(inst, True, progress, stop)
+            else:
+                ok, text, files = fs_scrub(inst, False, progress, stop)
+            results.append((ok, text))
+        step(4, "The file system's error counters")
+        errs = health(inst).get("filesystem_errors") or {}
+        if errs:
+            if repair and all(ok is not False for ok, _ in results[-1:]):
+                run_tool(["btrfs", "device", "stats", "-z", inst["mount"]], timeout=30)
+                results.append((True, "Old error counts were cleared (the check above found nothing left)."))
+            else:
+                results.append((False, "Errors recorded earlier: " + ", ".join(f"{k} {v}" for k, v in errs.items()) + "."))
+        bad = any(ok is False for ok, _ in results)
+        write_state(job="check", phase="done", repair=repair, ok=not bad,
+                    results=[{"ok": ok, "text": text} for ok, text in results], files=files)
+    except (OSError, RuntimeError) as e:
+        if str(e) == "Stopped.":
+            write_state(job="check", phase="canceled")
+        else:
+            write_state(job="check", phase="error", error=str(e))
+
+
+def start_check(inst, repair):
+    if job_running():
+        return {"ok": False, "error": "A backup or disk check is already running."}
+    return background(lambda: check_job(inst, repair))
 
 
 # ---------------------------------------------------------------- command line
@@ -905,14 +1121,17 @@ def main(argv):
     if cmd == "state":
         return out({"ok": True, **(load_json(state_file()) or {"phase": "idle"})})
     if cmd == "cancel":
-        open(os.path.join(MNT, "backup.stop"), "w").close()
+        for n in ("backup.stop", "check.stop"):
+            open(os.path.join(MNT, n), "w").close()
         return out({"ok": True})
-    if cmd in ("diagnose", "report", "fix", "backup", "space"):
+    if cmd in ("diagnose", "report", "fix", "backup", "space", "check"):
         inst = find(argv[1] if len(argv) > 1 else "")
         if not inst:
             return out({"ok": False, "error": "That Tessera install isn't there any more."})
         if cmd == "space":
             return out({"ok": True, **space_use(inst)})
+        if cmd == "check" and "--repair" not in argv:
+            return out(start_check(inst, False))
         if cmd == "diagnose":
             d = diagnose(inst)
             return out({"ok": True, "install": public(inst), "findings": d["findings"], "signin": d["signin"], "space": d["space"], "health": d["health"],
@@ -929,10 +1148,10 @@ def main(argv):
             req = json.loads(sys.stdin.read(65536) or "{}")
         except ValueError:
             req = {}
-        if cmd == "backup":
+        if cmd in ("backup", "check"):
             if not password_ok(inst, req.get("user"), req.get("password")):
                 return out({"ok": False, "error": "That isn't the password of an administrator account on this Tessera.", "needPassword": True})
-            return out(start_backup(inst, req))
+            return out(start_backup(inst, req) if cmd == "backup" else start_check(inst, True))
         tool = req.get("tool")
         if tool not in TOOLS:
             return out({"ok": False, "error": "Unknown repair."})

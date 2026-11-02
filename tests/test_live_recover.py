@@ -362,5 +362,126 @@ class FreeUpSpace(Stand):
             lr.fix_clean(self.inst, {"what": ["games"]})
 
 
+class DiskCheck(Stand):
+    """Check and repair the disk, with stand-ins for smartctl, fsck.fat, e2fsck, btrfs and dmesg that
+    answer from files and record how they were called."""
+
+    def setUp(self):
+        super().setUp()
+        self.old_mnt, lr.MNT = lr.MNT, self.tmp
+        os.environ["TESSERA_RECOVER_FOREGROUND"] = "1"
+        self.bin = os.path.join(self.tmp, "bin")
+        self.calls = os.path.join(self.tmp, "calls")
+        for tool in ("smartctl", "fsck.fat", "e2fsck", "btrfs", "dmesg"):
+            write(os.path.join(self.bin, tool), f"""#!/bin/sh
+echo "{tool} $*" >> {self.calls}
+key=$(echo "{tool} $1 $2" | tr ' ./-' '____')
+[ -f "{self.tmp}/out.$key" ] && cat "{self.tmp}/out.$key"
+[ -f "{self.tmp}/out.{tool}" ] && cat "{self.tmp}/out.{tool}"
+exit $(cat "{self.tmp}/rc.{tool}" 2>/dev/null || echo 0)
+""", 0o755)
+        self.old_path = os.environ["PATH"]
+        os.environ["PATH"] = self.bin + os.pathsep + self.old_path
+        self.inst["disk"] = {"name": "nvme0n1"}
+        self.inst["boot"] = {"device": "/dev/nvme0n1p2", "path": self.boot, "uuid": "b"}
+        lsblk = {"blockdevices": [{"name": "nvme0n1", "path": "/dev/nvme0n1", "type": "disk", "children": [
+            {"name": "nvme0n1p1", "path": "/dev/nvme0n1p1", "pkname": "nvme0n1", "type": "part", "fstype": "vfat", "uuid": "E"},
+            {"name": "nvme0n1p2", "path": "/dev/nvme0n1p2", "pkname": "nvme0n1", "type": "part", "fstype": "ext4", "uuid": "b"},
+            {"name": "nvme0n1p3", "path": "/dev/nvme0n1p3", "pkname": "nvme0n1", "type": "part", "fstype": "btrfs", "uuid": "1234-abcd"}]}]}
+        write(os.path.join(self.tmp, "lsblk.json"), json.dumps(lsblk))
+        os.environ["TESSERA_RECOVER_LSBLK"] = os.path.join(self.tmp, "lsblk.json")
+        self.answer("smartctl", json.dumps({"smart_status": {"passed": True}, "nvme_smart_health_information_log": {"critical_warning": 0, "media_errors": 0, "percentage_used": 3}}))
+        self.scrub_says("finished", {})
+
+    def tearDown(self):
+        lr.MNT = self.old_mnt
+        os.environ["PATH"] = self.old_path
+        for k in ("TESSERA_RECOVER_FOREGROUND", "TESSERA_RECOVER_LSBLK"):
+            os.environ.pop(k, None)
+        super().tearDown()
+
+    def answer(self, tool, text, rc=0):
+        write(os.path.join(self.tmp, f"out.{tool}"), text)
+        write(os.path.join(self.tmp, f"rc.{tool}"), str(rc))
+
+    def scrub_says(self, status, counts):
+        body = f"UUID: x\nStatus: {status}\n" + "".join(f"\t{k}: {v}\n" for k, v in {"data_bytes_scrubbed": 100, "tree_bytes_scrubbed": 10, **counts}.items())
+        write(os.path.join(self.tmp, "out.btrfs_scrub_status"), body)
+
+    def called(self):
+        with open(self.calls) as f:
+            return f.read().splitlines()
+
+    def result(self):
+        return lr.load_json(lr.state_file())
+
+    def test_a_healthy_disk_is_checked_read_only(self):
+        self.assertTrue(lr.start_check(self.inst, False)["ok"])
+        st = self.result()
+        self.assertEqual((st["phase"], st["ok"], st["repair"]), ("done", True, False))
+        self.assertEqual([r["text"] for r in st["results"]], [
+            "The drive reports good health.", "The start-up (EFI) partition: no problems.",
+            "The boot partition: no problems.", "The main file system: every block checked, no damage."])
+        calls = self.called()
+        self.assertIn("fsck.fat -n -w /dev/nvme0n1p1", calls)
+        self.assertIn("e2fsck -f -n /dev/nvme0n1p2", calls)
+        self.assertIn(f"btrfs scrub start -r {self.mnt}", calls)
+        self.assertFalse(any(c.startswith(("fsck.fat -a", "e2fsck -f -p", "btrfs check")) or c == f"btrfs scrub start {self.mnt}" for c in calls))
+
+    def test_repair_uses_only_the_safe_repairs(self):
+        lr.start_check(self.inst, True)
+        calls = self.called()
+        self.assertIn("fsck.fat -a -w /dev/nvme0n1p1", calls)
+        self.assertIn("e2fsck -f -p /dev/nvme0n1p2", calls)
+        self.assertIn(f"btrfs scrub start {self.mnt}", calls)
+        self.assertFalse(any(c.startswith("btrfs check") for c in calls))
+
+    def test_damage_without_a_second_copy_names_the_files(self):
+        self.scrub_says("finished", {"csum_errors": 2, "uncorrectable_errors": 2})
+        write(os.path.join(self.tmp, "out.dmesg"), "[1.0] BTRFS warning (device nvme0n1p3): checksum error at logical 1 on dev /dev/nvme0n1p3, physical 2, root 5, inode 257, offset 0, length 4096, links 1 (path: alex/Games/big.bin)\n")
+        lr.start_check(self.inst, True)
+        st = self.result()
+        self.assertFalse(st["ok"])
+        self.assertEqual(st["files"], ["alex/Games/big.bin"])
+        self.assertIn("2 damaged blocks with no second copy", st["results"][-1]["text"])
+
+    def test_a_failing_drive_is_said_plainly(self):
+        self.answer("smartctl", json.dumps({"smart_status": {"passed": True}, "ata_smart_attributes": {"table": [{"id": 5, "raw": {"value": 12}}, {"id": 197, "raw": {"value": 3}}]}}))
+        ok, text = lr.drive_health("sda")
+        self.assertFalse(ok)
+        self.assertIn("12 worn-out sectors replaced; 3 sectors waiting to be replaced", text)
+        self.answer("smartctl", json.dumps({"smart_status": {"passed": False}}))
+        self.assertIn("failing", lr.drive_health("sda")[1])
+        self.answer("smartctl", "not json")
+        self.assertIsNone(lr.drive_health("sda")[0])
+
+    def test_boot_partition_problems_too_deep_for_automatic_repair(self):
+        def fake(cmd, timeout=0):
+            return lr.subprocess.CompletedProcess(cmd, 4 if cmd[0] == "e2fsck" else 0, "", "")
+        orig, lr.run_tool = lr.run_tool, fake
+        try:
+            self.assertEqual(lr.check_partition("The boot partition", "/dev/x", "ext4", False), (False, "The boot partition: problems found (Repair can try to fix them)."))
+            self.assertIn("not safe to repair automatically", lr.check_partition("The boot partition", "/dev/x", "ext4", True)[1])
+        finally:
+            lr.run_tool = orig
+
+    def test_repair_needs_the_password_but_looking_does_not(self):
+        import io, sys
+        find, lr.find = lr.find, lambda i: self.inst
+        old = sys.stdin, sys.stdout
+        try:
+            sys.stdin, sys.stdout = io.StringIO(json.dumps({"user": "alex", "password": "nope"})), io.StringIO()
+            lr.main(["check", self.inst["id"], "--repair"])
+            self.assertTrue(json.loads(sys.stdout.getvalue()).get("needPassword"))
+            self.assertFalse(os.path.exists(self.calls))
+            sys.stdin, sys.stdout = io.StringIO(""), io.StringIO()
+            lr.main(["check", self.inst["id"]])
+            self.assertTrue(json.loads(sys.stdout.getvalue())["ok"])
+        finally:
+            sys.stdin, sys.stdout = old
+            lr.find = find
+        self.assertEqual(self.result()["repair"], False)
+
+
 if __name__ == "__main__":
     unittest.main()
