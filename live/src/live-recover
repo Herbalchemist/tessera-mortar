@@ -1118,7 +1118,7 @@ def check_partition(label, dev, fstype, repair):
     if mounts_of(dev):
         return None, f"{label} is in use and couldn't be checked."
     if fstype == "vfat":
-        r = run_tool(["fsck.fat", "-a" if repair else "-n", "-w", dev], timeout=600)
+        r = run_tool(["fsck.fat"] + (["-a", "-w"] if repair else ["-n"]) + [dev], timeout=600)  # -w only with -a
         if r.returncode == 0:
             return True, f"{label}: no problems."
         if r.returncode == 1:

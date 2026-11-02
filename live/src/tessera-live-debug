@@ -50,7 +50,8 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
         echo "-- backup"; printf '{"user": "tesstester", "password": "tessera1", "who": "tesstester", "drive": "%s", "what": "mine"}' "$stick" | /usr/libexec/tessera/live-recover backup "$id"
         for t in $(seq 1 120); do /usr/libexec/tessera/live-recover state | grep -q '"phase": "copying"' || break; sleep 1; done
         echo "-- backup state"; /usr/libexec/tessera/live-recover state
-        echo "-- on the stick"; find /run/tessera-recover/usb-"$stick" -maxdepth 3 | head -20
+        echo "-- the home folder"; for h in /run/tessera-recover/*/home/tesstester /run/tessera-recover/*/var/home/tesstester; do [ -d "$h" ] && { du -sb "$h"; find "$h" -type f -printf '%s %P\n' | head -15; }; done
+        echo "-- on the stick"; mkdir -p /tmp/stick && mount -o ro UUID="$stick" /tmp/stick && { find /tmp/stick -type f -printf '%s %P\n' | head -20; umount /tmp/stick; }
       fi
       echo "-- after"; /usr/libexec/tessera/live-recover probe
       for e in /run/tessera-recover/boot-*/loader/entries/*.conf; do echo "$e: $(grep -E '^(title|options)' "$e" | tr '\n' ' ' | cut -c1-200)"; done

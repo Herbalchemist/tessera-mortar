@@ -423,7 +423,7 @@ exit $(cat "{self.tmp}/rc.{tool}" 2>/dev/null || echo 0)
             "The drive reports good health.", "The start-up (EFI) partition: no problems.",
             "The boot partition: no problems.", "The main file system: every block checked, no damage."])
         calls = self.called()
-        self.assertIn("fsck.fat -n -w /dev/nvme0n1p1", calls)
+        self.assertIn("fsck.fat -n /dev/nvme0n1p1", calls)
         self.assertIn("e2fsck -f -n /dev/nvme0n1p2", calls)
         self.assertIn(f"btrfs scrub start -r {self.mnt}", calls)
         self.assertFalse(any(c.startswith(("fsck.fat -a", "e2fsck -f -p", "btrfs check")) or c == f"btrfs scrub start {self.mnt}" for c in calls))
