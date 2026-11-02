@@ -923,7 +923,7 @@ def fix_graphics(inst, req):
     if action in ONCE:
         set_once(inst, action)
         return [{"safe": "the next start uses safe settings (no display calibration, no shards); the one after is normal",
-                 "desktop": "the next start shows the login screen (Desktop Mode, with the password); the one after is normal",
+                 "desktop": "the next start shows the login screen (for Opus, the desktop; it needs the password); the one after is normal",
                  "console": "the next start is a text repair console (log in with your account); the one after is normal"}[action]]
     want = req.get("to") or graphics_state(inst)["want"]
     if want not in GFX_NAMES:
