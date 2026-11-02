@@ -168,3 +168,23 @@ class CommandLine(Stand):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Layouts(Stand):
+    def test_home_folders_in_a_var_subvolume_are_found(self):
+        shutil.move(os.path.join(self.mnt, "home"), os.path.join(self.tmp, "home-moved"))
+        os.makedirs(os.path.join(self.mnt, "var"))
+        shutil.move(os.path.join(self.tmp, "home-moved"), os.path.join(self.mnt, "var", "home"))
+        inst = lr.find_installs(self.mnt, self.boot, {})[0]
+        self.assertEqual(inst["users"][0]["path"], os.path.join(self.mnt, "var", "home", "alex"))
+
+    def test_the_journal_is_found_in_a_var_subvolume(self):
+        j = os.path.join(self.mnt, "var", "log", "journal", "0123abcd")
+        os.makedirs(j)
+        self.assertEqual(lr.journal_dir(self.inst), j)
+
+    def test_version_names_without_the_edition(self):
+        d = os.path.join(self.mnt, "root", "ostree", "deploy", "default", "deploy", "aaa.0", "usr", "lib", "os-release")
+        write(d, 'NAME="Tessera"\nVERSION="44.20261026.0 (Kinoite)"\n')
+        inst = lr.find_installs(self.mnt, self.boot, {})[0]
+        self.assertEqual(inst["deployments"][0]["version"], "44.20261026.0")

@@ -79,7 +79,8 @@ def deployments(sysroot, stateroot):
         origin = read(os.path.join(base, name + ".origin")) or ""
         image = (re.search(r"container-image-reference=\S*?docker://(\S+)", origin) or [None, ""])[1]
         tessera = bool(TESSERA_ORIGIN.search(origin)) or "tessera" in (rel.get("NAME", "") + rel.get("PRETTY_NAME", "")).lower()
-        out.append({"dir": d, "name": name, "version": rel.get("VERSION", "") or rel.get("OSTREE_VERSION", ""),
+        version = rel.get("OSTREE_VERSION") or rel.get("IMAGE_VERSION") or re.sub(r"\s*\(.*\)$", "", rel.get("VERSION", ""))
+        out.append({"dir": d, "name": name, "version": version,
                     "pretty": rel.get("PRETTY_NAME", ""), "image": image, "tessera": tessera})
     return out
 
@@ -129,9 +130,15 @@ def wheel(etc):
     return []
 
 
+def var_roots(mnt, sysroot, stateroot):
+    """Where the install's /var may be: its own subvolume ('var'), or the stateroot's var folder."""
+    return [p for p in (os.path.join(mnt, "var"), os.path.join(sysroot, "ostree", "deploy", stateroot, "var")) if os.path.isdir(p)]
+
+
 def homes_root(mnt, sysroot, stateroot, users):
     """Where the home folders are: the 'home' subvolume, or the install's /var/home."""
-    for cand in (os.path.join(mnt, "home"), os.path.join(sysroot, "ostree", "deploy", stateroot, "var", "home"), os.path.join(sysroot, "var", "home")):
+    cands = [os.path.join(mnt, "home")] + [os.path.join(v, "home") for v in var_roots(mnt, sysroot, stateroot)] + [os.path.join(sysroot, "var", "home")]
+    for cand in cands:
         if os.path.isdir(cand) and (not users or any(os.path.isdir(os.path.join(cand, u["name"])) for u in users)):
             return cand
     return None
@@ -264,11 +271,13 @@ def signin_state(inst):
 
 
 def journal_dir(inst):
-    base = os.path.join(inst["sysroot"], "ostree", "deploy", inst["stateroot"], "var", "log", "journal")
-    try:
-        subs = [os.path.join(base, s) for s in os.listdir(base) if os.path.isdir(os.path.join(base, s))]
-    except OSError:
-        return None
+    subs = []
+    for var in var_roots(inst["mount"], inst["sysroot"], inst["stateroot"]):
+        base = os.path.join(var, "log", "journal")
+        try:
+            subs += [os.path.join(base, s) for s in os.listdir(base) if os.path.isdir(os.path.join(base, s))]
+        except OSError:
+            pass
     return max(subs, key=os.path.getmtime) if subs else None
 
 

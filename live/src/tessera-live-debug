@@ -13,6 +13,9 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
     for id in $(/usr/libexec/tessera/live-recover probe | python3 -c 'import json,sys; [print(i["id"]) for i in json.load(sys.stdin).get("installs", [])]'); do
       echo "-- diagnose $id"; /usr/libexec/tessera/live-recover diagnose "$id"
     done
+    echo "-- layout"; for m in /run/tessera-recover/*/; do echo "$m: $(ls "$m" | tr '\n' ' ')"; command -v btrfs >/dev/null && btrfs subvolume list "$m" 2>/dev/null | head -20; done
+    for j in /run/tessera-recover/*/var/log/journal /run/tessera-recover/*/root/ostree/deploy/*/var/log/journal /run/tessera-recover/*/ostree/deploy/*/var/log/journal; do [ -d "$j" ] && echo "journal: $j $(ls "$j" | head -3 | tr '\n' ' ')"; done
+    for h in /run/tessera-recover/*/home /run/tessera-recover/*/var/home /run/tessera-recover/*/root/ostree/deploy/*/var/home; do [ -d "$h" ] && echo "homes: $h $(ls "$h" | tr '\n' ' ')"; done
     echo "-- mounts"; grep tessera-recover /proc/mounts
     echo "-- lsblk"; lsblk -o NAME,FSTYPE,LABEL,SIZE,MOUNTPOINTS
     echo "tessera-recovertest: end"
