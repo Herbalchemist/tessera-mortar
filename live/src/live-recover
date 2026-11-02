@@ -686,10 +686,12 @@ def boot_state(inst):
         for rel in ("EFI/fedora/shimx64.efi", "EFI/fedora/grubx64.efi", "EFI/fedora/grub.cfg", "EFI/BOOT/BOOTX64.EFI"):
             if not os.path.isfile(os.path.join(where, rel)):
                 out["missing"].append(rel)
-        cfg = read(os.path.join(where, "EFI", "fedora", "grub.cfg")) or ""
+        # the pointer to the boot partition: in grub.cfg itself, or (bootupd) in bootuuid.cfg next to it
+        cfg = "".join(read(os.path.join(where, "EFI", "fedora", n)) or "" for n in ("grub.cfg", "bootuuid.cfg"))
         b = inst.get("boot") or {}
-        if cfg and b.get("uuid"):
-            out["pointer"] = b["uuid"] in cfg
+        named = set(re.findall(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", cfg))
+        if b.get("uuid") and named:
+            out["pointer"] = b["uuid"].lower() in {u.lower() for u in named}
     if inst.get("boot") and not os.path.isfile(os.path.join(inst["boot"]["path"], "grub2", "grub.cfg")):
         out["missing"].append("/boot/grub2/grub.cfg")
     return out

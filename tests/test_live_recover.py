@@ -521,16 +521,18 @@ exit $rc
         os.environ["TESSERA_RECOVER_BOOTUPCTL"] = os.path.join(self.bin, "bootupctl")
         lr.BOOTUPCTL = os.environ["TESSERA_RECOVER_BOOTUPCTL"]
         self.inst["disk"] = {"name": "nvme0n1"}
-        self.inst["boot"] = {"device": "/dev/nvme0n1p2", "path": self.boot, "uuid": "bbbb-boot"}
+        self.inst["boot"] = {"device": "/dev/nvme0n1p2", "path": self.boot, "uuid": "a850e6c1-ce43-496d-b676-4291734f0c53"}
         lsblk = {"blockdevices": [{"name": "nvme0n1", "path": "/dev/nvme0n1", "type": "disk", "children": [
             {"name": "nvme0n1p1", "path": "/dev/nvme0n1p1", "pkname": "nvme0n1", "type": "part", "fstype": "vfat", "uuid": "E5P", "partuuid": self.PU},
-            {"name": "nvme0n1p2", "path": "/dev/nvme0n1p2", "pkname": "nvme0n1", "type": "part", "fstype": "ext4", "uuid": "bbbb-boot"}]}]}
+            {"name": "nvme0n1p2", "path": "/dev/nvme0n1p2", "pkname": "nvme0n1", "type": "part", "fstype": "ext4", "uuid": "a850e6c1-ce43-496d-b676-4291734f0c53"}]}]}
         write(os.path.join(self.tmp, "lsblk.json"), json.dumps(lsblk))
         os.environ["TESSERA_RECOVER_LSBLK"] = os.path.join(self.tmp, "lsblk.json")
         self.esp = os.path.join(self.tmp, "esp-E5P")
         for rel in ("EFI/fedora/shimx64.efi", "EFI/fedora/grubx64.efi", "EFI/BOOT/BOOTX64.EFI"):
             write(os.path.join(self.esp, rel), "x")
-        write(os.path.join(self.esp, "EFI/fedora/grub.cfg"), "search --no-floppy --fs-uuid --set=dev bbbb-boot\n")
+        # as bootupd writes them: grub.cfg sources bootuuid.cfg, which names the boot partition
+        write(os.path.join(self.esp, "EFI/fedora/grub.cfg"), "if [ -f ${config_directory}/bootuuid.cfg ]; then source ${config_directory}/bootuuid.cfg; fi\nsearch --no-floppy --fs-uuid --set=dev ${BOOT_UUID}\n")
+        write(os.path.join(self.esp, "EFI/fedora/bootuuid.cfg"), 'set BOOT_UUID="a850e6c1-ce43-496d-b676-4291734f0c53"\n')
         write(os.path.join(self.boot, "grub2", "grub.cfg"), "# static\n")
         os.makedirs(os.path.join(self.inst["deployments"][0]["dir"], "usr", "lib", "bootupd", "updates", "EFI"))
         self.state = os.path.join(self.inst["sysroot"], "boot", "bootupd-state.json")
@@ -567,7 +569,7 @@ exit $rc
 
     def test_missing_files_and_a_wrong_pointer_are_found(self):
         os.remove(os.path.join(self.esp, "EFI/BOOT/BOOTX64.EFI"))
-        write(os.path.join(self.esp, "EFI/fedora/grub.cfg"), "search --fs-uuid --set=dev 0000-old\n")
+        write(os.path.join(self.esp, "EFI/fedora/bootuuid.cfg"), 'set BOOT_UUID="11111111-2222-3333-4444-555555555555"\n')
         t = self.keys()["bootmenu"]
         self.assertIn("EFI/BOOT/BOOTX64.EFI", t)
         self.assertIn("pointer to the boot partition is wrong", t)
