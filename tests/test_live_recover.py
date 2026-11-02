@@ -588,12 +588,14 @@ exit $rc
         self.assertIn("efibootmgr -c -d /dev/nvme0n1 -p 1 -L Tessera -l \\EFI\\fedora\\shimx64.efi", self.called())
         self.assertEqual(open(self.order).read().strip().split(",")[0], "0005")
 
-    def test_a_failed_reinstall_changes_nothing_else(self):
+    def test_a_failed_reinstall_keeps_bootupds_record_and_still_fixes_the_boot_list(self):
         write(os.path.join(self.tmp, "rc.bootupctl"), "1")
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(RuntimeError) as e:
             lr.fix_boot(self.inst)
-        self.assertFalse(any(c.startswith("efibootmgr -o") for c in self.called()))
         self.assertEqual(open(self.state).read(), "old")  # bootupd's record put back
+        self.assertEqual(open(self.order).read().strip(), "0003,0000")  # Tessera first anyway
+        self.assertIn("Putting the boot loader back didn't work", str(e.exception))
+        self.assertIn("Tessera starts first again", str(e.exception))
 
 
 if __name__ == "__main__":
