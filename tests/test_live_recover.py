@@ -188,3 +188,41 @@ class Layouts(Stand):
         write(d, 'NAME="Tessera"\nVERSION="44.20261026.0 (Kinoite)"\nOSTREE_VERSION=\'44.20261026.0\'\n')
         inst = lr.find_installs(self.mnt, self.boot, {})[0]
         self.assertEqual(inst["deployments"][0]["version"], "44.20261026.0")
+
+
+class Versions(Stand):
+    def setUp(self):
+        super().setUp()
+        self.calls = os.path.join(self.tmp, "ostree-calls")
+        fake = os.path.join(self.tmp, "ostree")
+        write(fake, f'#!/bin/sh\necho "$@" >> {self.calls}\n', 0o755)
+        lr.OSTREE = fake
+        write(os.path.join(self.mnt, "root", "ostree", "repo", "config"), "[core]\nrepo_version=1\n[sysroot]\nbootloader=none\n")
+        self.inst["boot"] = {"path": self.boot, "device": "/dev/nvme0n1p2"}
+
+    def test_default_keep_and_unkeep_run_ostree_on_the_install(self):
+        sysroot = os.path.join(self.mnt, "root")
+        self.assertEqual(lr.fix_version(self.inst, {"action": "default", "index": 1}), ["43.20261031.0 now starts by default"])
+        self.assertIn("kept for good", lr.fix_version(self.inst, {"action": "keep", "index": 0})[0])
+        lr.fix_version(self.inst, {"action": "unkeep", "index": 0})
+        with open(self.calls) as f:
+            self.assertEqual(f.read().splitlines(), [f"admin --sysroot={sysroot} set-default 1", f"admin --sysroot={sysroot} pin 0", f"admin --sysroot={sysroot} pin --unpin 0"])
+
+    def test_bad_requests_change_nothing(self):
+        for req in ({"action": "rm", "index": 0}, {"action": "default", "index": "0"}, {"action": "default", "index": True}, {"action": "default", "index": 7}):
+            with self.assertRaises(RuntimeError):
+                lr.fix_version(self.inst, req)
+        self.assertFalse(os.path.exists(self.calls))
+
+    def test_a_boot_menu_ostree_would_rewrite_is_left_alone(self):
+        write(os.path.join(self.mnt, "root", "ostree", "repo", "config"), "[sysroot]\nbootloader=grub2\n")
+        with self.assertRaises(RuntimeError):
+            lr.fix_version(self.inst, {"action": "default", "index": 1})
+
+    def test_kept_versions_are_shown(self):
+        base = os.path.join(self.mnt, "root", "ostree", "deploy", "default", "deploy")
+        with open(os.path.join(base, "bbb.0.origin"), "a") as f:
+            f.write("\n[libostree-transient]\npinned=true\n")
+        inst = lr.find_installs(self.mnt, self.boot, {})[0]
+        inst.update(id=self.inst["id"])
+        self.assertEqual([v["kept"] for v in lr.public(inst)["versions"]], [False, True])

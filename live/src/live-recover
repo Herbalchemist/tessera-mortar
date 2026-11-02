@@ -37,7 +37,9 @@ MNT = os.environ.get("TESSERA_RECOVER_MNT", "/run/tessera-recover")
 TESSERA_ORIGIN = re.compile(r"herbalchemist/tessera", re.I)
 ID_RE = re.compile(r"^[0-9a-fA-F-]{8,40}:[A-Za-z0-9._-]{1,40}$")
 USER_RE = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
-TOOLS = ("signin", "pin", "shards")
+TOOLS = ("signin", "pin", "shards", "version")
+VERSION_ACTIONS = ("default", "keep", "unkeep")
+OSTREE = os.environ.get("TESSERA_OSTREE") or shutil.which("ostree") or "/usr/bin/ostree"
 
 
 def run(cmd, **kw):
@@ -80,7 +82,8 @@ def deployments(sysroot, stateroot):
         image = (re.search(r"container-image-reference=\S*?docker://(\S+)", origin) or [None, ""])[1]
         tessera = bool(TESSERA_ORIGIN.search(origin)) or "tessera" in (rel.get("NAME", "") + rel.get("PRETTY_NAME", "")).lower()
         version = rel.get("OSTREE_VERSION") or rel.get("IMAGE_VERSION") or re.sub(r"\s*\(.*\)$", "", rel.get("VERSION", ""))
-        out.append({"dir": d, "name": name, "version": version,
+        pinned = bool(re.search(r"^\s*pinned\s*=\s*true\s*$", origin, re.M))
+        out.append({"dir": d, "name": name, "version": version, "pinned": pinned,
                     "pretty": rel.get("PRETTY_NAME", ""), "image": image, "tessera": tessera})
     return out
 
@@ -243,7 +246,7 @@ def public(inst):
     """What the screens see of an install (no paths)."""
     return {
         "id": inst["id"], "disk": inst.get("disk"), "hostname": inst["hostname"],
-        "versions": [{"index": d["index"], "version": d["version"], "image": d["image"]} for d in inst["deployments"]],
+        "versions": [{"index": d["index"], "version": d["version"], "image": d["image"], "kept": d.get("pinned", False)} for d in inst["deployments"]],
         "users": [{"name": u["name"], "admin": u["admin"]} for u in inst["users"]],
     }
 
@@ -524,7 +527,61 @@ def fix_shards(inst):
     return fix_settings(inst, change) or ["No shards were on."]
 
 
-FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards}
+class boot_mounted:
+    """The install's boot partition at <sysroot>/boot, writable, while ostree changes its boot entries."""
+
+    def __init__(self, inst):
+        self.inst = inst
+        self.target = os.path.join(inst["sysroot"], "boot")
+
+    def __enter__(self):
+        b = self.inst.get("boot")
+        if not b:
+            raise RuntimeError("The boot partition of that Tessera wasn't found.")
+        if os.environ.get("TESSERA_RECOVER_MNT"):
+            return self  # tests: plain folders
+        run(["umount", b["path"]])
+        r = run(["mount", "-o", "rw", b["device"], self.target])
+        if r.returncode != 0:
+            run(["mount", "-o", "ro", b["device"], b["path"]])
+            raise RuntimeError("The boot partition couldn't be opened: " + (r.stderr.strip() or "mount failed"))
+        return self
+
+    def __exit__(self, *exc):
+        if not os.environ.get("TESSERA_RECOVER_MNT"):
+            b = self.inst["boot"]
+            run(["sync"])
+            run(["umount", self.target])
+            run(["mount", "-o", "ro", b["device"], b["path"]])
+        return False
+
+
+def bootloader_setting(inst):
+    """ostree's bootloader setting for the install: anything but 'none' would make it rewrite GRUB's
+    config with the USB's settings, so version changes are refused then."""
+    m = re.search(r"^\s*bootloader\s*=\s*(\S+)", read(os.path.join(inst["sysroot"], "ostree", "repo", "config")) or "", re.M)
+    return m.group(1) if m else "auto"
+
+
+def fix_version(inst, req):
+    action, index = req.get("action"), req.get("index")
+    if action not in VERSION_ACTIONS or not isinstance(index, int) or isinstance(index, bool):
+        raise RuntimeError("Unknown change.")
+    d = next((x for x in inst["deployments"] if x["index"] == index), None)
+    if not d:
+        raise RuntimeError("That version isn't there any more.")
+    if action == "default" and bootloader_setting(inst) not in ("none",) and not os.path.isfile(os.path.join(inst["boot"]["path"] if inst.get("boot") else "", "grub2", "bootuuid.cfg")):
+        raise RuntimeError("This Tessera's boot menu is set up in a way Recover can't change safely from the USB.")
+    args = {"default": ["set-default", str(index)], "keep": ["pin", str(index)], "unkeep": ["pin", "--unpin", str(index)]}[action]
+    with writable(inst), boot_mounted(inst):
+        r = run([OSTREE, "admin", f"--sysroot={inst['sysroot']}"] + args, timeout=600)
+    if r.returncode != 0:
+        raise RuntimeError((r.stderr or r.stdout).strip().splitlines()[-1] if (r.stderr or r.stdout).strip() else "ostree failed")
+    name = d["version"] or f"version {index}"
+    return [{"default": f"{name} now starts by default", "keep": f"{name} is kept for good (updates won't remove it)", "unkeep": f"{name} is no longer kept for good"}[action]]
+
+
+FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version}
 
 
 # ---------------------------------------------------------------- command line
@@ -566,7 +623,7 @@ def main(argv):
         if not password_ok(inst, req.get("user"), req.get("password")):
             return out({"ok": False, "error": "That isn't the password of an administrator account on this Tessera.", "needPassword": True})
         try:
-            return out({"ok": True, "done": FIXES[tool](inst)})
+            return out({"ok": True, "done": FIXES[tool](inst, req) if tool == "version" else FIXES[tool](inst)})
         except (OSError, RuntimeError) as e:
             return out({"ok": False, "error": f"The repair didn't finish: {e}"})
     print(__doc__)

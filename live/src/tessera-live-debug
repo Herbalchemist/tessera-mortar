@@ -16,6 +16,21 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
     echo "-- layout"; for m in /run/tessera-recover/*/; do echo "$m: $(ls "$m" | tr '\n' ' ')"; command -v btrfs >/dev/null && btrfs subvolume list "$m" 2>/dev/null | head -20; done
     for j in /run/tessera-recover/*/var/log/journal /run/tessera-recover/*/root/ostree/deploy/*/var/log/journal /run/tessera-recover/*/ostree/deploy/*/var/log/journal; do [ -d "$j" ] && echo "journal: $j $(ls "$j" | head -3 | tr '\n' ' ')"; done
     for h in /run/tessera-recover/*/home /run/tessera-recover/*/var/home /run/tessera-recover/*/root/ostree/deploy/*/var/home; do [ -d "$h" ] && echo "homes: $h $(ls "$h" | tr '\n' ' ')"; done
+    echo "-- ostree"; ostree --version | head -3; ostree admin --help 2>&1 | grep -E "set-default|pin" ; for c in /run/tessera-recover/*/root/ostree/repo/config; do echo "$c:"; cat "$c"; done
+    for o in /run/tessera-recover/*/root/ostree/deploy/*/deploy/*.origin; do echo "$o:"; cat "$o"; done
+    ls /run/tessera-recover/boot-*/grub2/ 2>/dev/null | tr '\n' ' '; echo
+    # repairs, with the test install's password (tools/install-test.sh)
+    for id in $(/usr/libexec/tessera/live-recover probe | python3 -c 'import json,sys; [print(i["id"]) for i in json.load(sys.stdin).get("installs", [])]'); do
+      for req in '{"tool": "signin", "user": "tesstester", "password": "wrong"}' \
+                 '{"tool": "signin", "user": "tesstester", "password": "tessera1"}' \
+                 '{"tool": "shards", "user": "tesstester", "password": "tessera1"}' \
+                 '{"tool": "version", "action": "keep", "index": 1, "user": "tesstester", "password": "tessera1"}' \
+                 '{"tool": "version", "action": "default", "index": 1, "user": "tesstester", "password": "tessera1"}'; do
+        echo "-- fix $req"; echo "$req" | /usr/libexec/tessera/live-recover fix "$id"
+      done
+      echo "-- after"; /usr/libexec/tessera/live-recover probe
+      for e in /run/tessera-recover/boot-*/loader/entries/*.conf; do echo "$e: $(grep -E '^(title|options)' "$e" | tr '\n' ' ' | cut -c1-200)"; done
+    done
     echo "-- mounts"; grep tessera-recover /proc/mounts
     echo "-- lsblk"; lsblk -o NAME,FSTYPE,LABEL,SIZE,MOUNTPOINTS
     echo "tessera-recovertest: end"
