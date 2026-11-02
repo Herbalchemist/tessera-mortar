@@ -80,6 +80,9 @@ class Kickstart(unittest.TestCase):
     def test_manual_secure_boot_leaves_keys_alone(self):
         self.assertNotIn("mokutil", self.ks(secureBoot="manual"))
 
+    def test_the_original_version_is_kept_for_good(self):
+        self.assertIn("ostree admin --sysroot=/mnt/sysroot pin 0", self.ks())
+
     def test_every_section_closes(self):
         k = self.ks()
         self.assertEqual(k.count("\n%pre-install") + k.count("\n%post"), k.count("\n%end"))

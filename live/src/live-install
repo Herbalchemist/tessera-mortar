@@ -254,6 +254,12 @@ def kickstart(c, images, pw_hash, sb_key=SB_KEY, registry=REGISTRY):
         "mkdir -p /etc/tessera",
         f"echo {q(c['user'])} > /etc/tessera/autologin-user",
         "%end",
+        "",
+        # The version installed today is kept for good: updates never remove it, so Boot options and
+        # Recover can always start the original. Recover > Versions can stop keeping it.
+        "%post --nochroot --log=/tmp/tessera-keep-original.log",
+        "ostree admin --sysroot=/mnt/sysroot pin 0 || echo 'note: could not keep the original version'",
+        "%end",
     ]
     if c["secureBoot"] == "auto":
         lines += [
