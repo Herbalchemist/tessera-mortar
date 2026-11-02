@@ -505,9 +505,14 @@ echo "BootCurrent: 0000"
 echo "BootOrder: $(cat {self.order})"
 cat {self.tmp}/entries
 """, 0o755)
+        # like the real one: refuses when its state file is there; writes it on success
         write(os.path.join(self.bin, "bootupctl"), f"""#!/bin/sh
 echo "bootupctl $*" >> {self.calls}
-exit $(cat {self.tmp}/rc.bootupctl 2>/dev/null || echo 0)
+for last; do :; done
+[ -f "$last/boot/bootupd-state.json" ] && {{ echo "error: invalid re-install attempted: $last/boot/bootupd-state.json already exists" >&2; exit 1; }}
+rc=$(cat {self.tmp}/rc.bootupctl 2>/dev/null || echo 0)
+[ "$rc" = 0 ] && echo new > "$last/boot/bootupd-state.json"
+exit $rc
 """, 0o755)
         write(os.path.join(self.bin, "mount"), "#!/bin/sh\nexit 1\n", 0o755)
         self.entries(windows_first=True, ours=True)
@@ -528,6 +533,8 @@ exit $(cat {self.tmp}/rc.bootupctl 2>/dev/null || echo 0)
         write(os.path.join(self.esp, "EFI/fedora/grub.cfg"), "search --no-floppy --fs-uuid --set=dev bbbb-boot\n")
         write(os.path.join(self.boot, "grub2", "grub.cfg"), "# static\n")
         os.makedirs(os.path.join(self.inst["deployments"][0]["dir"], "usr", "lib", "bootupd", "updates", "EFI"))
+        self.state = os.path.join(self.inst["sysroot"], "boot", "bootupd-state.json")
+        write(self.state, "old")
 
     def tearDown(self):
         lr.MNT = self.old_mnt
@@ -572,6 +579,8 @@ exit $(cat {self.tmp}/rc.bootupctl 2>/dev/null || echo 0)
         self.assertIn(f"bootupctl backend install --src-root {d} --device /dev/nvme0n1 --component EFI --write-uuid --update-firmware {self.inst['sysroot']}", calls)
         self.assertEqual(open(self.order).read().strip(), "0003,0000")
         self.assertTrue(any("starts first again" in x for x in done))
+        self.assertEqual(open(self.state).read().strip(), "new")
+        self.assertFalse(os.path.exists(self.state + ".before-recover"))
 
     def test_repair_adds_a_firmware_entry_when_there_is_none(self):
         self.entries(windows_first=True, ours=False)
@@ -584,6 +593,7 @@ exit $(cat {self.tmp}/rc.bootupctl 2>/dev/null || echo 0)
         with self.assertRaises(RuntimeError):
             lr.fix_boot(self.inst)
         self.assertFalse(any(c.startswith("efibootmgr -o") for c in self.called()))
+        self.assertEqual(open(self.state).read(), "old")  # bootupd's record put back
 
 
 if __name__ == "__main__":

@@ -741,10 +741,20 @@ def fix_boot(inst):
     disk = "/dev/" + inst["disk"]["name"]
     done = []
     with writable(inst), boot_mounted(inst), esp_mounted(inst, esp):
+        # bootupd only installs where it hasn't before: its record of the last install is set aside
+        # for the reinstall, and put back if the reinstall fails.
+        state = os.path.join(inst["sysroot"], "boot", "bootupd-state.json")
+        aside = state + ".before-recover"
+        if os.path.exists(state):
+            os.replace(state, aside)
         r = run_tool([BOOTUPCTL, "backend", "install", "--src-root", d["dir"], "--device", disk, "--component", "EFI",
                       "--write-uuid", "--update-firmware", inst["sysroot"]], timeout=600)
         if r.returncode != 0:
+            if os.path.exists(aside):
+                os.replace(aside, state)
             raise RuntimeError("Putting the boot loader back didn't work: " + ((r.stderr or r.stdout or "").strip().splitlines() or ["bootupctl failed"])[-1][:300])
+        if os.path.exists(aside):
+            os.remove(aside)
         done.append(f"the boot loader of version {d['version'] or 0} was put back on the start-up partition")
     fw = firmware_entries()
     if fw:

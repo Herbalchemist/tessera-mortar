@@ -30,10 +30,10 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
       done
       # break the boot menu the way a Windows update can, then repair it (the next VM pass boots the disk)
       echo "-- break boot"; efibootmgr -v 2>&1 | grep -E "^Boot" | cut -c1-160
-      for n in $(efibootmgr 2>/dev/null | grep -iE "^Boot[0-9A-F]{4}\*? +(fedora|tessera)" | cut -c5-8); do efibootmgr -q -b "$n" -B; done
+      for n in $(efibootmgr 2>/dev/null | grep -iE "^Boot[0-9A-F]{4}\*? +(fedora|tessera|bazzite)" | cut -c5-8); do efibootmgr -q -b "$n" -B; done
       umount /run/tessera-recover/esp-* 2>/dev/null || :
       esp=$(lsblk -nrpo PATH,FSTYPE "$(lsblk -nrpo PKNAME "$(findmnt -nro SOURCE /run/tessera-recover/"${id%%:*}" | head -1)")" | awk '$2=="vfat"{print $1; exit}')
-      mkdir -p /tmp/esp && mount "$esp" /tmp/esp && rm -f /tmp/esp/EFI/fedora/grub.cfg && ls -R /tmp/esp/EFI | head -20; umount /tmp/esp
+      mkdir -p /tmp/esp && mount "$esp" /tmp/esp && rm -f /tmp/esp/EFI/fedora/grub.cfg && ls /tmp/esp/EFI/fedora | tr '\n' ' '; echo; umount /tmp/esp
       echo "-- diagnose (broken)"; /usr/libexec/tessera/live-recover diagnose "$id" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps([f for f in d.get("findings",[]) if f["key"] in ("bootmenu","firmware")])); print(json.dumps(d.get("boot")))'
       echo "-- fix boot"; echo '{"tool": "boot", "user": "tesstester", "password": "tessera1"}' | /usr/libexec/tessera/live-recover fix "$id"
       echo "-- after boot fix"; efibootmgr -v 2>&1 | grep -E "^Boot" | cut -c1-160

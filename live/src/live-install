@@ -389,6 +389,7 @@ def install(choices):
     enrolled = False
     if c["secureBoot"] == "auto" and os.path.isfile(SB_KEY):
         enrolled = "already in the enrollment request" in run(["mokutil", "-t", SB_KEY]).stdout.lower()
+    run(["sync"])  # everything on the disk before saying so: people power off at "done"
     kmsg("done")
     write_state(phase="done", percent=100, line="", stage="Done", enrolled=enrolled, secureBoot=offered["secureBoot"]["state"], variant=c["variant"], user=c["user"])
     return 0
