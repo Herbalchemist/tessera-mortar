@@ -56,6 +56,23 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
       echo "-- after"; /usr/libexec/tessera/live-recover probe
       for e in /run/tessera-recover/boot-*/loader/entries/*.conf; do echo "$e: $(grep -E '^(title|options)' "$e" | tr '\n' ' ' | cut -c1-200)"; done
     done
+    # The installed boot menu: what GRUB has, and its debug output on the serial console for the next start
+    echo "-- installed GRUB"
+    bdev=$(lsblk -nrpo PATH,LABEL | awk '$2=="bazzite_xboot"{print $1; exit}')
+    if [ -n "$bdev" ]; then
+      umount /run/tessera-recover/boot-* 2>/dev/null || :
+      mkdir -p /tmp/ib && mount "$bdev" /tmp/ib && {
+        ls -la /tmp/ib/grub2 /tmp/ib/grub2/tessera /tmp/ib/grub2/tessera/fonts 2>&1 | head -60
+        echo "custom.cfg:"; cat /tmp/ib/grub2/custom.cfg; echo "grubenv:"; grub2-editenv /tmp/ib/grub2/grubenv list
+        echo "grub.cfg (head):"; head -60 /tmp/ib/grub2/grub.cfg
+        for f in /tmp/ib/grub2/tessera/fonts/*.pf2; do echo "$f: $(head -c 120 "$f" | strings | tr '\n' ' ')"; done
+        if [ -f /tmp/ib/grub2/tessera/splash.cfg ]; then
+          sed -i '1i serial --unit=0 --speed=115200\nterminal_output --append serial\nset debug=font,gfxmenu,video,fs' /tmp/ib/grub2/tessera/splash.cfg
+          sed -i 's/^terminal_output gfxterm$/terminal_output gfxterm serial/' /tmp/ib/grub2/tessera/splash.cfg
+          echo "splash.cfg (debug):"; head -12 /tmp/ib/grub2/tessera/splash.cfg
+        fi
+        sync; umount /tmp/ib; }
+    fi
     echo "-- mounts"; grep tessera-recover /proc/mounts
     echo "-- lsblk"; lsblk -o NAME,FSTYPE,LABEL,SIZE,MOUNTPOINTS
     echo "tessera-recovertest: end"

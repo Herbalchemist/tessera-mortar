@@ -80,9 +80,11 @@ sed -n '/tessera-recovertest: begin/,/tessera-recovertest: end/p' "$OUT/serial-r
 # The disk again, after Recover broke and repaired its boot menu (and changed its default version)
 echo "== boot after recover"
 vm after
-for t in 60 120 180 240; do sleep 60; shot "after-${t}s"; done
+sleep 20; shot after-20s; sleep 40; shot after-60s
+key ret; sleep 30; shot after-enter-30s     # is GRUB still listening?
+for t in 120 180; do sleep 60; shot "after-enter-${t}s"; done
 stop
 { echo "GRUB / kernel / systemd lines from the boot after Recover:"
-  grep -aE "Booting|Linux version|ostree=|Reached target|Welcome to|login:|grub" "$OUT/serial-after.log" | head -40; } > "$OUT/after.txt" 2>/dev/null || :
+  grep -aE "Booting|Linux version|ostree=|Reached target|Welcome to|login:|grub|font|gfxmenu|video|error" "$OUT/serial-after.log" | head -120; } > "$OUT/after.txt" 2>/dev/null || :
 for f in "$OUT"/*.ppm; do [ -f "$f" ] && convert "$f" "${f%.ppm}.png" && rm -f "$f"; done
 ls -la "$OUT"
