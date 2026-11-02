@@ -483,5 +483,108 @@ exit $(cat "{self.tmp}/rc.{tool}" 2>/dev/null || echo 0)
         self.assertEqual(self.result()["repair"], False)
 
 
+class BootMenu(Stand):
+    """Repair the boot menu, with stand-ins for efibootmgr, bootupctl and mount."""
+    PU = "5b0c6a1e-0001-4c3a-9e6e-aaaaaaaaaaaa"
+
+    def setUp(self):
+        super().setUp()
+        self.old_mnt, lr.MNT = lr.MNT, self.tmp
+        self.bin = os.path.join(self.tmp, "bin")
+        self.calls = os.path.join(self.tmp, "calls")
+        self.order = os.path.join(self.tmp, "order")
+        write(self.order, "0000,0003")
+        # efibootmgr: lists entries from files; -o rewrites the order; -c adds entry 0005 for us
+        write(os.path.join(self.bin, "efibootmgr"), f"""#!/bin/sh
+printf '%s\\n' "efibootmgr $*" >> {self.calls}
+case "$1" in
+  -o) echo "$2" > {self.order}; exit 0 ;;
+  -c) printf 'Boot0005* Tessera\tHD(1,GPT,{self.PU},0x800,0x12c000)/\\EFI\\fedora\\shimx64.efi\n' >> {self.tmp}/entries; o=$(cat {self.order}); echo "0005,$o" > {self.order}; exit 0 ;;
+esac
+echo "BootCurrent: 0000"
+echo "BootOrder: $(cat {self.order})"
+cat {self.tmp}/entries
+""", 0o755)
+        write(os.path.join(self.bin, "bootupctl"), f"""#!/bin/sh
+echo "bootupctl $*" >> {self.calls}
+exit $(cat {self.tmp}/rc.bootupctl 2>/dev/null || echo 0)
+""", 0o755)
+        write(os.path.join(self.bin, "mount"), "#!/bin/sh\nexit 1\n", 0o755)
+        self.entries(windows_first=True, ours=True)
+        self.old_path = os.environ["PATH"]
+        os.environ["PATH"] = self.bin + os.pathsep + self.old_path
+        os.environ["TESSERA_RECOVER_BOOTUPCTL"] = os.path.join(self.bin, "bootupctl")
+        lr.BOOTUPCTL = os.environ["TESSERA_RECOVER_BOOTUPCTL"]
+        self.inst["disk"] = {"name": "nvme0n1"}
+        self.inst["boot"] = {"device": "/dev/nvme0n1p2", "path": self.boot, "uuid": "bbbb-boot"}
+        lsblk = {"blockdevices": [{"name": "nvme0n1", "path": "/dev/nvme0n1", "type": "disk", "children": [
+            {"name": "nvme0n1p1", "path": "/dev/nvme0n1p1", "pkname": "nvme0n1", "type": "part", "fstype": "vfat", "uuid": "E5P", "partuuid": self.PU},
+            {"name": "nvme0n1p2", "path": "/dev/nvme0n1p2", "pkname": "nvme0n1", "type": "part", "fstype": "ext4", "uuid": "bbbb-boot"}]}]}
+        write(os.path.join(self.tmp, "lsblk.json"), json.dumps(lsblk))
+        os.environ["TESSERA_RECOVER_LSBLK"] = os.path.join(self.tmp, "lsblk.json")
+        self.esp = os.path.join(self.tmp, "esp-E5P")
+        for rel in ("EFI/fedora/shimx64.efi", "EFI/fedora/grubx64.efi", "EFI/BOOT/BOOTX64.EFI"):
+            write(os.path.join(self.esp, rel), "x")
+        write(os.path.join(self.esp, "EFI/fedora/grub.cfg"), "search --no-floppy --fs-uuid --set=dev bbbb-boot\n")
+        write(os.path.join(self.boot, "grub2", "grub.cfg"), "# static\n")
+        os.makedirs(os.path.join(self.inst["deployments"][0]["dir"], "usr", "lib", "bootupd", "updates", "EFI"))
+
+    def tearDown(self):
+        lr.MNT = self.old_mnt
+        os.environ["PATH"] = self.old_path
+        for k in ("TESSERA_RECOVER_LSBLK", "TESSERA_RECOVER_BOOTUPCTL"):
+            os.environ.pop(k, None)
+        super().tearDown()
+
+    def entries(self, windows_first, ours):
+        lines = ["Boot0000* Windows Boot Manager\tHD(1,GPT,ffff0000-0000-0000-0000-000000000000,0x800,0x32000)/\\EFI\\Microsoft\\Boot\\bootmgfw.efi"]
+        if ours:
+            lines.append(f"Boot0003* Fedora\tHD(1,GPT,{self.PU},0x800,0x12c000)/\\EFI\\fedora\\shimx64.efi")
+        write(os.path.join(self.tmp, "entries"), "\n".join(lines) + "\n")
+        write(self.order, "0000,0003" if windows_first else "0003,0000")
+
+    def called(self):
+        return open(self.calls).read().splitlines() if os.path.exists(self.calls) else []
+
+    def keys(self):
+        return {f["key"]: f["text"] for f in lr.boot_findings(lr.boot_state(self.inst))}
+
+    def test_a_healthy_boot_menu_has_no_findings(self):
+        self.entries(windows_first=False, ours=True)
+        self.assertEqual(self.keys(), {})
+
+    def test_windows_first_and_a_missing_entry_are_found(self):
+        self.assertIn("Windows Boot Manager", self.keys()["firmware"])
+        self.entries(windows_first=True, ours=False)
+        self.assertIn("no entry to start Tessera", self.keys()["firmware"])
+
+    def test_missing_files_and_a_wrong_pointer_are_found(self):
+        os.remove(os.path.join(self.esp, "EFI/BOOT/BOOTX64.EFI"))
+        write(os.path.join(self.esp, "EFI/fedora/grub.cfg"), "search --fs-uuid --set=dev 0000-old\n")
+        t = self.keys()["bootmenu"]
+        self.assertIn("EFI/BOOT/BOOTX64.EFI", t)
+        self.assertIn("pointer to the boot partition is wrong", t)
+
+    def test_repair_reinstalls_from_the_installed_version_and_puts_tessera_first(self):
+        done = lr.fix_boot(self.inst)
+        calls = self.called()
+        d = self.inst["deployments"][0]["dir"]
+        self.assertIn(f"bootupctl backend install --src-root {d} --device /dev/nvme0n1 --component EFI --write-uuid --update-firmware {self.inst['sysroot']}", calls)
+        self.assertEqual(open(self.order).read().strip(), "0003,0000")
+        self.assertTrue(any("starts first again" in x for x in done))
+
+    def test_repair_adds_a_firmware_entry_when_there_is_none(self):
+        self.entries(windows_first=True, ours=False)
+        lr.fix_boot(self.inst)
+        self.assertIn("efibootmgr -c -d /dev/nvme0n1 -p 1 -L Tessera -l \\EFI\\fedora\\shimx64.efi", self.called())
+        self.assertEqual(open(self.order).read().strip().split(",")[0], "0005")
+
+    def test_a_failed_reinstall_changes_nothing_else(self):
+        write(os.path.join(self.tmp, "rc.bootupctl"), "1")
+        with self.assertRaises(RuntimeError):
+            lr.fix_boot(self.inst)
+        self.assertFalse(any(c.startswith("efibootmgr -o") for c in self.called()))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -47,7 +47,7 @@ MNT = os.environ.get("TESSERA_RECOVER_MNT", "/run/tessera-recover")
 TESSERA_ORIGIN = re.compile(r"herbalchemist/tessera", re.I)
 ID_RE = re.compile(r"^[0-9a-fA-F-]{8,40}:[A-Za-z0-9._-]{1,40}$")
 USER_RE = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
-TOOLS = ("signin", "pin", "shards", "version", "clean")
+TOOLS = ("signin", "pin", "shards", "version", "clean", "boot")
 VERSION_ACTIONS = ("default", "keep", "unkeep")
 OSTREE = os.environ.get("TESSERA_OSTREE") or shutil.which("ostree") or "/usr/bin/ostree"
 
@@ -192,7 +192,7 @@ def find_installs(mnt, boot=None, fs=None):
 def lsblk():
     if os.environ.get("TESSERA_RECOVER_LSBLK"):
         return json.loads(read(os.environ["TESSERA_RECOVER_LSBLK"]))
-    r = run(["lsblk", "-J", "-b", "-o", "NAME,PATH,PKNAME,TYPE,FSTYPE,LABEL,UUID,SIZE,RM,TRAN,MODEL,MOUNTPOINTS"])
+    r = run(["lsblk", "-J", "-b", "-o", "NAME,PATH,PKNAME,TYPE,FSTYPE,LABEL,UUID,PARTUUID,SIZE,RM,TRAN,MODEL,MOUNTPOINTS"])
     return json.loads(r.stdout or '{"blockdevices": []}')
 
 
@@ -375,6 +375,8 @@ def diagnose(inst):
         findings.append({"key": "fs", "text": "The file system has recorded errors: " + ", ".join(f"{k} {v}" for k, v in h["filesystem_errors"].items()) + ".", "fix": None})
     if h.get("disk_ok") is False:
         findings.append({"key": "disk", "text": "The disk itself reports it is failing. Back up what matters as soon as you can.", "fix": None})
+    bs = boot_state(inst)
+    findings += boot_findings(bs)
     shards_on = []
     for u in inst["users"]:
         if not u.get("path"):
@@ -387,7 +389,7 @@ def diagnose(inst):
         findings.append({"key": "shards", "text": "Shards are turned on (" + "; ".join(shards_on) + "). If one breaks start-up, turning them all off helps.", "fix": "shards"})
     if len(inst["deployments"]) > 1:
         findings.append({"key": "versions", "text": f"An earlier version ({inst['deployments'][1]['version'] or 'previous'}) is kept: Boot options can start it.", "fix": None})
-    return {"signin": si, "space": sp, "health": h, "last_start": last_start(inst), "findings": findings}
+    return {"signin": si, "space": sp, "health": h, "boot": bs, "last_start": last_start(inst), "findings": findings}
 
 
 # ---------------------------------------------------------------- report
@@ -615,6 +617,157 @@ def fix_version(inst, req):
     return [{"default": f"{name} now starts by default", "keep": f"{name} is kept for good (updates won't remove it)", "unkeep": f"{name} is no longer kept for good"}[action]]
 
 
+# ---------------------------------------------------------------- repair the boot menu
+# What breaks it: a Windows update or a firmware reset drops Tessera's entry from the firmware's boot
+# list or puts another system first; the start-up (EFI) partition loses files or its pointer to the
+# boot partition. The repair puts the boot loader back the way the installer did (bootupd, with the
+# installed version's own files, never the USB's) and makes Tessera first in the firmware's list.
+SHIM = "\\EFI\\fedora\\shimx64.efi"
+BOOTUPCTL = os.environ.get("TESSERA_RECOVER_BOOTUPCTL", "bootupctl")
+
+
+def esp_of(inst):
+    disk = (inst.get("disk") or {}).get("name")
+    for d, parent in flat(lsblk().get("blockdevices")):
+        if d.get("type") == "part" and d.get("fstype") == "vfat" and (d.get("pkname") or (parent or {}).get("name")) == disk:
+            return d
+    return None
+
+
+def part_number(dev):
+    n = (read(f"/sys/class/block/{dev.get('name')}/partition") or "").strip()
+    if n.isdigit():
+        return int(n)
+    m = re.search(r"(\d+)$", dev.get("name") or "")
+    return int(m.group(1)) if m else 1
+
+
+def firmware_entries():
+    """(boot order, {num: (name, path text)}) from efibootmgr; None when this wasn't started with UEFI."""
+    if not os.path.isdir("/sys/firmware/efi") and not os.environ.get("TESSERA_RECOVER_MNT"):
+        return None
+    r = run_tool(["efibootmgr", "-v"], timeout=30)
+    if r.returncode != 0:
+        return None
+    order, entries = [], {}
+    for line in (r.stdout or "").splitlines():
+        m = re.match(r"BootOrder:\s*([0-9A-Fa-f,]+)", line)
+        if m:
+            order = [x.upper() for x in m.group(1).split(",") if x]
+        m = re.match(r"Boot([0-9A-Fa-f]{4})(\*?)\s+(.*?)\t(.*)$", line) or re.match(r"Boot([0-9A-Fa-f]{4})(\*?)\s+(\S.*?)\s{2,}(\S.*)$", line)
+        if m:
+            entries[m.group(1).upper()] = (m.group(3).strip(), m.group(4))
+    return order, entries
+
+
+def ours(entries, partuuid):
+    """Firmware entries that start this install's shim."""
+    pu = (partuuid or "").lower()
+    return [n for n, (_name, path) in entries.items() if pu and pu in path.lower() and "shimx64.efi" in path.lower()]
+
+
+def boot_state(inst):
+    out = {"firmware": None, "first": None, "missing": [], "pointer": None}
+    esp = esp_of(inst)
+    if not esp:
+        out["missing"].append("the start-up (EFI) partition")
+        return out
+    fw = firmware_entries()
+    if fw:
+        order, entries = fw
+        mine = ours(entries, esp.get("partuuid"))
+        out["firmware"] = bool(mine)
+        out["first"] = bool(mine) and bool(order) and order[0] in mine
+        out["others"] = [entries[n][0] for n in order if n not in mine and n in entries][:4]
+    where = os.path.join(MNT, "esp-" + esp["uuid"])
+    if mount(esp["path"], "vfat", where) or os.environ.get("TESSERA_RECOVER_MNT"):
+        for rel in ("EFI/fedora/shimx64.efi", "EFI/fedora/grubx64.efi", "EFI/fedora/grub.cfg", "EFI/BOOT/BOOTX64.EFI"):
+            if not os.path.isfile(os.path.join(where, rel)):
+                out["missing"].append(rel)
+        cfg = read(os.path.join(where, "EFI", "fedora", "grub.cfg")) or ""
+        b = inst.get("boot") or {}
+        if cfg and b.get("uuid"):
+            out["pointer"] = b["uuid"] in cfg
+    if inst.get("boot") and not os.path.isfile(os.path.join(inst["boot"]["path"], "grub2", "grub.cfg")):
+        out["missing"].append("/boot/grub2/grub.cfg")
+    return out
+
+
+def boot_findings(bs):
+    f = []
+    if bs["missing"] or bs["pointer"] is False:
+        f.append({"key": "bootmenu", "text": "The boot loader is damaged: " + ", ".join(bs["missing"] + (["its pointer to the boot partition is wrong"] if bs["pointer"] is False else [])) + " (often after a Windows or firmware update).", "fix": "boot"})
+    if bs["firmware"] is False:
+        f.append({"key": "firmware", "text": "The computer's firmware has no entry to start Tessera (often after a Windows or firmware update, or a reset of the firmware's settings).", "fix": "boot"})
+    elif bs["firmware"] and bs["first"] is False:
+        f.append({"key": "firmware", "text": "Another system starts first (" + ", ".join(bs.get("others") or ["another entry"]) + "), so Tessera only starts when picked from the firmware's boot menu.", "fix": "boot"})
+    return f
+
+
+class esp_mounted:
+    """The install's EFI partition at <sysroot>/boot/efi, writable (inside boot_mounted)."""
+
+    def __init__(self, inst, esp):
+        self.esp, self.target = esp, os.path.join(inst["sysroot"], "boot", "efi")
+
+    def __enter__(self):
+        if os.environ.get("TESSERA_RECOVER_MNT"):
+            os.makedirs(self.target, exist_ok=True)
+            return self
+        release(self.esp["path"])
+        os.makedirs(self.target, exist_ok=True)
+        r = run(["mount", "-o", "rw", self.esp["path"], self.target])
+        if r.returncode != 0:
+            raise RuntimeError("The start-up (EFI) partition couldn't be opened: " + (r.stderr.strip() or "mount failed"))
+        return self
+
+    def __exit__(self, *exc):
+        if not os.environ.get("TESSERA_RECOVER_MNT"):
+            run(["sync"])
+            run(["umount", self.target])
+        return False
+
+
+def fix_boot(inst):
+    esp = esp_of(inst)
+    if not esp:
+        raise RuntimeError("This disk has no start-up (EFI) partition to repair. Reinstall, keep my stuff, makes a new one.")
+    d = inst["deployments"][0]  # the version that starts by default: its own boot loader files
+    if not os.path.isdir(os.path.join(d["dir"], "usr", "lib", "bootupd", "updates")):
+        raise RuntimeError("That version has no boot loader files to put back.")
+    efi = os.path.isdir("/sys/firmware/efi") or bool(os.environ.get("TESSERA_RECOVER_MNT"))
+    if not efi:
+        raise RuntimeError("Start this USB in UEFI mode (not Legacy/CSM) to repair Tessera's boot menu.")
+    disk = "/dev/" + inst["disk"]["name"]
+    done = []
+    with writable(inst), boot_mounted(inst), esp_mounted(inst, esp):
+        r = run_tool([BOOTUPCTL, "backend", "install", "--src-root", d["dir"], "--device", disk, "--component", "EFI",
+                      "--write-uuid", "--update-firmware", inst["sysroot"]], timeout=600)
+        if r.returncode != 0:
+            raise RuntimeError("Putting the boot loader back didn't work: " + ((r.stderr or r.stdout or "").strip().splitlines() or ["bootupctl failed"])[-1][:300])
+        done.append(f"the boot loader of version {d['version'] or 0} was put back on the start-up partition")
+    fw = firmware_entries()
+    if fw:
+        order, entries = fw
+        mine = ours(entries, esp.get("partuuid"))
+        if not mine:
+            label = "Tessera"
+            r = run_tool(["efibootmgr", "-c", "-d", disk, "-p", str(part_number(esp)), "-L", label, "-l", SHIM], timeout=30)
+            if r.returncode == 0:
+                order, entries = firmware_entries() or (order, entries)
+                mine = ours(entries, esp.get("partuuid"))
+        if mine:
+            if order[:1] != mine[:1]:
+                new = mine[:1] + [n for n in order if n != mine[0]]
+                if run_tool(["efibootmgr", "-o", ",".join(new)], timeout=30).returncode == 0:
+                    done.append("Tessera starts first again (other systems stay in the firmware's boot menu)")
+            else:
+                done.append("Tessera is first in the firmware's boot list")
+        else:
+            done.append("the firmware's boot list couldn't be changed; pick Tessera (or \"Fedora\") in its boot menu, or set it first in the firmware's settings")
+    return done
+
+
 # ---------------------------------------------------------------- free up space
 # What can be cleared safely: all of it comes back by itself (caches, shaders) or was thrown away.
 CLEAR = {
@@ -686,7 +839,7 @@ def fix_clean(inst, req):
     return done or ["There was nothing to clear."]
 
 
-FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version, "clean": fix_clean}
+FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version, "clean": fix_clean, "boot": fix_boot}
 
 
 # ---------------------------------------------------------------- back up to a USB drive

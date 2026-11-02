@@ -76,5 +76,13 @@ for t in $(seq 1 15); do sleep 60; grep -aq "tessera-recovertest: end" "$OUT/ser
 shot recover
 stop
 sed -n '/tessera-recovertest: begin/,/tessera-recovertest: end/p' "$OUT/serial-recover.log" > "$OUT/recover.txt" 2>/dev/null || :
+
+# The disk again, after Recover broke and repaired its boot menu (and changed its default version)
+echo "== boot after recover"
+vm after
+for t in 60 120 180 240; do sleep 60; shot "after-${t}s"; done
+stop
+{ echo "GRUB / kernel / systemd lines from the boot after Recover:"
+  grep -aE "Booting|Linux version|ostree=|Reached target|Welcome to|login:|grub" "$OUT/serial-after.log" | head -40; } > "$OUT/after.txt" 2>/dev/null || :
 for f in "$OUT"/*.ppm; do [ -f "$f" ] && convert "$f" "${f%.ppm}.png" && rm -f "$f"; done
 ls -la "$OUT"

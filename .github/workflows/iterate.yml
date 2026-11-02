@@ -50,7 +50,7 @@ jobs:
           sudo rm -rf "$WS/images"; sudo podman rmi -a -f >/dev/null || :
           sudo chown -R "$(id -u):$(id -g)" "$WS/out"
       - name: Install in a VM and boot the result
-        timeout-minutes: 100
+        timeout-minutes: 130
         run: |
           sudo chmod 666 /dev/kvm || :
           BOOT_ARGS="${{ inputs.args }}" tools/install-test.sh "$WS/out/Tessera-Live.iso"

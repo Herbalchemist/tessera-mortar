@@ -35,7 +35,7 @@ reaching Boot options, is never enough to change anything.
 | Back up to a USB drive | One person's home folder: "my files" (all but installed games and caches; saves kept) or everything. In the background with progress; links and 4 GB+ files a FAT drive can't hold are listed in "not copied.txt" | ✅ 2 |
 | Free up space | What uses the disk per person; clear caches, shader caches and the trash (games and files never) | ✅ 2 |
 | Check and repair the disk | File system check and repair, the drive's health, said plainly | 2 |
-| Repair the boot menu | When Windows or a firmware update broke it | 2 |
+| Repair the boot menu | When Windows or a firmware update broke it: puts the installed version's own boot loader back (bootupd) and makes Tessera first in the firmware's list; other systems stay | 2 (VM-tested by breaking it) |
 | Graphics | Switch the graphics build; start with safe graphics | 2 |
 | Network | Wi-Fi and wired, for downloads | 2 (the USB has it already) |
 | Files | Copy files to or from a USB drive | 2 |
