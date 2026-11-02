@@ -14,7 +14,7 @@
     "dist:win": "electron-builder --win portable --publish never"
   },
   "devDependencies": {
-    "electron": "44.10.1",
+    "electron": "45.1.0",
     "electron-builder": "^26.0.0"
   },
   "build": {
