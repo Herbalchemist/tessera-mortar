@@ -73,6 +73,7 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
         fi
         sync; umount /tmp/ib; }
     fi
+    echo "-- screens (display-info, from the graphics driver)"; /usr/libexec/tessera/display-info list 2>&1 | head -c 4000; echo
     echo "-- mounts"; grep tessera-recover /proc/mounts
     echo "-- lsblk"; lsblk -o NAME,FSTYPE,LABEL,SIZE,MOUNTPOINTS
     echo "tessera-recovertest: end"
