@@ -47,7 +47,7 @@ MNT = os.environ.get("TESSERA_RECOVER_MNT", "/run/tessera-recover")
 TESSERA_ORIGIN = re.compile(r"herbalchemist/tessera", re.I)
 ID_RE = re.compile(r"^[0-9a-fA-F-]{8,40}:[A-Za-z0-9._-]{1,40}$")
 USER_RE = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
-TOOLS = ("signin", "pin", "shards", "version", "clean", "boot", "graphics")
+TOOLS = ("signin", "pin", "shards", "version", "clean", "boot", "graphics", "reset")
 VERSION_ACTIONS = ("default", "keep", "unkeep")
 OSTREE = os.environ.get("TESSERA_OSTREE") or shutil.which("ostree") or "/usr/bin/ostree"
 
@@ -939,6 +939,57 @@ def fix_graphics(inst, req):
             "then restart once more to start the new build"]
 
 
+# ---------------------------------------------------------------- reset Tessera
+# Tessera's own files only, never games or saves: "settings" (PIN, theme, shards, calibration...) or
+# "all" (also the layout and the game list, which Tessera builds again by finding the games). Nothing
+# is deleted: the files move to ~/Tessera/Reset <date>/ in that person's home, to put back by hand.
+RESET_LEVELS = ("settings", "all")
+
+
+def fix_reset(inst, req):
+    level, who = req.get("level"), req.get("who")
+    if level not in RESET_LEVELS:
+        raise RuntimeError("Unknown choice.")
+    people = [u for u in inst["users"] if u.get("path") and (who == "*" or u["name"] == who)]
+    if not people:
+        raise RuntimeError("That person's home folder wasn't found.")
+    stamp = datetime.datetime.now().strftime("%Y-%m-%d %H%M%S")
+    done = []
+    with writable(inst):
+        for u in people:
+            p = tessera_paths(u["path"])
+            data = os.path.dirname(p["settings"])
+            moves = [p["settings"]] if level == "settings" else [data, p["state"]]
+            moves = [m for m in moves if os.path.lexists(m) and not os.path.islink(m)]
+            if not moves:
+                done.append(f"{u['name']}: nothing to reset")
+                continue
+            dest = os.path.join(p["vault"], f"Reset {stamp}")
+            made = make_owned_dirs(dest, u)
+            for m in moves:
+                os.rename(m, os.path.join(dest, os.path.relpath(m, u["path"]).replace(os.sep, " ")))
+            if made:
+                done.append(f"{u['name']}: Tessera's {'settings' if level == 'settings' else 'settings, layout and game list'} were reset (the old ones are in ~/Tessera/Reset {stamp})")
+    return done
+
+
+def make_owned_dirs(path, user):
+    """Creates path and any missing parents inside the person's home, owned by them."""
+    home = user["path"]
+    missing = []
+    p = path
+    while not os.path.isdir(p) and os.path.commonpath([p, home]) == home and p != home:
+        missing.append(p)
+        p = os.path.dirname(p)
+    for d in reversed(missing):
+        os.mkdir(d, 0o700)
+        try:
+            os.chown(d, user["uid"], user["gid"])
+        except OSError:
+            pass
+    return True
+
+
 # ---------------------------------------------------------------- free up space
 # What can be cleared safely: all of it comes back by itself (caches, shaders) or was thrown away.
 CLEAR = {
@@ -1010,7 +1061,7 @@ def fix_clean(inst, req):
     return done or ["There was nothing to clear."]
 
 
-FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version, "clean": fix_clean, "boot": fix_boot, "graphics": fix_graphics}
+FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version, "clean": fix_clean, "boot": fix_boot, "graphics": fix_graphics, "reset": fix_reset}
 
 
 # ---------------------------------------------------------------- back up to a USB drive
@@ -1483,7 +1534,7 @@ def main(argv):
         if not password_ok(inst, req.get("user"), req.get("password")):
             return out({"ok": False, "error": "That isn't the password of an administrator account on this Tessera.", "needPassword": True})
         try:
-            return out({"ok": True, "done": FIXES[tool](inst, req) if tool in ("version", "clean", "graphics") else FIXES[tool](inst)})
+            return out({"ok": True, "done": FIXES[tool](inst, req) if tool in ("version", "clean", "graphics", "reset") else FIXES[tool](inst)})
         except (OSError, RuntimeError) as e:
             return out({"ok": False, "error": f"The repair didn't finish: {e}"})
     print(__doc__)

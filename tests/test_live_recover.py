@@ -663,5 +663,38 @@ class Graphics(Stand):
             lr.fix_graphics(self.inst, {"action": "safe"})
 
 
+class Reset(Stand):
+    def setUp(self):
+        super().setUp()
+        write(os.path.join(self.home, ".local", "share", "tessera", "library.json"), "{}")
+        write(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "compatdata", "1", "save.dat"), "save")
+
+    def vault(self):
+        v = os.path.join(self.home, "Tessera")
+        (r,) = [x for x in os.listdir(v) if x.startswith("Reset ")]
+        return os.path.join(v, r)
+
+    def test_settings_only_keeps_the_layout_and_everything_else(self):
+        done = lr.fix_reset(self.inst, {"level": "settings", "who": "alex"})
+        self.assertIn("alex: Tessera's settings were reset", done[0])
+        self.assertFalse(os.path.exists(os.path.join(self.home, ".local", "share", "tessera", "settings.json")))
+        self.assertTrue(os.path.exists(os.path.join(self.home, ".local", "share", "tessera", "library.json")))
+        self.assertEqual(os.listdir(self.vault()), [".local share tessera settings.json"])
+        st = os.stat(self.vault())
+        self.assertEqual((st.st_uid, stat.S_IMODE(st.st_mode)), (UID, 0o700))
+
+    def test_everything_of_tesseras_but_never_games_or_saves(self):
+        lr.fix_reset(self.inst, {"level": "all", "who": "*"})
+        self.assertFalse(os.path.exists(os.path.join(self.home, ".local", "share", "tessera")))
+        self.assertFalse(os.path.exists(os.path.join(self.home, ".local", "state", "tessera")))
+        self.assertTrue(os.path.exists(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "compatdata", "1", "save.dat")))
+        self.assertEqual(sorted(os.listdir(self.vault())), [".local share tessera", ".local state tessera"])
+
+    def test_bad_requests(self):
+        for req in ({"level": "home", "who": "alex"}, {"level": "all", "who": "../root"}, {"level": "all", "who": "nobody"}):
+            with self.assertRaises(RuntimeError):
+                lr.fix_reset(self.inst, req)
+
+
 if __name__ == "__main__":
     unittest.main()

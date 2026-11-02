@@ -41,7 +41,7 @@ reaching Boot options, is never enough to change anything.
 | Files | Copy files to or from a USB drive | 2 |
 | Terminal | For experts, after the administrator password | 2 |
 | Undo for files | Put a home folder (or one file) back the way it was: Tessera keeps read-only snapshots of the home folder on a schedule (btrfs, cheap), and Recover, or Settings, lists them by date. An idea from CachyOS's snapshots | 2 |
-| Reset Tessera | Tessera's settings only (PIN, theme, layout), keeping games and saves | 2 |
+| Reset Tessera | One person's or everyone's: Tessera's settings (PIN, theme, shards, calibration), or also its layout and game list. Games, saves and other files stay; the old files move to ~/Tessera/Reset <date>, nothing is deleted | ✅ 2 |
 | Reinstall, keep my stuff | A fresh system, keeping the home folder | 2 |
 | Factory reset | Erase everything and start fresh | 2 |
 
