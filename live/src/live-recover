@@ -1088,7 +1088,7 @@ def check_job(inst, repair):
             else:
                 results.append((False, "Errors recorded earlier: " + ", ".join(f"{k} {v}" for k, v in errs.items()) + "."))
         bad = any(ok is False for ok, _ in results)
-        write_state(job="check", phase="done", repair=repair, ok=not bad,
+        write_state(job="check", phase="done", repair=repair, healthy=not bad,
                     results=[{"ok": ok, "text": text} for ok, text in results], files=files)
     except (OSError, RuntimeError) as e:
         if str(e) == "Stopped.":
@@ -1119,7 +1119,8 @@ def main(argv):
     if cmd == "drives":
         return out({"ok": True, "drives": [{k: v for k, v in d.items() if k != "path"} for d in drives()]})
     if cmd == "state":
-        return out({"ok": True, **(load_json(state_file()) or {"phase": "idle"})})
+        st = {k: v for k, v in (load_json(state_file()) or {"phase": "idle"}).items() if k != "ok"}
+        return out({"ok": True, **st})
     if cmd == "cancel":
         for n in ("backup.stop", "check.stop"):
             open(os.path.join(MNT, n), "w").close()

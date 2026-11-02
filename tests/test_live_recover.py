@@ -418,7 +418,7 @@ exit $(cat "{self.tmp}/rc.{tool}" 2>/dev/null || echo 0)
     def test_a_healthy_disk_is_checked_read_only(self):
         self.assertTrue(lr.start_check(self.inst, False)["ok"])
         st = self.result()
-        self.assertEqual((st["phase"], st["ok"], st["repair"]), ("done", True, False))
+        self.assertEqual((st["phase"], st["healthy"], st["repair"]), ("done", True, False))
         self.assertEqual([r["text"] for r in st["results"]], [
             "The drive reports good health.", "The start-up (EFI) partition: no problems.",
             "The boot partition: no problems.", "The main file system: every block checked, no damage."])
@@ -441,7 +441,7 @@ exit $(cat "{self.tmp}/rc.{tool}" 2>/dev/null || echo 0)
         write(os.path.join(self.tmp, "out.dmesg"), "[1.0] BTRFS warning (device nvme0n1p3): checksum error at logical 1 on dev /dev/nvme0n1p3, physical 2, root 5, inode 257, offset 0, length 4096, links 1 (path: alex/Games/big.bin)\n")
         lr.start_check(self.inst, True)
         st = self.result()
-        self.assertFalse(st["ok"])
+        self.assertFalse(st["healthy"])
         self.assertEqual(st["files"], ["alex/Games/big.bin"])
         self.assertIn("2 damaged blocks with no second copy", st["results"][-1]["text"])
 
