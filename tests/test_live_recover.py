@@ -328,5 +328,39 @@ class Backup(Stand):
         self.assertFalse(os.path.exists(lr.state_file()))
 
 
+class FreeUpSpace(Stand):
+    def setUp(self):
+        super().setUp()
+        write(os.path.join(self.home, ".cache", "thumbs", "a"), "x" * 5000)
+        write(os.path.join(self.home, ".local", "share", "Trash", "files", "old.txt"), "y" * 5000)
+        write(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "shadercache", "1", "s.bin"), "z" * 5000)
+        write(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "common", "G", "g.bin"), "g" * 5000)
+        self.keep = os.path.join(self.tmp, "outside", "precious.txt")
+        write(self.keep, "keep")
+        os.symlink(os.path.dirname(self.keep), os.path.join(self.home, ".cache", "link-out"))
+
+    def test_what_uses_the_disk_per_person(self):
+        u = lr.space_use(self.inst)
+        alex = next(p for p in u["people"] if p["name"] == "alex")
+        for k in ("caches", "trash", "shaders", "games"):
+            self.assertGreater(alex[k], 0, k)
+        self.assertEqual(u["versions"], 2)
+
+    def test_only_the_chosen_things_are_cleared_and_links_are_not_followed(self):
+        done = lr.fix_clean(self.inst, {"what": ["caches", "trash", "nonsense"]})
+        self.assertTrue(done[0].startswith("alex: "))
+        self.assertEqual(os.listdir(os.path.join(self.home, ".cache")), [])
+        self.assertEqual(os.listdir(os.path.join(self.home, ".local", "share", "Trash")), [])
+        self.assertTrue(os.path.exists(self.keep))  # what a link in the cache pointed at stays
+        self.assertTrue(os.path.exists(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "shadercache", "1", "s.bin")))
+        self.assertTrue(os.path.exists(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "common", "G", "g.bin")))
+        self.assertTrue(os.path.exists(os.path.join(self.home, ".local", "share", "tessera", "settings.json")))
+        self.assertEqual(lr.fix_clean(self.inst, {"what": ["caches", "trash"]}), ["There was nothing to clear."])
+
+    def test_a_choice_is_needed(self):
+        with self.assertRaises(RuntimeError):
+            lr.fix_clean(self.inst, {"what": ["games"]})
+
+
 if __name__ == "__main__":
     unittest.main()
