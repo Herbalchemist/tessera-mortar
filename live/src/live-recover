@@ -58,7 +58,7 @@ def kv(text):
     for line in (text or "").splitlines():
         if "=" in line and not line.lstrip().startswith("#"):
             k, v = line.split("=", 1)
-            out[k.strip()] = v.strip().strip('"')
+            out[k.strip()] = v.strip().strip('"').strip("'")
     return out
 
 

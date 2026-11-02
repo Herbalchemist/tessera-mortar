@@ -185,6 +185,6 @@ class Layouts(Stand):
 
     def test_version_names_without_the_edition(self):
         d = os.path.join(self.mnt, "root", "ostree", "deploy", "default", "deploy", "aaa.0", "usr", "lib", "os-release")
-        write(d, 'NAME="Tessera"\nVERSION="44.20261026.0 (Kinoite)"\n')
+        write(d, 'NAME="Tessera"\nVERSION="44.20261026.0 (Kinoite)"\nOSTREE_VERSION=\'44.20261026.0\'\n')
         inst = lr.find_installs(self.mnt, self.boot, {})[0]
         self.assertEqual(inst["deployments"][0]["version"], "44.20261026.0")
