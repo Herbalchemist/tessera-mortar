@@ -202,6 +202,25 @@ def live_disk():
     return None
 
 
+def mounts_of(dev):
+    """Every place a device is mounted (by its real path)."""
+    real = os.path.realpath(dev)
+    out = []
+    for line in (read("/proc/mounts") or "").splitlines():
+        p = line.split()
+        if len(p) > 1 and p[0].startswith("/dev/") and os.path.realpath(p[0]) == real:
+            out.append(p[1].replace("\\040", " "))
+    return out
+
+
+def release(dev):
+    """Unmount a device everywhere this helper mounted it (a second, read-only mount of the same
+    file system would keep it read-only)."""
+    for m in reversed(mounts_of(dev)):
+        if m.startswith(MNT.rstrip("/") + "/"):
+            run(["umount", m])
+
+
 def mount(dev, fstype, where, rw=False):
     os.makedirs(where, exist_ok=True)
     if os.path.ismount(where):
@@ -233,7 +252,12 @@ def probe():
                 if mount(b["path"], b["fstype"], bw) and os.path.isdir(os.path.join(bw, "loader", "entries")):
                     boot = {"path": bw, "device": b["path"], "uuid": b["uuid"]}
                     break
-        for inst in find_installs(where, boot["path"] if boot else None, {"device": d["path"], "uuid": d["uuid"], "type": d["fstype"]}):
+                run(["umount", bw])  # not a boot partition
+        found = find_installs(where, boot["path"] if boot else None, {"device": d["path"], "uuid": d["uuid"], "type": d["fstype"]})
+        if not found:
+            run(["umount", where])  # nothing of Tessera's here: don't keep it mounted
+            continue
+        for inst in found:
             inst["id"] = f"{d['uuid']}:{inst['stateroot']}"
             inst["mount"] = where
             inst["disk"] = {"name": disk, "model": ((parent or {}).get("model") or "").strip(), "size": int((parent or {}).get("size") or 0)}
@@ -540,7 +564,7 @@ class boot_mounted:
             raise RuntimeError("The boot partition of that Tessera wasn't found.")
         if os.environ.get("TESSERA_RECOVER_MNT"):
             return self  # tests: plain folders
-        run(["umount", b["path"]])
+        release(b["device"])
         r = run(["mount", "-o", "rw", b["device"], self.target])
         if r.returncode != 0:
             run(["mount", "-o", "ro", b["device"], b["path"]])
