@@ -40,6 +40,7 @@ reaching Boot options, is never enough to change anything.
 | Network | Wi-Fi and wired, for downloads | 2 (the USB has it already) |
 | Files | Copy files to or from a USB drive | 2 |
 | Terminal | For experts, after the administrator password | 2 |
+| Undo for files | Put a home folder (or one file) back the way it was: Tessera keeps read-only snapshots of the home folder on a schedule (btrfs, cheap), and Recover, or Settings, lists them by date. An idea from CachyOS's snapshots | 2 |
 | Reset Tessera | Tessera's settings only (PIN, theme, layout), keeping games and saves | 2 |
 | Reinstall, keep my stuff | A fresh system, keeping the home folder | 2 |
 | Factory reset | Erase everything and start fresh | 2 |
