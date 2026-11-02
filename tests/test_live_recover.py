@@ -166,10 +166,6 @@ class CommandLine(Stand):
         self.assertEqual(lr.main(["nope"]), 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Layouts(Stand):
     def test_home_folders_in_a_var_subvolume_are_found(self):
         shutil.move(os.path.join(self.mnt, "home"), os.path.join(self.tmp, "home-moved"))
@@ -226,3 +222,111 @@ class Versions(Stand):
         inst = lr.find_installs(self.mnt, self.boot, {})[0]
         inst.update(id=self.inst["id"])
         self.assertEqual([v["kept"] for v in lr.public(inst)["versions"]], [False, True])
+
+
+class Backup(Stand):
+    def setUp(self):
+        super().setUp()
+        self.old_mnt = lr.MNT
+        lr.MNT = self.tmp
+        os.environ["TESSERA_RECOVER_FOREGROUND"] = "1"
+        write(os.path.join(self.home, "Pictures", "a.png"), "png")
+        write(os.path.join(self.home, ".cache", "junk"), "x")
+        write(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "common", "Game", "big.bin"), "game")
+        write(os.path.join(self.home, ".local", "share", "Steam", "steamapps", "compatdata", "1", "save.dat"), "save")
+        write(os.path.join(self.home, "Games", "Heroic", "Prefixes", "x", "save.sav"), "heroic save")
+        os.symlink("Pictures/a.png", os.path.join(self.home, "link.png"))
+        lsblk = {"blockdevices": [
+            {"name": "nvme0n1", "path": "/dev/nvme0n1", "type": "disk", "rm": False, "tran": "nvme", "size": 1000, "children": [
+                {"name": "nvme0n1p3", "path": "/dev/nvme0n1p3", "pkname": "nvme0n1", "type": "part", "fstype": "btrfs", "uuid": "1234-abcd", "size": 900}]},
+            {"name": "sdb", "path": "/dev/sdb", "type": "disk", "rm": True, "tran": "usb", "model": "SanDisk ", "size": 64, "children": [
+                {"name": "sdb1", "path": "/dev/sdb1", "pkname": "sdb", "type": "part", "fstype": "exfat", "uuid": "AB12-CD34", "label": "STICK", "size": 64}]},
+            {"name": "sdc", "path": "/dev/sdc", "type": "disk", "rm": True, "tran": "usb", "size": 64, "children": [
+                {"name": "sdc1", "path": "/dev/sdc1", "pkname": "sdc", "type": "part", "fstype": "ext4", "uuid": "eeee-ffff", "size": 64}]}]}
+        write(os.path.join(self.tmp, "lsblk.json"), json.dumps(lsblk))
+        os.environ["TESSERA_RECOVER_LSBLK"] = os.path.join(self.tmp, "lsblk.json")
+
+    def tearDown(self):
+        lr.MNT = self.old_mnt
+        os.environ.pop("TESSERA_RECOVER_FOREGROUND", None)
+        os.environ.pop("TESSERA_RECOVER_LSBLK", None)
+        super().tearDown()
+
+    def copied(self, uuid):
+        top = os.path.join(self.tmp, "usb-" + uuid)
+        (folder,) = [f for f in os.listdir(top) if f.startswith("Tessera backup ")]
+        return os.path.join(top, folder)
+
+    def test_only_usb_drives_are_offered(self):
+        self.assertEqual([(d["uuid"], d["label"], d["model"]) for d in lr.drives([self.inst])], [("AB12-CD34", "STICK", "SanDisk"), ("eeee-ffff", "", "")])
+
+    def test_a_tessera_on_an_external_drive_is_never_offered(self):
+        external = dict(self.inst, disk={"name": "sdc"})
+        self.assertEqual([d["uuid"] for d in lr.drives([external])], ["AB12-CD34"])
+
+    def test_my_files_leave_out_games_and_caches_but_keep_saves(self):
+        r = lr.start_backup(self.inst, {"who": "alex", "drive": "AB12-CD34", "what": "mine"})
+        self.assertTrue(r["ok"])
+        st = lr.load_json(lr.state_file())
+        self.assertEqual(st["phase"], "done")
+        out = os.path.join(self.copied("AB12-CD34"), "alex")
+        self.assertTrue(os.path.exists(os.path.join(out, "Pictures", "a.png")))
+        self.assertTrue(os.path.exists(os.path.join(out, ".local", "share", "Steam", "steamapps", "compatdata", "1", "save.dat")))
+        self.assertTrue(os.path.exists(os.path.join(out, "Games", "Heroic", "Prefixes", "x", "save.sav")))
+        self.assertFalse(os.path.exists(os.path.join(out, ".cache")))
+        self.assertFalse(os.path.exists(os.path.join(out, ".local", "share", "Steam", "steamapps", "common")))
+        # exFAT holds no links: listed, not copied
+        self.assertFalse(os.path.lexists(os.path.join(out, "link.png")))
+        with open(os.path.join(self.copied("AB12-CD34"), "not copied.txt")) as f:
+            self.assertIn("link.png", f.read())
+        self.assertEqual(st["skipped"], 1)
+
+    def test_everything_keeps_games_and_links_on_a_linux_drive(self):
+        lr.start_backup(self.inst, {"who": "alex", "drive": "eeee-ffff", "what": "all"})
+        out = os.path.join(self.copied("eeee-ffff"), "alex")
+        self.assertTrue(os.path.exists(os.path.join(out, ".local", "share", "Steam", "steamapps", "common", "Game", "big.bin")))
+        self.assertEqual(os.readlink(os.path.join(out, "link.png")), "Pictures/a.png")
+        self.assertFalse(os.path.exists(os.path.join(out, ".cache")))
+        mode = stat.S_IMODE(os.stat(os.path.join(out, ".local", "share", "tessera", "settings.json")).st_mode)
+        self.assertEqual(mode, 0o600)
+
+    def test_wrong_choices_are_refused(self):
+        self.assertFalse(lr.start_backup(self.inst, {"who": "nobody", "drive": "AB12-CD34", "what": "mine"})["ok"])
+        self.assertFalse(lr.start_backup(self.inst, {"who": "alex", "drive": "1234-abcd", "what": "mine"})["ok"])  # the install's own disk
+        self.assertFalse(lr.start_backup(self.inst, {"who": "alex", "drive": "AB12-CD34", "what": "../x"})["ok"])
+
+    def test_a_backup_can_be_stopped(self):
+        open(os.path.join(self.tmp, "backup.stop"), "w").close()
+        orig = lr.backup_job
+        # the stop file is cleared when a job starts, so set it again just after
+        def job(*a):
+            real_copy = lr.copy_tree
+            lr.copy_tree = lambda *x: real_copy(*x[:4], x[4], lambda: True)
+            try:
+                orig(*a)
+            finally:
+                lr.copy_tree = real_copy
+        lr.backup_job = job
+        try:
+            lr.start_backup(self.inst, {"who": "alex", "drive": "eeee-ffff", "what": "mine"})
+        finally:
+            lr.backup_job = orig
+        self.assertEqual(lr.load_json(lr.state_file())["phase"], "canceled")
+
+    def test_backup_needs_the_administrator_password(self):
+        import io, sys
+        old = sys.stdin, sys.stdout
+        sys.stdin, sys.stdout = io.StringIO(json.dumps({"user": "alex", "password": "nope", "who": "alex", "drive": "AB12-CD34", "what": "mine"})), io.StringIO()
+        find, lr.find = lr.find, lambda i: self.inst
+        try:
+            lr.main(["backup", self.inst["id"]])
+            out = json.loads(sys.stdout.getvalue())
+        finally:
+            sys.stdin, sys.stdout = old
+            lr.find = find
+        self.assertEqual(out.get("needPassword"), True)
+        self.assertFalse(os.path.exists(lr.state_file()))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -65,9 +65,13 @@ stop
 # tessera.recovertest the live system runs live-recover's look-only commands once and writes what
 # they found to the serial console (serial-recover.log), between "tessera-recovertest" markers.
 echo "== recover: the USB again, finding the installed Tessera"
+# a small FAT USB drive for Back up to a USB drive
+truncate -s 512M "$work/stick.img"
+if command -v mkfs.vfat >/dev/null; then mkfs.vfat -n STICK "$work/stick.img" >/dev/null; fi
 vm recover -kernel "$work/vmlinuz" -initrd "$work/initrd.img" \
   -append "root=live:CDLABEL=Tessera-Live rd.live.image enforcing=0 console=tty0 console=ttyS0,115200 tessera.recovertest ${BOOT_ARGS:-}" \
-  -drive file="$ISO",media=cdrom,readonly=on
+  -drive file="$ISO",media=cdrom,readonly=on \
+  -device qemu-xhci,id=xhci -drive if=none,id=stick,format=raw,file="$work/stick.img" -device usb-storage,bus=xhci.0,drive=stick
 for t in 1 2 3 4 5 6; do sleep 60; grep -aq "tessera-recovertest: end" "$OUT/serial-recover.log" 2>/dev/null && break; done
 shot recover
 stop

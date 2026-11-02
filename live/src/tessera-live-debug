@@ -28,6 +28,14 @@ if grep -qw 'tessera.recovertest' /proc/cmdline; then
                  '{"tool": "version", "action": "default", "index": 1, "user": "tesstester", "password": "tessera1"}'; do
         echo "-- fix $req"; echo "$req" | /usr/libexec/tessera/live-recover fix "$id"
       done
+      echo "-- drives"; /usr/libexec/tessera/live-recover drives
+      stick=$(/usr/libexec/tessera/live-recover drives | python3 -c 'import json,sys; d=json.load(sys.stdin).get("drives") or [{}]; print(d[0].get("uuid",""))')
+      if [ -n "$stick" ]; then
+        echo "-- backup"; printf '{"user": "tesstester", "password": "tessera1", "who": "tesstester", "drive": "%s", "what": "mine"}' "$stick" | /usr/libexec/tessera/live-recover backup "$id"
+        for t in $(seq 1 120); do /usr/libexec/tessera/live-recover state | grep -q '"phase": "copying"' || break; sleep 1; done
+        echo "-- backup state"; /usr/libexec/tessera/live-recover state
+        echo "-- on the stick"; find /run/tessera-recover/usb-"$stick" -maxdepth 3 | head -20
+      fi
       echo "-- after"; /usr/libexec/tessera/live-recover probe
       for e in /run/tessera-recover/boot-*/loader/entries/*.conf; do echo "$e: $(grep -E '^(title|options)' "$e" | tr '\n' ' ' | cut -c1-200)"; done
     done

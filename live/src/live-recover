@@ -10,6 +10,11 @@ screens hand over an install's id from that list, never a path or a command of t
   live-recover diagnose ID      what's wrong, as far as can be seen: versions, sign-in at boot, space,
                                 the disk's health, errors from the last start (JSON)
   live-recover report ID        a problem report from that, saved in the install's Tessera folder (JSON)
+  live-recover drives           USB drives a backup can go to (JSON)
+  live-recover backup ID        copy a home folder to a USB drive, in the background; JSON on stdin:
+                                {"user": admin, "password": ..., "who": person, "drive": uuid, "what": "mine"|"all"}
+  live-recover state            the backup's progress (JSON)
+  live-recover cancel           stop the backup
   live-recover fix ID           a repair; JSON on stdin: {"tool": ..., "user": ..., "password": ...}
       signin   start in Tessera at boot again (turns the automatic sign-in back on)
       pin      remove the admin PIN (Tessera then starts without one; set a new one in Settings)
@@ -608,6 +613,207 @@ def fix_version(inst, req):
 FIXES = {"signin": fix_signin, "pin": fix_pin, "shards": fix_shards, "version": fix_version}
 
 
+# ---------------------------------------------------------------- back up to a USB drive
+USB_FS = ("vfat", "exfat", "ntfs", "ext4", "btrfs", "xfs")
+FAT_LIKE = ("vfat", "exfat", "ntfs")  # no links, no owners; FAT also no file over 4 GB
+# Things that can be downloaded again, left out of "my files"
+SKIP_MINE = [
+    ".cache", ".local/share/Trash",
+    ".local/share/Steam/steamapps/common", ".local/share/Steam/steamapps/shadercache", ".local/share/Steam/steamapps/downloading",
+    ".steam/steam/steamapps/common", ".steam/steam/steamapps/shadercache",
+    ".var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common", ".var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/shadercache",
+    ".var/app/com.valvesoftware.Steam/cache", ".var/app/com.heroicgameslauncher.hgl/cache",
+]
+SKIP_ALL = [".cache", ".local/share/Trash"]
+
+
+def state_file():
+    return os.path.join(MNT, "backup.json")
+
+
+def drives(installs=None):
+    """Removable drives with a file system a backup can go on: never this USB, never a disk with a
+    Tessera on it (an install on an external drive). Looked at read-only; only the drive a backup
+    goes to is made writable, when it starts."""
+    if installs is None:
+        installs = probe()
+    devs = list(flat(lsblk().get("blockdevices")))
+    skip = {live_disk()} | {(i.get("disk") or {}).get("name") for i in installs}
+    skip.discard(None)
+    out = []
+    for d, parent in devs:
+        disk = d.get("pkname") or (parent or {}).get("name") or d.get("name")
+        top = next((x for x, _ in devs if x.get("name") == disk), parent or d)
+        removable = bool(top.get("rm")) or (top.get("tran") or "") == "usb"
+        if not removable or disk in skip or d.get("fstype") not in USB_FS or not d.get("uuid"):
+            continue
+        where = os.path.join(MNT, "usb-" + d["uuid"])
+        if not mount_usb(d["path"], d["fstype"], where):
+            continue
+        sp = space(where) or {}
+        out.append({"uuid": d["uuid"], "device": d["path"], "fstype": d["fstype"], "label": d.get("label") or "", "model": (top.get("model") or "").strip(),
+                    "size": int(d.get("size") or 0), "free": sp.get("free", 0), "path": where})
+    return out
+
+
+def mount_usb(dev, fstype, where, rw=False):
+    os.makedirs(where, exist_ok=True)
+    if os.environ.get("TESSERA_RECOVER_MNT"):
+        return True  # tests
+    if os.path.ismount(where):
+        return run(["mount", "-o", "remount," + ("rw" if rw else "ro"), where]).returncode == 0 if rw else True
+    args = ["mount", "-o", ("rw" if rw else "ro") + ",noatime"] + (["-t", "ntfs3"] if fstype == "ntfs" else []) + [dev, where]
+    return run(args).returncode == 0
+
+
+def plan(src, skip):
+    """[(relative path, size, kind)] of everything to copy, and the total size."""
+    skip = {os.path.normpath(s) for s in skip}
+    items, total = [], 0
+    for root, dirs, files in os.walk(src, followlinks=False):
+        rel_root = os.path.relpath(root, src)
+        dirs[:] = sorted(d for d in dirs if os.path.normpath(os.path.join(rel_root, d)) not in skip)
+        for name in sorted(files) + [d for d in dirs if os.path.islink(os.path.join(root, d))]:
+            p = os.path.join(root, name)
+            rel = os.path.normpath(os.path.join(rel_root, name))
+            if rel in skip:
+                continue
+            if os.path.islink(p):
+                items.append((rel, 0, "link"))
+            elif os.path.isfile(p):
+                size = os.path.getsize(p)
+                items.append((rel, size, "file"))
+                total += size
+        items.append((os.path.normpath(rel_root), 0, "dir"))
+    return items, total
+
+
+def copy_tree(src, dest, skip, fstype, progress=lambda done, total, name: None, stop=lambda: False):
+    """Copy src into dest; returns {copied, bytes, skipped: [(path, why)]}."""
+    items, total = plan(src, skip)
+    fat = fstype in FAT_LIKE
+    done, copied, skipped = 0, 0, []
+    os.makedirs(dest, exist_ok=True)
+    for rel, size, kind in sorted(items, key=lambda x: (x[2] != "dir", x[0])):
+        if stop():
+            raise RuntimeError("Stopped.")
+        target = os.path.join(dest, rel)
+        source = os.path.join(src, rel)
+        try:
+            if kind == "dir":
+                os.makedirs(target, exist_ok=True)
+                continue
+            if kind == "link":
+                if fat:
+                    skipped.append((rel, "a link (this drive can't hold links)"))
+                else:
+                    if os.path.lexists(target):
+                        os.remove(target)
+                    os.symlink(os.readlink(source), target)
+                continue
+            if fstype == "vfat" and size >= 4 << 30:
+                skipped.append((rel, "over 4 GB (this drive's FAT format can't hold it)"))
+                continue
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with open(source, "rb") as fi, open(target, "wb") as fo:
+                while True:
+                    chunk = fi.read(8 << 20)
+                    if not chunk:
+                        break
+                    fo.write(chunk)
+                    done += len(chunk)
+                    progress(done, total, rel)
+                    if stop():
+                        raise RuntimeError("Stopped.")
+            st = os.stat(source)
+            os.utime(target, (st.st_atime, st.st_mtime))
+            if not fat:
+                os.chmod(target, st.st_mode & 0o7777)
+                try:
+                    os.chown(target, st.st_uid, st.st_gid)
+                except OSError:
+                    pass
+            copied += 1
+        except RuntimeError:
+            raise
+        except OSError as e:
+            skipped.append((rel, e.strerror or str(e)))
+    return {"copied": copied, "bytes": done, "total": total, "skipped": skipped}
+
+
+def write_state(**kw):
+    os.makedirs(MNT, exist_ok=True)
+    tmp = state_file() + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"at": datetime.datetime.now().timestamp(), **kw}, f)
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, state_file())
+
+
+def backup_job(inst, who, drive, what):
+    stamp = datetime.datetime.now().strftime("%Y-%m-%d %H%M")
+    dest = os.path.join(drive["path"], f"Tessera backup {stamp}", who["name"])
+    stopfile = os.path.join(MNT, "backup.stop")
+    if os.path.exists(stopfile):
+        os.remove(stopfile)
+    last = [0.0]
+
+    def progress(done, total, name):
+        now = datetime.datetime.now().timestamp()
+        if now - last[0] > 0.5:
+            last[0] = now
+            write_state(phase="copying", done=done, total=total, line=name[-120:], pid=os.getpid())
+
+    write_state(phase="copying", done=0, total=0, line="Counting what to copy…", pid=os.getpid())
+    try:
+        r = copy_tree(who["path"], dest, SKIP_MINE if what == "mine" else SKIP_ALL, drive["fstype"], progress, lambda: os.path.exists(stopfile))
+        run(["sync"])
+        listing = "\n".join(f"{p}: {why}" for p, why in r["skipped"])
+        if r["skipped"]:
+            with open(os.path.join(dest, "..", "not copied.txt"), "w") as f:
+                f.write(listing + "\n")
+        if not os.environ.get("TESSERA_RECOVER_MNT"):
+            run(["umount", drive["path"]])  # safe to unplug
+        write_state(phase="done", done=r["bytes"], total=r["total"], copied=r["copied"], skipped=len(r["skipped"]),
+                    folder=os.path.basename(os.path.dirname(dest)), drive=drive.get("label") or drive.get("model") or "the USB drive")
+    except (OSError, RuntimeError) as e:
+        if not os.environ.get("TESSERA_RECOVER_MNT"):
+            run(["sync"])
+            run(["umount", drive["path"]])
+        write_state(phase="error" if str(e) != "Stopped." else "canceled", error=str(e))
+
+
+def start_backup(inst, req):
+    who = next((u for u in inst["users"] if u["name"] == req.get("who") and u.get("path")), None)
+    if not who:
+        return {"ok": False, "error": "That person's home folder wasn't found."}
+    drive = next((d for d in drives(probe() if not os.environ.get("TESSERA_RECOVER_MNT") else [inst]) if d["uuid"] == req.get("drive")), None)
+    if not drive:
+        return {"ok": False, "error": "That USB drive isn't there any more."}
+    if not mount_usb(drive["device"], drive["fstype"], drive["path"], rw=True):
+        return {"ok": False, "error": "That USB drive can't be written to (is it locked, or full of errors?)."}
+    if req.get("what") not in ("mine", "all"):
+        return {"ok": False, "error": "Unknown choice."}
+    st = load_json(state_file()) or {}
+    if st.get("phase") == "copying" and st.get("pid") and os.path.exists(f"/proc/{st['pid']}"):
+        return {"ok": False, "error": "A backup is already running."}
+    if os.environ.get("TESSERA_RECOVER_FOREGROUND"):
+        backup_job(inst, who, drive, req["what"])
+        return {"ok": True, "started": True}
+    pid = os.fork()
+    if pid:
+        return {"ok": True, "started": True}
+    os.setsid()
+    with open(os.devnull, "rb") as dn_in, open(os.devnull, "wb") as dn_out:
+        os.dup2(dn_in.fileno(), 0)
+        os.dup2(dn_out.fileno(), 1)
+        os.dup2(dn_out.fileno(), 2)
+    try:
+        backup_job(inst, who, drive, req["what"])
+    finally:
+        os._exit(0)
+
+
 # ---------------------------------------------------------------- command line
 def out(obj):
     print(json.dumps(obj))
@@ -621,7 +827,14 @@ def main(argv):
     cmd = argv[0]
     if cmd == "probe":
         return out({"ok": True, "installs": [public(i) for i in probe()]})
-    if cmd in ("diagnose", "report", "fix"):
+    if cmd == "drives":
+        return out({"ok": True, "drives": [{k: v for k, v in d.items() if k != "path"} for d in drives()]})
+    if cmd == "state":
+        return out({"ok": True, **(load_json(state_file()) or {"phase": "idle"})})
+    if cmd == "cancel":
+        open(os.path.join(MNT, "backup.stop"), "w").close()
+        return out({"ok": True})
+    if cmd in ("diagnose", "report", "fix", "backup"):
         inst = find(argv[1] if len(argv) > 1 else "")
         if not inst:
             return out({"ok": False, "error": "That Tessera install isn't there any more."})
@@ -641,6 +854,10 @@ def main(argv):
             req = json.loads(sys.stdin.read(65536) or "{}")
         except ValueError:
             req = {}
+        if cmd == "backup":
+            if not password_ok(inst, req.get("user"), req.get("password")):
+                return out({"ok": False, "error": "That isn't the password of an administrator account on this Tessera.", "needPassword": True})
+            return out(start_backup(inst, req))
         tool = req.get("tool")
         if tool not in TOOLS:
             return out({"ok": False, "error": "Unknown repair."})
