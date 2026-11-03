@@ -4,6 +4,19 @@
 # system log and Tessera's session log to the serial console, for testing in virtual machines.
 # With "tessera.recovertest" instead: once, runs live-recover's look-only commands (probe, diagnose)
 # and writes what they found to the serial console, for the install test (tools/install-test.sh).
+# With "tessera.probetest": once, what the installer sees of the disks (live-install probe, without
+# the time zones) and the raw lsblk and sfdisk answers it reads them from, on the serial console.
+if grep -qw 'tessera.probetest' /proc/cmdline; then
+  ( sleep 30
+    out=/dev/ttyS0; [ -w "$out" ] || out=/dev/console
+    { echo "tessera-probetest: begin"
+      /usr/libexec/tessera/live-install probe | python3 -c 'import json,sys; d=json.load(sys.stdin); d.pop("timezones",None); [x.pop("table",None) for x in d.get("disks",[])]; print(json.dumps(d, indent=1))'
+      for dev in $(lsblk -dnpo PATH,TYPE | awk '$2=="disk"{print $1}'); do
+        echo "-- lsblk $dev"; lsblk -J -b -o PATH,SIZE,FSTYPE,LABEL,PARTLABEL,PARTTYPE,PARTTYPENAME,TYPE "$dev"
+        echo "-- sfdisk $dev"; sfdisk --json "$dev"
+      done
+      echo "tessera-probetest: end"; } > "$out" 2>&1 )
+fi
 if grep -qw 'tessera.recovertest' /proc/cmdline; then
   sleep 40
   out=/dev/ttyS0; [ -w "$out" ] || out=/dev/console

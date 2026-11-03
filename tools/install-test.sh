@@ -47,7 +47,7 @@ alive() { kill -0 "$(cat "$work/pid")" 2>/dev/null; }
 
 echo "== live boot ($accel)"
 vm live -kernel "$work/vmlinuz" -initrd "$work/initrd.img" \
-  -append "root=live:CDLABEL=Tessera-Live rd.live.image enforcing=0 console=tty0 console=ttyS0,115200 ${BOOT_ARGS:-}" \
+  -append "root=live:CDLABEL=Tessera-Live rd.live.image enforcing=0 console=tty0 console=ttyS0,115200 ${LAYOUT:+tessera.debug=1 tessera.probetest} ${BOOT_ARGS:-}" \
   -drive file="$ISO",media=cdrom,readonly=on
 sleep 150; shot welcome
 key ret; sleep 20; shot disk                 # Install Tessera
@@ -72,6 +72,8 @@ cp /run/tessera-install/state.json "$OUT/" 2>/dev/null || :
 stop
 
 if [ "${LAYOUT:-}" = alongside ]; then
+  sed -n '/tessera-probetest: begin/,/tessera-probetest: end/p' "$OUT/serial-live.log" > "$OUT/probe.txt" 2>/dev/null || :
+  echo "== what the installer saw"; head -c 6000 "$OUT/probe.txt"
   echo "== next to Windows: is Windows still there?"
   loop=$(sudo losetup -fP --show "$work/disk.img"); m=$(mktemp -d)
   { sudo sgdisk -p "$loop"
