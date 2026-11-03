@@ -18,3 +18,10 @@ for sb in ("auto", "manual"):
 c = li.check(t.GOOD, {**t.OFFERED, "source": "online", "online": True, "imagesDir": None})
 with open(os.path.join(out, "tessera-online.ks"), "w") as f:
     f.write(li.kickstart(c, None, "$6$salt$hash", sb_key="/k.der"))
+# next to Windows, and replacing a partition
+li.EFI_DIR = t.tempfile.mkdtemp()
+d = t.win_disk()
+for name, extra in (("alongside", {"layout": "alongside"}), ("replace", {"layout": "replace", "remove": ["/dev/nvme0n1p4"]})):
+    c = li.check({**t.GOOD, **extra}, {**t.OFFERED, "disks": [d]})
+    with open(os.path.join(out, f"tessera-{name}.ks"), "w") as f:
+        f.write(li.kickstart(c, t.OFFERED["imagesDir"], "$6$salt$hash", sb_key="/k.der"))

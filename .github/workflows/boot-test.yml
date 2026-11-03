@@ -23,6 +23,11 @@ on:
         description: Extra kernel arguments (e.g. tessera.live=desktop)
         required: false
         default: ''
+      layout:
+        description: install mode only - erase (an empty disk) or alongside (next to a stand-in Windows)
+        type: choice
+        default: erase
+        options: [erase, alongside]
       seconds:
         description: How long to let it run
         required: false
@@ -47,7 +52,7 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q xorriso qemu-system-x86 ovmf socat imagemagick netpbm
+          sudo apt-get install -y -q xorriso qemu-system-x86 ovmf socat imagemagick netpbm gdisk dosfstools ntfs-3g
       - name: Download and join the ISO
         env:
           GH_TOKEN: ${{ github.token }}
@@ -65,7 +70,7 @@ jobs:
         run: |
           sudo chmod 666 /dev/kvm || :
           if [ "${{ inputs.mode }}" = install ]; then
-            BOOT_ARGS="${{ inputs.args }}" tools/install-test.sh /mnt/iso/Tessera-Live.iso
+            LAYOUT="${{ inputs.layout == 'alongside' && 'alongside' || '' }}" BOOT_ARGS="${{ inputs.args }}" tools/install-test.sh /mnt/iso/Tessera-Live.iso
             grep -ahE "tessera-install:" install-test/serial-live.log | tail -30 | cut -c1-200 > /tmp/milestones || :
             echo "::notice title=Install milestones::$(sed 's/%/%25/g' /tmp/milestones | awk 1 ORS=%0A)"
           else

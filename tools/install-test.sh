@@ -4,7 +4,9 @@
 # the keyboard (through QEMU's monitor) to install onto an empty virtual disk, then boots the installed
 # system. Screenshots of every step and the serial console go to install-test/.
 #   tools/install-test.sh path/to/Tessera-Live.iso
-# Env: BOOT_ARGS (extra kernel arguments for the live boot), INSTALL_MINUTES (default 40)
+# Env: BOOT_ARGS (extra kernel arguments for the live boot), INSTALL_MINUTES (default 40),
+#      LAYOUT=alongside (the disk starts with a stand-in Windows on it: install next to it, then check
+#      that Windows' boot files and partition are still there; needs sudo, sgdisk, mkfs.vfat, mkntfs)
 set -euo pipefail
 ISO=$(realpath "$1")
 OUT=$(realpath -m install-test); mkdir -p "$OUT"; rm -f "$OUT"/*
@@ -16,6 +18,18 @@ for f in /usr/share/OVMF/OVMF_VARS_4M.fd /usr/share/OVMF/OVMF_VARS.fd; do [ -f "
 cp "$VARS" "$work/vars.fd"
 accel=tcg; [ -w /dev/kvm ] && accel=kvm
 truncate -s 100G "$work/disk.img"
+if [ "${LAYOUT:-}" = alongside ]; then
+  # a stand-in Windows: its 100 MB boot partition (with bootmgfw.efi), the reserved one, 30 GB of
+  # NTFS with a file on it; the rest of the disk is free
+  sgdisk -n1:1M:+100M -t1:ef00 -n2:0:+16M -t2:0c01 -n3:0:+30G -t3:0700 -c3:"Basic data partition" "$work/disk.img" >/dev/null
+  loop=$(sudo losetup -fP --show "$work/disk.img")
+  sudo mkfs.vfat -F 32 -n SYSTEM "${loop}p1" >/dev/null 2>&1 || sudo mkfs.vfat -n SYSTEM "${loop}p1" >/dev/null
+  sudo mkntfs -Q -L FAKEWIN "${loop}p3" >/dev/null
+  m=$(mktemp -d); sudo mount "${loop}p1" "$m"; sudo mkdir -p "$m/EFI/Microsoft/Boot" "$m/EFI/Boot"
+  echo "stand-in Windows boot manager" | sudo tee "$m/EFI/Microsoft/Boot/bootmgfw.efi" >/dev/null; sudo umount "$m"
+  sudo mount -t ntfs-3g "${loop}p3" "$m" 2>/dev/null || sudo mount "${loop}p3" "$m"
+  echo "my Windows files" | sudo tee "$m/keep-me.txt" >/dev/null; sudo umount "$m"; sudo losetup -d "$loop"
+fi
 n=0
 shot() { n=$((n + 1)); echo "screendump $OUT/$(printf %02d $n)-$1.ppm" | socat - unix-connect:"$work/mon" >/dev/null || :; sleep 1; }
 key() { for k in "$@"; do echo "sendkey $k" | socat - unix-connect:"$work/mon" >/dev/null || :; sleep 0.25; done; }
@@ -38,6 +52,7 @@ vm live -kernel "$work/vmlinuz" -initrd "$work/initrd.img" \
 sleep 150; shot welcome
 key ret; sleep 20; shot disk                 # Install Tessera
 key ret; sleep 4; shot graphics              # the only disk
+if [ "${LAYOUT:-}" = alongside ]; then key ret; sleep 4; shot graphics-after-layout; fi   # "Install next to Windows" (first)
 key ret; sleep 3; shot name                  # the recommended build
 typetext "tess tester"; key ret; sleep 3; shot account
 key ret; sleep 3; shot password              # keep the suggested user name
@@ -55,6 +70,21 @@ while [ $SECONDS -lt $end ] && alive; do
 done
 cp /run/tessera-install/state.json "$OUT/" 2>/dev/null || :
 stop
+
+if [ "${LAYOUT:-}" = alongside ]; then
+  echo "== next to Windows: is Windows still there?"
+  loop=$(sudo losetup -fP --show "$work/disk.img"); m=$(mktemp -d)
+  { sudo sgdisk -p "$loop"
+    sudo mount -o ro "${loop}p1" "$m" && {
+      [ -f "$m/EFI/Microsoft/Boot/bootmgfw.efi" ] && echo "PASS Windows' boot manager is still on the boot partition" || echo "FAIL Windows' boot manager is gone"
+      [ -d "$m/EFI/fedora" ] && echo "PASS Tessera's boot files are on the same boot partition" || echo "FAIL Tessera's boot files are missing"
+      sudo umount "$m"; }
+    [ "$(sudo blkid -s LABEL -o value "${loop}p3")" = FAKEWIN ] && echo "PASS the Windows partition is untouched (label)" || echo "FAIL the Windows partition changed"
+    sudo mount -o ro -t ntfs-3g "${loop}p3" "$m" 2>/dev/null || sudo mount -o ro "${loop}p3" "$m"
+    grep -q "my Windows files" "$m/keep-me.txt" 2>/dev/null && echo "PASS the file on Windows is still there" || echo "FAIL the file on Windows is gone"
+    sudo umount "$m" 2>/dev/null; } > "$OUT/alongside.txt" 2>&1
+  sudo losetup -d "$loop"; cat "$OUT/alongside.txt"
+fi
 
 echo "== first boot from the disk"
 vm installed

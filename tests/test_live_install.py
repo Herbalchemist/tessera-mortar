@@ -36,6 +36,126 @@ class Disks(unittest.TestCase):
         self.assertTrue(ds[1]["removable"])
 
 
+# ---------------------------------------------------------------- next to other systems
+MiB, GB = 1024 ** 2, 1000 ** 3
+SECT = 512
+
+
+def table(parts, total=1000 * GB):
+    """An sfdisk --json table: parts are (node, start bytes, size bytes)."""
+    return {"partitiontable": {"label": "gpt", "sectorsize": SECT, "firstlba": 2048, "lastlba": total // SECT - 34,
+                               "partitions": [{"node": n, "start": a // SECT, "size": z // SECT} for n, a, z in parts]}}
+
+
+WIN_PARTS = [("/dev/nvme0n1p1", MiB, 100 * MiB), ("/dev/nvme0n1p2", 101 * MiB, 16 * MiB),
+             ("/dev/nvme0n1p3", 117 * MiB, 400 * GB), ("/dev/nvme0n1p4", 117 * MiB + 400 * GB, 600 * MiB)]
+WIN_LSBLK = [
+    {"path": "/dev/nvme0n1p1", "size": 100 * MiB, "fstype": "vfat", "parttype": li.ESP_TYPE, "parttypename": "EFI System", "type": "part"},
+    {"path": "/dev/nvme0n1p2", "size": 16 * MiB, "parttypename": "Microsoft reserved", "type": "part"},
+    {"path": "/dev/nvme0n1p3", "size": 400 * GB, "fstype": "ntfs", "label": "Windows", "parttypename": "Microsoft basic data", "type": "part"},
+    {"path": "/dev/nvme0n1p4", "size": 600 * MiB, "fstype": "ntfs", "parttypename": "Windows recovery environment", "type": "part"},
+]
+
+
+def win_disk(esp=("Microsoft", "Boot"), esp_free=60 * MiB, parts=WIN_PARTS, lsblk=WIN_LSBLK):
+    look = (lambda path: {"systems": [n for n in esp if n.lower() != "boot"], "free": esp_free}) if esp is not None else (lambda path: None)
+    d = {"path": "/dev/nvme0n1", "size": 1000 * GB, "model": "SSD", "transport": "nvme", "removable": False, "live": False}
+    return {**d, **li.disk_layout(d["path"], table=table(parts), parts=lsblk, esp_look=look)}
+
+
+class Alongside(unittest.TestCase):
+    def setUp(self):
+        self.efi = tempfile.mkdtemp()
+        li.EFI_DIR = self.efi
+
+    def offered(self, d):
+        return {**OFFERED, "disks": [d]}
+
+    def test_free_space_is_measured_in_one_piece(self):
+        d = win_disk()
+        self.assertEqual(d["systems"], ["Windows"])
+        self.assertTrue(d["alongside"]["ok"])
+        self.assertGreater(d["free"], 590 * GB)
+        self.assertLess(d["free"], 600 * GB)
+        self.assertEqual(d["esp"]["path"], "/dev/nvme0n1p1")
+        self.assertEqual([q["what"] for q in d["partitions"]], ["Boot partition (EFI)", "Windows", "Windows", "Windows recovery"])
+
+    def test_next_to_windows_reuses_its_boot_partition_and_touches_nothing_else(self):
+        c = li.check({**GOOD, "layout": "alongside"}, self.offered(win_disk()))
+        ks = li.kickstart(c, "/imgs", "$6$x$y")
+        self.assertIn("clearpart --none", ks)
+        self.assertIn("part /boot/efi --onpart=nvme0n1p1 --noformat", ks)
+        self.assertNotIn("zerombr", ks)
+        self.assertNotIn("clearpart --all", ks)
+        self.assertNotIn("autopart", ks)
+        self.assertNotIn("rm -rf /mnt/sysroot/boot/efi/EFI/fedora", ks)   # other systems' boot files stay
+        self.assertIn("btrfs / --subvol --name=root LABEL=tessera", ks)
+
+    def test_erase_is_unchanged(self):
+        ks = li.kickstart(li.check(GOOD, self.offered(win_disk())), "/imgs", "$6$x$y")
+        self.assertIn("clearpart --all --initlabel --drives=nvme0n1", ks)
+        self.assertIn("autopart --type=btrfs --noswap", ks)
+        self.assertIn("rm -rf /mnt/sysroot/boot/efi/EFI/fedora", ks)
+
+    def test_replacing_partitions(self):
+        parts = WIN_PARTS[:3] + [("/dev/nvme0n1p4", 117 * MiB + 400 * GB, 300 * GB)]
+        lsblk = WIN_LSBLK[:3] + [{"path": "/dev/nvme0n1p4", "size": 300 * GB, "fstype": "ext4", "parttypename": "Linux filesystem", "type": "part"}]
+        d = win_disk(parts=parts, lsblk=lsblk)
+        self.assertEqual(d["systems"], ["Windows", "Linux"])
+        c = li.check({**GOOD, "layout": "replace", "remove": ["/dev/nvme0n1p4"]}, self.offered(d))
+        ks = li.kickstart(c, "/imgs", "$6$x$y")
+        self.assertIn("clearpart --list=nvme0n1p4", ks)
+        self.assertNotIn("clearpart --none", ks)
+        # the removed partition joins the free space after it: one bigger piece
+        self.assertGreater(li.biggest_room(d["table"], ["/dev/nvme0n1p4"]), 590 * GB)
+
+    def test_refusals(self):
+        d = win_disk()
+        for patch, msg in [({"layout": "shrink"}, "unknown way"), ({"layout": "replace"}, "pick the partitions"),
+                           ({"layout": "replace", "remove": ["/dev/nvme0n1p1"]}, "boot partition stays"),
+                           ({"layout": "replace", "remove": ["/dev/sda1"]}, "isn't on this disk"),
+                           ({"layout": "replace", "remove": "/dev/nvme0n1p3"}, "pick the partitions"),
+                           ({"layout": "replace", "remove": ["/dev/nvme0n1p3", "/dev/nvme0n1p3"]}, "once")]:
+            with self.assertRaises(li.Bad, msg=str(patch)) as e:
+                li.check({**GOOD, **patch}, self.offered(d))
+            self.assertIn(msg, str(e.exception).lower())
+
+    def test_not_enough_room(self):
+        full = WIN_PARTS[:3] + [("/dev/nvme0n1p4", 117 * MiB + 400 * GB, 590 * GB)]
+        with self.assertRaises(li.Bad) as e:
+            li.check({**GOOD, "layout": "alongside"}, self.offered(win_disk(parts=full)))
+        self.assertIn("not enough room", str(e.exception).lower())
+
+    def test_another_fedora_on_the_disk_is_refused(self):
+        d = win_disk(esp=("Microsoft", "fedora", "Boot"))
+        self.assertFalse(d["alongside"]["ok"])
+        self.assertIn("fedora", d["alongside"]["why"].lower())
+        with self.assertRaises(li.Bad):
+            li.check({**GOOD, "layout": "alongside"}, self.offered(d))
+
+    def test_full_or_unreadable_boot_partition_is_refused(self):
+        self.assertFalse(win_disk(esp_free=10 * MiB)["alongside"]["ok"])
+        self.assertFalse(win_disk(esp=None)["alongside"]["ok"])
+
+    def test_no_uefi_or_mbr_or_empty(self):
+        os.rmdir(self.efi)
+        self.assertIn("uefi", win_disk()["alongside"]["why"].lower())
+        os.mkdir(self.efi)
+        mbr = {"partitiontable": {**table(WIN_PARTS)["partitiontable"], "label": "dos"}}
+        d = li.disk_layout("/dev/x", table=mbr, parts=WIN_LSBLK, esp_look=lambda p: None)
+        self.assertIn("mbr", d["alongside"]["why"].lower())
+        e = li.disk_layout("/dev/x", table={}, parts=[], esp_look=lambda p: None)
+        self.assertIn("empty", e["alongside"]["why"].lower())
+
+    def test_a_disk_without_a_boot_partition_gets_one(self):
+        parts = [("/dev/sdb1", MiB, 200 * GB)]
+        lsblk = [{"path": "/dev/sdb1", "size": 200 * GB, "fstype": "ntfs", "label": "Games", "parttypename": "Microsoft basic data", "type": "part"}]
+        d = {**win_disk(parts=parts, lsblk=lsblk), "path": "/dev/nvme0n1"}
+        self.assertIsNone(d["esp"])
+        c = li.check({**GOOD, "layout": "alongside"}, self.offered(d))
+        self.assertIn("part /boot/efi --fstype=efi --size=600 --ondisk=nvme0n1", li.kickstart(c, "/imgs", "$6$x$y"))
+
+
 class Check(unittest.TestCase):
     def test_good(self):
         c = li.check(GOOD, OFFERED)

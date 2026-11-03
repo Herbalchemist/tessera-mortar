@@ -60,7 +60,7 @@ The USB starts into **Install Tessera**, which works with a controller, a keyboa
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/installer-1-welcome.png" alt="Welcome to Tessera: Install Tessera or Try it first"><br><sub>Install, or try it first. Nothing changes until you choose Erase and install.</sub></td>
+<td width="50%"><img src="docs/screenshots/installer-1-welcome.png" alt="Welcome to Tessera: Install Tessera or Try it first"><br><sub>Install, or try it first. Nothing changes until you press Install at the end.</sub></td>
 <td width="50%"><img src="docs/screenshots/installer-2-graphics.png" alt="Graphics: the recommended build for this computer is picked"><br><sub>The build for this PC's graphics is picked for you.</sub></td>
 </tr>
 <tr>
@@ -90,7 +90,7 @@ GitHub builds a test image of the USB after every change: see [Releases](https:/
    - **Safe graphics:** for screens that stay black.
    - **Desktop mode:** the KDE desktop, with Install Tessera in a window.
 
-**The install erases the disk you pick.** Use a spare disk or machine while this is in testing.
+**The install can erase the disk you pick, or go next to what's on it.** *Install next to* uses only the disk's free space; *Replace partitions* erases only the partitions you tick; *Erase the whole disk* erases everything. Nothing is shrunk or moved, and the boot partition Windows starts from is shared, never erased. Back up first, and use a spare disk or machine while this is in testing.
 
 ## Tools that work today
 

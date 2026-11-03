@@ -104,6 +104,162 @@ def disks(lsblk_json=None, live=None):
     return [d for d in out if not d["live"]]
 
 
+# ---------------------------------------------------------------- what is already on a disk
+# Tessera can go next to other systems: into free space that is already there, or into space made
+# by removing partitions the person picked. Nothing is ever shrunk or moved, and the disk's boot
+# partition (the EFI system partition, which Windows and other systems start from) is reused,
+# never formatted or removed.
+MIN_ROOM = 40 * 1000 ** 3       # the least room Tessera is put in, next to something else
+NEW_ESP = 600 * 1024 ** 2       # a boot partition of its own, on a disk that has none
+BOOT = 1024 * 1024 ** 2         # /boot
+ESP_FREE_NEEDED = 40 * 1024 ** 2  # Tessera's boot files on a shared boot partition
+ALIGN = 1024 * 1024             # partitions start on whole MiB
+ESP_TYPE = "c12a7328-f81f-11d2-ba4b-00a0c93ec93b"
+
+
+def free_regions(table):
+    """Free stretches of a disk, [[start, end)] in bytes, from `sfdisk --json` (only whole MiB count)."""
+    t = table.get("partitiontable") or {}
+    sector = int(t.get("sectorsize") or 512)
+    first, last = int(t.get("firstlba") or 2048), int(t.get("lastlba") or 0)
+    used = sorted((int(q["start"]), int(q["start"]) + int(q["size"])) for q in t.get("partitions", []))
+    out, at = [], first
+    for a, b in used + [(last + 1, last + 1)]:
+        if a > at:
+            out.append([at * sector, a * sector])
+        at = max(at, b)
+    return [[-(-a // ALIGN) * ALIGN, b // ALIGN * ALIGN] for a, b in out if b // ALIGN * ALIGN - -(-a // ALIGN) * ALIGN >= ALIGN]
+
+
+def biggest_room(table, removing=()):
+    """The biggest stretch Tessera could have: free space, plus the partitions being removed, where
+    they join up. Partitions are found by their node (/dev/...)."""
+    t = table.get("partitiontable") or {}
+    sector = int(t.get("sectorsize") or 512)
+    spans = [list(r) for r in free_regions(table)]
+    for q in t.get("partitions", []):
+        if q.get("node") in removing:
+            spans.append([int(q["start"]) * sector, (int(q["start"]) + int(q["size"])) * sector])
+    spans.sort()
+    best, cur = 0, None
+    for a, b in spans:
+        if cur and a <= cur[1] + ALIGN:   # touching (or only alignment apart): one stretch
+            cur[1] = max(cur[1], b)
+        else:
+            if cur:
+                best = max(best, cur[1] - cur[0])
+            cur = [a, b]
+    if cur:
+        best = max(best, cur[1] - cur[0])
+    return best
+
+
+def describe_partition(q):
+    fstype = (q.get("fstype") or "").lower()
+    ptype = (q.get("parttype") or "").lower()
+    name = (q.get("parttypename") or "").strip()
+    label = (q.get("label") or q.get("partlabel") or "").strip()
+    esp = ptype == ESP_TYPE or name.lower() == "efi system"
+    if esp:
+        what = "Boot partition (EFI)"
+    elif fstype == "ntfs" or fstype == "bitlocker" or "microsoft" in name.lower():
+        what = "Windows" + (" (encrypted with BitLocker)" if fstype == "bitlocker" else "") + (" recovery" if "recovery" in (name + label).lower() else "")
+    elif fstype in ("btrfs", "ext4", "ext3", "xfs", "f2fs", "crypto_luks") or "linux" in name.lower():
+        what = "Linux" + (" (encrypted)" if fstype == "crypto_luks" else "")
+    elif "swap" in fstype or "swap" in name.lower():
+        what = "Linux swap"
+    else:
+        what = name or fstype or "Partition"
+    return {"path": q.get("path"), "size": int(q.get("size") or 0), "fstype": fstype, "label": label[:40],
+            "what": what, "esp": esp}
+
+
+def look_in_esp(path):
+    """Mounts a boot partition read-only for a moment: which systems start from it, and room left.
+    None if it can't be looked at (then nobody installs next to it)."""
+    import tempfile
+    d = tempfile.mkdtemp(prefix="tessera-esp-")
+    try:
+        if run(["mount", "-o", "ro,nosuid,nodev,noexec", path, d]).returncode != 0:
+            return None
+        try:
+            efi = next((os.path.join(d, n) for n in os.listdir(d) if n.lower() == "efi"), None)
+            names = sorted(os.listdir(efi)) if efi else []
+            st = os.statvfs(d)
+            return {"systems": [n for n in names if n.lower() != "boot"], "free": st.f_bavail * st.f_frsize}
+        finally:
+            run(["umount", d])
+    except OSError:
+        return None
+    finally:
+        try:
+            os.rmdir(d)
+        except OSError:
+            pass
+
+
+def disk_layout(path, table=None, parts=None, esp_look=look_in_esp):
+    """What is on one disk, and how Tessera may use it: {'pttype','partitions','free','esp','systems',
+    'alongside': {'ok', 'room', 'why'}}."""
+    if table is None:
+        r = run(["sfdisk", "--json", path])
+        try:
+            table = json.loads(r.stdout or "{}")
+        except ValueError:
+            table = {}
+    if parts is None:
+        r = run(["lsblk", "-J", "-b", "-o", "PATH,SIZE,FSTYPE,LABEL,PARTLABEL,PARTTYPE,PARTTYPENAME,TYPE", path])
+        try:
+            parts = [q for q in json.loads(r.stdout or "{}").get("blockdevices", [{}])[0].get("children", []) if q.get("type") == "part"]
+        except (ValueError, IndexError, AttributeError):
+            parts = []
+    t = table.get("partitiontable") or {}
+    pttype = t.get("label") or ""
+    partitions = [describe_partition(q) for q in parts]
+    esps = [q for q in partitions if q["esp"]]
+    esp = None
+    if esps:
+        look = esp_look(esps[0]["path"]) if pttype == "gpt" else None
+        esp = {"path": esps[0]["path"], "size": esps[0]["size"], **(look or {"systems": None, "free": None})}
+    systems = []
+    if esp and esp["systems"]:
+        for n in esp["systems"]:
+            systems.append({"microsoft": "Windows", "fedora": "Fedora-based Linux (Fedora, Bazzite, Nobara...)",
+                            "ubuntu": "Ubuntu", "debian": "Debian", "opensuse": "openSUSE", "arch": "Arch Linux",
+                            "steamos": "SteamOS"}.get(n.lower(), n))
+    elif any(q["what"].startswith("Windows") for q in partitions):
+        systems.append("Windows")
+    if any(q["what"].startswith("Linux") for q in partitions) and not any("Linux" in s or s in ("Ubuntu", "Debian", "openSUSE", "SteamOS") for s in systems):
+        systems.append("Linux")
+    room = biggest_room(table)
+    return {"pttype": pttype, "partitions": partitions, "free": room, "esp": esp, "systems": systems, "table": table,
+            "alongside": can_go_alongside(pttype, esp, partitions, room)}
+
+
+def can_go_alongside(pttype, esp, partitions, room):
+    """Whether Tessera may share this disk, and if not, why (in words for the person)."""
+    def no(why):
+        return {"ok": False, "room": room, "why": why}
+    if not os.path.isdir(EFI_DIR):
+        return no("This PC started the USB the old way (not UEFI). Installing next to another system needs UEFI.")
+    if not pttype and not partitions:
+        return no("This disk is empty: choose Erase to use all of it.")
+    if pttype != "gpt":
+        return no("This disk uses the old MBR layout, which Tessera can't share. Erase it to install, or install on another disk.")
+    if esp is not None:
+        if esp["systems"] is None:
+            return no("Couldn't look inside this disk's boot partition, so it's left alone.")
+        if any(s.lower() == "fedora" for s in esp["systems"]):
+            return no("A Fedora-based system (Fedora, Bazzite, Nobara...) already starts from this disk. Tessera is one too, "
+                      "and would replace its boot files. Erase the whole disk instead, or install on another disk.")
+        if esp["free"] is not None and esp["free"] < ESP_FREE_NEEDED:
+            return no("This disk's boot partition is nearly full, so Tessera's boot files wouldn't fit.")
+    return {"ok": True, "room": room, "why": ""}
+
+
+EFI_DIR = os.environ.get("TESSERA_EFI_DIR", "/sys/firmware/efi")
+
+
 def secure_boot():
     efi = os.path.isdir("/sys/firmware/efi")
     state = "unknown"
@@ -161,7 +317,7 @@ def probe():
         "ok": True,
         "source": source,
         "online": online() if source == "online" else None,
-        "disks": disks(live=live_device()),
+        "disks": [{**d, **disk_layout(d["path"])} for d in disks(live=live_device())],
         "gpus": gpus(),
         "secureBoot": secure_boot(),
         "images": images_available(d) if d else sorted(IMAGE_FOR.values()),
@@ -204,8 +360,45 @@ def check(choices, offered):
     if not HOST_RE.match(host):
         host = "tessera"
     sb = choices.get("secureBoot") if choices.get("secureBoot") in ("auto", "manual") else "auto"
-    return {"disk": disk, "variant": variant, "image": IMAGE_FOR[variant], "user": user, "fullName": full,
+    target = next(d for d in offered["disks"] if d["path"] == disk)
+    layout, remove = check_layout(choices, target)
+    esp = (target.get("esp") or {}).get("path") if layout != "erase" else None
+    return {"disk": disk, "layout": layout, "remove": remove, "esp": esp, "variant": variant, "image": IMAGE_FOR[variant], "user": user, "fullName": full,
             "password": password, "timezone": tz, "hostname": host, "secureBoot": sb}
+
+
+def check_layout(choices, d):
+    """How the disk is used: 'erase' (all of it, as before), 'alongside' (its free space only), or
+    'replace' (the partitions picked, plus free space next to them). Returns (layout, [partition names])."""
+    layout = choices.get("layout") or "erase"
+    if layout == "erase":
+        return "erase", []
+    if layout not in ("alongside", "replace"):
+        raise Bad("Unknown way to use the disk.")
+    ok = d.get("alongside") or {}
+    if not ok.get("ok"):
+        raise Bad(ok.get("why") or "Tessera can't share this disk.")
+    remove = []
+    if layout == "replace":
+        picked = choices.get("remove")
+        if not isinstance(picked, list) or not picked:
+            raise Bad("Pick the partitions to remove.")
+        parts = {q["path"]: q for q in d.get("partitions", [])}
+        for p in picked:
+            if p not in parts:
+                raise Bad("That partition isn't on this disk.")
+            if parts[p]["esp"]:
+                raise Bad("The boot partition stays: other systems start from it.")
+        if len(set(picked)) != len(picked):
+            raise Bad("Pick each partition once.")
+        remove = sorted(picked)
+        room = biggest_room(d["table"], remove) if d.get("table") else ok.get("room", 0) + sum(parts[p]["size"] for p in remove)
+    else:
+        room = ok.get("room", 0)
+    need = MIN_ROOM + BOOT + (0 if d.get("esp") else NEW_ESP)
+    if room < need:
+        raise Bad(f"Not enough room: Tessera needs at least {need // 1000 ** 3} GB in one piece, and there is {room // 1000 ** 3} GB.")
+    return layout, [p.replace("/dev/", "") for p in remove]
 
 
 def hash_password(pw):
@@ -214,6 +407,28 @@ def hash_password(pw):
     if r.returncode != 0 or not h.startswith("$6$"):
         raise Bad("Couldn't set the password.")
     return h
+
+
+def storage(c):
+    """The kickstart's disk part. Erase: the whole disk, laid out by Anaconda as before. Next to other
+    systems: only free space (and the partitions picked), the same layout spelled out, and the disk's
+    own boot partition reused unformatted, so Windows and the rest still start."""
+    disk = c["disk"].replace("/dev/", "")
+    if c.get("layout", "erase") == "erase":
+        return ["zerombr", f"clearpart --all --initlabel --drives={disk}", "autopart --type=btrfs --noswap"]
+    out = [f"clearpart --list={','.join(c['remove'])}" if c.get("remove") else "clearpart --none"]
+    esp = c.get("esp")
+    out.append(f"part /boot/efi --onpart={esp.replace('/dev/', '')} --noformat" if esp
+               else f"part /boot/efi --fstype=efi --size={NEW_ESP // 1024 ** 2} --ondisk={disk}")
+    out += [
+        f"part /boot --fstype=ext4 --size={BOOT // 1024 ** 2} --ondisk={disk}",
+        f"part btrfs.tessera --fstype=btrfs --grow --ondisk={disk}",
+        "btrfs none --label=tessera btrfs.tessera",
+        "btrfs / --subvol --name=root LABEL=tessera",
+        "btrfs /home --subvol --name=home LABEL=tessera",
+        "btrfs /var --subvol --name=var LABEL=tessera",
+    ]
+    return out
 
 
 def kickstart(c, images, pw_hash, sb_key=SB_KEY, registry=REGISTRY):
@@ -228,9 +443,7 @@ def kickstart(c, images, pw_hash, sb_key=SB_KEY, registry=REGISTRY):
         f"timezone {c['timezone']} --utc",
         f"network --hostname={c['hostname']}",
         f"ignoredisk --only-use={disk}",
-        "zerombr",
-        f"clearpart --all --initlabel --drives={disk}",
-        "autopart --type=btrfs --noswap",
+        *storage(c),
         "rootpw --lock",
         f"user --name={c['user']} --groups=wheel --iscrypted --password={pw_hash}"
         + (f' --gecos="{c["fullName"]}"' if c["fullName"] else ""),
@@ -238,10 +451,7 @@ def kickstart(c, images, pw_hash, sb_key=SB_KEY, registry=REGISTRY):
          else f"ostreecontainer --url={ref} --transport=registry --no-signature-verification"),
         "",
         # Bazzite's installer does these two; Bazzite's own tools look for the bazzite_xboot label.
-        "%pre-install --erroronfail",
-        "rm -rf /mnt/sysroot/boot/efi/EFI/fedora",
-        "%end",
-        "",
+        *(["%pre-install --erroronfail", "rm -rf /mnt/sysroot/boot/efi/EFI/fedora", "%end", ""] if c.get("layout", "erase") == "erase" else []),
         "%pre-install --erroronfail --log=/tmp/tessera-xboot.log",
         "xboot_dev=$(findmnt -o SOURCE --nofsroot --noheadings -f --target /mnt/sysroot/boot)",
         '[ -n "$xboot_dev" ] && e2label "$xboot_dev" bazzite_xboot',
