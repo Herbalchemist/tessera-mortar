@@ -198,6 +198,18 @@ def look_in_esp(path):
             pass
 
 
+def partitions_of(disk, lsblk):
+    """The partitions in an `lsblk -J` answer. Without a NAME column lsblk lists them beside the disk,
+    not under it ("children"), so both shapes are read."""
+    out, todo = [], list(lsblk.get("blockdevices") or [])
+    while todo:
+        q = todo.pop(0)
+        todo[:0] = q.get("children") or []
+        if q.get("type") == "part" and str(q.get("path") or "").startswith(disk):
+            out.append(q)
+    return out
+
+
 def disk_layout(path, table=None, parts=None, esp_look=look_in_esp):
     """What is on one disk, and how Tessera may use it: {'pttype','partitions','free','esp','systems',
     'alongside': {'ok', 'room', 'why'}}."""
@@ -210,8 +222,8 @@ def disk_layout(path, table=None, parts=None, esp_look=look_in_esp):
     if parts is None:
         r = run(["lsblk", "-J", "-b", "-o", "PATH,SIZE,FSTYPE,LABEL,PARTLABEL,PARTTYPE,PARTTYPENAME,TYPE", path])
         try:
-            parts = [q for q in json.loads(r.stdout or "{}").get("blockdevices", [{}])[0].get("children", []) if q.get("type") == "part"]
-        except (ValueError, IndexError, AttributeError):
+            parts = partitions_of(path, json.loads(r.stdout or "{}"))
+        except (ValueError, AttributeError):
             parts = []
     t = table.get("partitiontable") or {}
     pttype = t.get("label") or ""
@@ -232,8 +244,11 @@ def disk_layout(path, table=None, parts=None, esp_look=look_in_esp):
     if any(q["what"].startswith("Linux") for q in partitions) and not any("Linux" in s or s in ("Ubuntu", "Debian", "openSUSE", "SteamOS") for s in systems):
         systems.append("Linux")
     room = biggest_room(table)
+    along = can_go_alongside(pttype, esp, partitions, room)
+    if len(t.get("partitions") or []) != len(partitions):   # two readings of the disk disagree: leave it alone
+        along = {"ok": False, "room": room, "why": "Couldn't read this disk's partitions reliably, so it's left alone. Erase it, or install on another disk."}
     return {"pttype": pttype, "partitions": partitions, "free": room, "esp": esp, "systems": systems, "table": table,
-            "alongside": can_go_alongside(pttype, esp, partitions, room)}
+            "alongside": along}
 
 
 def can_go_alongside(pttype, esp, partitions, room):

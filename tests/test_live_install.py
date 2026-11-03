@@ -147,6 +147,34 @@ class Alongside(unittest.TestCase):
         e = li.disk_layout("/dev/x", table={}, parts=[], esp_look=lambda p: None)
         self.assertIn("empty", e["alongside"]["why"].lower())
 
+    def test_lsblk_lists_partitions_beside_the_disk(self):
+        # what lsblk on the USB really answers without a NAME column (seen in the VM install test)
+        flat = {"blockdevices": [{"path": "/dev/vda", "type": "disk"}, *[{**q, "path": q["path"].replace("/dev/nvme0n1p", "/dev/vda")} for q in WIN_LSBLK]]}
+        tree = {"blockdevices": [{"path": "/dev/vda", "type": "disk", "children": flat["blockdevices"][1:]}]}
+        for shape in (flat, tree):
+            self.assertEqual([q["path"] for q in li.partitions_of("/dev/vda", shape)], ["/dev/vda1", "/dev/vda2", "/dev/vda3", "/dev/vda4"])
+        self.assertEqual(li.partitions_of("/dev/vdb", flat), [])
+
+    def test_the_whole_probe_path_finds_windows(self):
+        import types
+        flat = {"blockdevices": [{"path": "/dev/nvme0n1", "type": "disk"}, *WIN_LSBLK]}
+        answers = {"sfdisk": json.dumps(table(WIN_PARTS)), "lsblk": json.dumps(flat)}
+        real = li.run
+        li.run = lambda cmd, **kw: types.SimpleNamespace(stdout=answers[cmd[0]], stderr="", returncode=0)
+        try:
+            d = li.disk_layout("/dev/nvme0n1", esp_look=lambda p: {"systems": ["Microsoft"], "free": 60 * MiB})
+        finally:
+            li.run = real
+        self.assertEqual(d["esp"]["path"], "/dev/nvme0n1p1")
+        self.assertEqual(d["systems"], ["Windows"])
+        self.assertEqual(len(d["partitions"]), 4)
+        self.assertTrue(d["alongside"]["ok"])
+
+    def test_disagreeing_readings_leave_the_disk_alone(self):
+        d = li.disk_layout("/dev/nvme0n1", table=table(WIN_PARTS), parts=WIN_LSBLK[:2], esp_look=lambda p: {"systems": ["Microsoft"], "free": 60 * MiB})
+        self.assertFalse(d["alongside"]["ok"])
+        self.assertIn("reliably", d["alongside"]["why"])
+
     def test_a_disk_without_a_boot_partition_gets_one(self):
         parts = [("/dev/sdb1", MiB, 200 * GB)]
         lsblk = [{"path": "/dev/sdb1", "size": 200 * GB, "fstype": "ntfs", "label": "Games", "parttypename": "Microsoft basic data", "type": "part"}]
