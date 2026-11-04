@@ -91,6 +91,8 @@ jobs:
           cat > notes.md <<'NOTES'
           **Tessera Mortar** makes a Tessera USB installer: pick how (Quick install, Create media for this PC, Customize, or Online install; 8 to 32 GB USB drives) and it downloads the newest Tessera USB image, checks it, writes it, and checks the drive.
 
+          New in 0.3.4 (security): Electron 44.10.2, the newest Chromium security fixes.
+
           New in 0.3.3: Tessera's new logo (the window, the header and the app icon).
 
           New in 0.3.2 (security): Electron 44.10.1 (the newest Chromium security fixes); every request inside Mortar is checked for coming from Mortar's own window; an image file from disk is written only if it was picked in Mortar's own file dialog; developer tools are off. Please use this version rather than earlier ones.
