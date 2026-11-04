@@ -1,0 +1,174 @@
+localhost-live login: tessera-probetest: begin
+{
+ "ok": true,
+ "source": "usb",
+ "online": null,
+ "disks": [
+  {
+   "path": "/dev/vda",
+   "size": 107374182400,
+   "model": "Disk",
+   "transport": "virtio",
+   "removable": false,
+   "live": false,
+   "pttype": "gpt",
+   "partitions": [
+    {
+     "path": "/dev/vda1",
+     "size": 104857600,
+     "fstype": "vfat",
+     "label": "SYSTEM",
+     "what": "Boot partition (EFI)",
+     "esp": true
+    },
+    {
+     "path": "/dev/vda2",
+     "size": 16777216,
+     "fstype": "",
+     "label": "",
+     "what": "Windows",
+     "esp": false
+    },
+    {
+     "path": "/dev/vda3",
+     "size": 32212254720,
+     "fstype": "ntfs",
+     "label": "FAKEWIN",
+     "what": "Windows",
+     "esp": false
+    }
+   ],
+   "free": 75038195712,
+   "esp": {
+    "path": "/dev/vda1",
+    "size": 104857600,
+    "systems": [
+     "Microsoft"
+    ],
+    "free": 103199744
+   },
+   "systems": [
+    "Windows"
+   ],
+   "alongside": {
+    "ok": true,
+    "room": 75038195712,
+    "why": ""
+   }
+  }
+ ],
+ "gpus": [
+  {
+   "slot": "0000:00:02.0",
+   "vendor": "1af4",
+   "device": "1050",
+   "cls": "030000"
+  }
+ ],
+ "secureBoot": {
+  "efi": true,
+  "state": "unknown",
+  "keyAvailable": true
+ },
+ "images": [
+  "tessera",
+  "tessera-nvidia",
+  "tessera-nvidia-open"
+ ],
+ "imagesDir": "/run/initramfs/live/tessera-images",
+ "memory": 8305983488
+}
+-- lsblk /dev/zram0
+{
+   "blockdevices": [
+      {
+         "path": "/dev/zram0",
+         "size": 4152885248,
+         "fstype": "swap",
+         "label": "zram0",
+         "partlabel": null,
+         "parttype": null,
+         "parttypename": null,
+         "type": "disk"
+      }
+   ]
+}
+-- sfdisk /dev/zram0
+sfdisk: /dev/zram0: does not contain a recognized partition table
+-- lsblk /dev/vda
+{
+   "blockdevices": [
+      {
+         "path": "/dev/vda",
+         "size": 107374182400,
+         "fstype": null,
+         "label": null,
+         "partlabel": null,
+         "parttype": null,
+         "parttypename": null,
+         "type": "disk"
+      },{
+         "path": "/dev/vda1",
+         "size": 104857600,
+         "fstype": "vfat",
+         "label": "SYSTEM",
+         "partlabel": null,
+         "parttype": "c12a7328-f81f-11d2-ba4b-00a0c93ec93b",
+         "parttypename": "EFI System",
+         "type": "part"
+      },{
+         "path": "/dev/vda2",
+         "size": 16777216,
+         "fstype": null,
+         "label": null,
+         "partlabel": null,
+         "parttype": "e3c9e316-0b5c-4db8-817d-f92df00215ae",
+         "parttypename": "Microsoft reserved",
+         "type": "part"
+      },{
+         "path": "/dev/vda3",
+         "size": 32212254720,
+         "fstype": "ntfs",
+         "label": "FAKEWIN",
+         "partlabel": "Basic data partition",
+         "parttype": "ebd0a0a2-b9e5-4433-87c0-68b6b72699c7",
+         "parttypename": "Microsoft basic data",
+         "type": "part"
+      }
+   ]
+}
+-- sfdisk /dev/vda
+{
+   "partitiontable": {
+      "label": "gpt",
+      "id": "104AF707-825C-4CD7-B317-DEA2D4B50624",
+      "device": "/dev/vda",
+      "unit": "sectors",
+      "firstlba": 34,
+      "lastlba": 209715166,
+      "sectorsize": 512,
+      "partitions": [
+         {
+            "node": "/dev/vda1",
+            "start": 2048,
+            "size": 204800,
+            "type": "C12A7328-F81F-11D2-BA4B-00A0C93EC93B",
+            "uuid": "6DF96DD3-F16B-42AC-A966-18312B4577DB"
+         },{
+            "node": "/dev/vda2",
+            "start": 206848,
+            "size": 32768,
+            "type": "E3C9E316-0B5C-4DB8-817D-F92DF00215AE",
+            "uuid": "50EEC5A2-C60A-40F7-B4BC-2CEABAA0C20D"
+         },{
+            "node": "/dev/vda3",
+            "start": 239616,
+            "size": 62914560,
+            "type": "EBD0A0A2-B9E5-4433-87C0-68B6B72699C7",
+            "uuid": "6620E124-D43E-469B-9F9B-F974FD4B5580",
+            "name": "Basic data partition"
+         }
+      ]
+   }
+}
+tessera-probetest: end

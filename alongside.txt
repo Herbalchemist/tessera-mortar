@@ -1,0 +1,19 @@
+Disk /dev/loop0: 209715200 sectors, 100.0 GiB
+Sector size (logical/physical): 512/512 bytes
+Disk identifier (GUID): 104AF707-825C-4CD7-B317-DEA2D4B50624
+Partition table holds up to 128 entries
+Main partition table begins at sector 2 and ends at sector 33
+First usable sector is 34, last usable sector is 209715166
+Partitions will be aligned on 2048-sector boundaries
+Total free space is 4029 sectors (2.0 MiB)
+
+Number  Start (sector)    End (sector)  Size       Code  Name
+   1            2048          206847   100.0 MiB   EF00  EFI System Partition
+   2          206848          239615   16.0 MiB    0C01  
+   3          239616        63154175   30.0 GiB    0700  Basic data partition
+   4        63154176        65251327   1024.0 MiB  8300  
+   5        65251328       209713151   68.9 GiB    8300  
+PASS Windows' boot manager is still on the boot partition
+PASS Tessera's boot files are on the same boot partition
+PASS the Windows partition is untouched (label)
+PASS the file on Windows is still there

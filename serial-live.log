@@ -1,0 +1,1500 @@
+[  235.558772] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:blivet:              BTRFS._pre_setup: type: btrfs ; device: /dev/vda5 ; mountpoint: /var ;
+[  235.559090] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Mounting /dev/vda5 (fstype btrfs) to /mnt/sysimage/var with options: subvol=var,compress=zstd:1
+[  235.563670] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Running... findmnt -rn /mnt/sysroot
+[  235.581289] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:program:Return code of findmnt: 1
+[  235.581630] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Running... mount --rbind /mnt/sysimage /mnt/sysroot
+[  235.597191] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:program:Return code of mount: 0
+[  235.598346] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-MountFilesystemsTask-1 (140407953086144)
+[  235.614863] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Pre-install scripts (4/18)
+[  235.617187] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-RunScriptsTask-1 (139710465402560)
+[  235.617777] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.modules.common.task.task:Run scripts
+[  235.617891] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:program:Running... /bin/sh /tmp/ks-script-3rpxujcs
+[  235.643599] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: DEBUG:program:Return code of /bin/sh: 0
+[  235.643915] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-RunScriptsTask-1 (139710465402560)
+[  235.731943] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Pre install tasks (5/18)
+[  235.733784] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Discover information about a realm
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:No realm name set, skipping realm discovery.
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734765] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Updating realm data with results from realm discover task.
+[  235.734978] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:Setting new realm data for realm join task: RealmData(discover_options=[], discovered=False, j
+[  235.735086] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Realm is set to RealmData(discover_options=[], discovered=False, join_options=[], name='', require
+[  235.739329] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.739445] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Set up FIPS for the payload installation
+[  235.739554] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:FIPS is not enabled. Skipping.
+[  235.739601] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.743339] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.743422] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Import CA certificates
+[  235.743503] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.certificates.installation:Not importing certificates in pre install phase for RPM_OSTREE payload.
+[  235.743751] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.745968] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Payload installation (6/18)
+[  235.747717] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Prepare system for installation
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.752149] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.752404] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Initialize OSTree file system and repository
+[  235.752670] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage init-fs /mnt/sysimage
+[  235.781859] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  235.782255] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Change OSTree remote
+[  235.874136] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.970388] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-DeployOSTreeTask-1 (140481573488320)
+[  235.970549] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Deploy OSTree
+[  235.971335] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage os-init default
+[  235.986127] localhost-live tessera-install: stage Copying Tessera onto the disk
+[  236.000536] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:ostree/deploy/default initialized as OSTree stateroot
+[  236.000807] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  236.000995] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.payload.rpm_ostree.installation:ostree image deploy starting
+[  236.001434] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree container image deploy --sysroot=/mnt/sysimage --image=/run/initramfs/live/tessera-images:tessera --transpor
+[  246.406433] localhost-live setroubleshoot[5036]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  246.406466] localhost-live setroubleshoot[5036]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750235.432:964): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:
+[  248.605693] localhost-live setroubleshoot[5041]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  248.605721] localhost-live setroubleshoot[5041]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:969): avc:  denied  { read } for  pid=5036 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  249.775453] localhost-live setroubleshoot[5045]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  249.775481] localhost-live setroubleshoot[5045]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:970): avc:  denied  { open } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  250.987384] localhost-live setroubleshoot[5048]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  250.987428] localhost-live setroubleshoot[5048]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:971): avc:  denied  { getattr } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-03T23:58:46+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  235.554640] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:testdata:sysfs attr /sys/class/block/sr0/device/model: 51454d55204456442d524f4d202020200a
+[  235.555806] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:testdata:sysfs attr /sys/class/block/sr1/device/model: 51454d55204456442d524f4d202020200a
+[  235.557974] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:blivet:            BTRFS.setup: device: /dev/vda5 ; type: btrfs ; status: False ;
+[  235.558772] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:blivet:              BTRFS._pre_setup: type: btrfs ; device: /dev/vda5 ; mountpoint: /var ;
+[  235.559090] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Mounting /dev/vda5 (fstype btrfs) to /mnt/sysimage/var with options: subvol=var,compress=zstd:1
+[  235.563670] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Running... findmnt -rn /mnt/sysroot
+[  235.581289] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:program:Return code of findmnt: 1
+[  235.581630] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Running... mount --rbind /mnt/sysimage /mnt/sysroot
+[  235.597191] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:program:Return code of mount: 0
+[  235.598346] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-MountFilesystemsTask-1 (140407953086144)
+[  235.614863] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Pre-install scripts (4/18)
+[  235.617187] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-RunScriptsTask-1 (139710465402560)
+[  235.617777] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.modules.common.task.task:Run scripts
+[  235.617891] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:program:Running... /bin/sh /tmp/ks-script-3rpxujcs
+[  235.643599] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: DEBUG:program:Return code of /bin/sh: 0
+[  235.643915] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-RunScriptsTask-1 (139710465402560)
+[  235.731943] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Pre install tasks (5/18)
+[  235.733784] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Discover information about a realm
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:No realm name set, skipping realm discovery.
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734765] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Updating realm data with results from realm discover task.
+[  235.734978] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:Setting new realm data for realm join task: RealmData(discover_options=[], discovered=False, j
+[  235.735086] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Realm is set to RealmData(discover_options=[], discovered=False, join_options=[], name='', require
+[  235.739329] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.739445] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Set up FIPS for the payload installation
+[  235.739554] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:FIPS is not enabled. Skipping.
+[  235.739601] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.743339] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.743422] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Import CA certificates
+[  235.743503] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.certificates.installation:Not importing certificates in pre install phase for RPM_OSTREE payload.
+[  235.743751] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.745968] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Payload installation (6/18)
+[  235.747717] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Prepare system for installation
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.752149] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.752404] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Initialize OSTree file system and repository
+[  235.752670] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage init-fs /mnt/sysimage
+[  235.781859] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  235.782255] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Change OSTree remote
+[  235.874136] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.970388] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-DeployOSTreeTask-1 (140481573488320)
+[  235.970549] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Deploy OSTree
+[  235.971335] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage os-init default
+[  235.986127] localhost-live tessera-install: stage Copying Tessera onto the disk
+[  236.000536] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:ostree/deploy/default initialized as OSTree stateroot
+[  236.000807] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  236.000995] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.payload.rpm_ostree.installation:ostree image deploy starting
+[  236.001434] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree container image deploy --sysroot=/mnt/sysimage --image=/run/initramfs/live/tessera-images:tessera --transpor
+[  246.406433] localhost-live setroubleshoot[5036]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  246.406466] localhost-live setroubleshoot[5036]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750235.432:964): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:
+[  248.605693] localhost-live setroubleshoot[5041]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  248.605721] localhost-live setroubleshoot[5041]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:969): avc:  denied  { read } for  pid=5036 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  249.775453] localhost-live setroubleshoot[5045]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  249.775481] localhost-live setroubleshoot[5045]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:970): avc:  denied  { open } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  250.987384] localhost-live setroubleshoot[5048]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  250.987428] localhost-live setroubleshoot[5048]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:971): avc:  denied  { getattr } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-03T23:59:31+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  235.557974] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:blivet:            BTRFS.setup: device: /dev/vda5 ; type: btrfs ; status: False ;
+[  235.558772] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:blivet:              BTRFS._pre_setup: type: btrfs ; device: /dev/vda5 ; mountpoint: /var ;
+[  235.559090] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Mounting /dev/vda5 (fstype btrfs) to /mnt/sysimage/var with options: subvol=var,compress=zstd:1
+[  235.563670] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Running... findmnt -rn /mnt/sysroot
+[  235.581289] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:program:Return code of findmnt: 1
+[  235.581630] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:program:Running... mount --rbind /mnt/sysimage /mnt/sysroot
+[  235.597191] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:program:Return code of mount: 0
+[  235.598346] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-MountFilesystemsTask-1 (140407953086144)
+[  235.614863] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Pre-install scripts (4/18)
+[  235.617187] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-RunScriptsTask-1 (139710465402560)
+[  235.617777] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.modules.common.task.task:Run scripts
+[  235.617891] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:program:Running... /bin/sh /tmp/ks-script-3rpxujcs
+[  235.643599] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: DEBUG:program:Return code of /bin/sh: 0
+[  235.643915] localhost-live org.fedoraproject.Anaconda.Modules.Runtime[4545]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-RunScriptsTask-1 (139710465402560)
+[  235.731943] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Pre install tasks (5/18)
+[  235.733784] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Discover information about a realm
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:No realm name set, skipping realm discovery.
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734765] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Updating realm data with results from realm discover task.
+[  235.734978] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:Setting new realm data for realm join task: RealmData(discover_options=[], discovered=False, j
+[  235.735086] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Realm is set to RealmData(discover_options=[], discovered=False, join_options=[], name='', require
+[  235.739329] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.739445] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Set up FIPS for the payload installation
+[  235.739554] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:FIPS is not enabled. Skipping.
+[  235.739601] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.743339] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.743422] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Import CA certificates
+[  235.743503] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.certificates.installation:Not importing certificates in pre install phase for RPM_OSTREE payload.
+[  235.743751] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.745968] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Payload installation (6/18)
+[  235.747717] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Prepare system for installation
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.752149] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.752404] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Initialize OSTree file system and repository
+[  235.752670] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage init-fs /mnt/sysimage
+[  235.781859] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  235.782255] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Change OSTree remote
+[  235.874136] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.970388] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-DeployOSTreeTask-1 (140481573488320)
+[  235.970549] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Deploy OSTree
+[  235.971335] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage os-init default
+[  235.986127] localhost-live tessera-install: stage Copying Tessera onto the disk
+[  236.000536] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:ostree/deploy/default initialized as OSTree stateroot
+[  236.000807] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  236.000995] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.payload.rpm_ostree.installation:ostree image deploy starting
+[  236.001434] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree container image deploy --sysroot=/mnt/sysimage --image=/run/initramfs/live/tessera-images:tessera --transpor
+[  246.406433] localhost-live setroubleshoot[5036]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  246.406466] localhost-live setroubleshoot[5036]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750235.432:964): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:
+[  248.605693] localhost-live setroubleshoot[5041]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  248.605721] localhost-live setroubleshoot[5041]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:969): avc:  denied  { read } for  pid=5036 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  249.775453] localhost-live setroubleshoot[5045]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  249.775481] localhost-live setroubleshoot[5045]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:970): avc:  denied  { open } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  250.987384] localhost-live setroubleshoot[5048]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  250.987428] localhost-live setroubleshoot[5048]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:971): avc:  denied  { getattr } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+[  359.736412] localhost-live setroubleshoot[5125]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  359.736480] localhost-live setroubleshoot[5125]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750348.227:984): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_u
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-04T00:00:17+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  235.731943] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Pre install tasks (5/18)
+[  235.733784] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Discover information about a realm
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:No realm name set, skipping realm discovery.
+[  235.734565] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-RealmDiscoverTask-1 (140273255368384)
+[  235.734765] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Updating realm data with results from realm discover task.
+[  235.734978] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:Setting new realm data for realm join task: RealmData(discover_options=[], discovered=False, j
+[  235.735086] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Realm is set to RealmData(discover_options=[], discovered=False, join_options=[], name='', require
+[  235.739329] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.739445] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Set up FIPS for the payload installation
+[  235.739554] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:FIPS is not enabled. Skipping.
+[  235.739601] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.743339] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.743422] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Import CA certificates
+[  235.743503] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.certificates.installation:Not importing certificates in pre install phase for RPM_OSTREE payload.
+[  235.743751] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.745968] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Payload installation (6/18)
+[  235.747717] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Prepare system for installation
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.752149] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.752404] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Initialize OSTree file system and repository
+[  235.752670] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage init-fs /mnt/sysimage
+[  235.781859] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  235.782255] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Change OSTree remote
+[  235.874136] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.970388] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-DeployOSTreeTask-1 (140481573488320)
+[  235.970549] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Deploy OSTree
+[  235.971335] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage os-init default
+[  235.986127] localhost-live tessera-install: stage Copying Tessera onto the disk
+[  236.000536] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:ostree/deploy/default initialized as OSTree stateroot
+[  236.000807] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  236.000995] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.payload.rpm_ostree.installation:ostree image deploy starting
+[  236.001434] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree container image deploy --sysroot=/mnt/sysimage --image=/run/initramfs/live/tessera-images:tessera --transpor
+[  246.406433] localhost-live setroubleshoot[5036]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  246.406466] localhost-live setroubleshoot[5036]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750235.432:964): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:
+[  248.605693] localhost-live setroubleshoot[5041]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  248.605721] localhost-live setroubleshoot[5041]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:969): avc:  denied  { read } for  pid=5036 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  249.775453] localhost-live setroubleshoot[5045]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  249.775481] localhost-live setroubleshoot[5045]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:970): avc:  denied  { open } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  250.987384] localhost-live setroubleshoot[5048]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  250.987428] localhost-live setroubleshoot[5048]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:971): avc:  denied  { getattr } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+[  359.736412] localhost-live setroubleshoot[5125]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  359.736480] localhost-live setroubleshoot[5125]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750348.227:984): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_u
+[  392.419514] localhost-live setroubleshoot[5150]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  392.419579] localhost-live setroubleshoot[5150]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:987): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="comm" dev="proc" ino=47779 scontext=system_
+[  393.561144] localhost-live setroubleshoot[5155]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  393.561645] localhost-live setroubleshoot[5155]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:988): avc:  denied  { open } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 scont
+[  394.748473] localhost-live setroubleshoot[5158]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  394.749016] localhost-live setroubleshoot[5158]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:989): avc:  denied  { getattr } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sc
+[  395.758456] localhost-live setroubleshoot[5161]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  395.758512] localhost-live setroubleshoot[5161]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:990): avc:  denied  { ioctl } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 ioct
+[  396.716189] localhost-live setroubleshoot[5164]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  396.716224] localhost-live setroubleshoot[5164]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.202:991): avc:  denied  { execute_no_trans } for  pid=5150 comm="(setroubleshoo)" path="/usr/bin/setroubleshootd" dev=
+[  397.794865] localhost-live setroubleshoot[5167]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  397.795782] localhost-live setroubleshoot[5167]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.971:993): avc:  denied  { read_policy } for  pid=5150 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tc
+[  398.829823] localhost-live setroubleshoot[5172]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  398.829927] localhost-live setroubleshoot[5172]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750384.236:994): avc:  denied  { signull } for  pid=905 comm="systemd-journal" scontext=system_u:system_r:kernel_t:s0 tcontex
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-04T00:01:02+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  235.734978] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:Setting new realm data for realm join task: RealmData(discover_options=[], discovered=False, j
+[  235.735086] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.security:Realm is set to RealmData(discover_options=[], discovered=False, join_options=[], name='', require
+[  235.739329] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.739445] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Set up FIPS for the payload installation
+[  235.739554] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.installation:FIPS is not enabled. Skipping.
+[  235.739601] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PreconfigureFIPSTask-1 (140273255368384)
+[  235.743339] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.743422] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.modules.common.task.task:Import CA certificates
+[  235.743503] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: DEBUG:anaconda.modules.security.certificates.installation:Not importing certificates in pre install phase for RPM_OSTREE payload.
+[  235.743751] localhost-live org.fedoraproject.Anaconda.Modules.Security[4543]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ImportCertificatesTask-2 (140273255368384)
+[  235.745968] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Payload installation (6/18)
+[  235.747717] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Prepare system for installation
+[  235.748573] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PrepareSystemForInstallationTask-1 (140481573488320)
+[  235.752149] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.752404] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Initialize OSTree file system and repository
+[  235.752670] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage init-fs /mnt/sysimage
+[  235.781859] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  235.782255] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Change OSTree remote
+[  235.874136] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.970388] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-DeployOSTreeTask-1 (140481573488320)
+[  235.970549] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Deploy OSTree
+[  235.971335] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage os-init default
+[  235.986127] localhost-live tessera-install: stage Copying Tessera onto the disk
+[  236.000536] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:ostree/deploy/default initialized as OSTree stateroot
+[  236.000807] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  236.000995] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.payload.rpm_ostree.installation:ostree image deploy starting
+[  236.001434] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree container image deploy --sysroot=/mnt/sysimage --image=/run/initramfs/live/tessera-images:tessera --transpor
+[  246.406433] localhost-live setroubleshoot[5036]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  246.406466] localhost-live setroubleshoot[5036]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750235.432:964): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:
+[  248.605693] localhost-live setroubleshoot[5041]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  248.605721] localhost-live setroubleshoot[5041]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:969): avc:  denied  { read } for  pid=5036 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  249.775453] localhost-live setroubleshoot[5045]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  249.775481] localhost-live setroubleshoot[5045]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:970): avc:  denied  { open } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  250.987384] localhost-live setroubleshoot[5048]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  250.987428] localhost-live setroubleshoot[5048]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:971): avc:  denied  { getattr } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+[  359.736412] localhost-live setroubleshoot[5125]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  359.736480] localhost-live setroubleshoot[5125]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750348.227:984): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_u
+[  392.419514] localhost-live setroubleshoot[5150]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  392.419579] localhost-live setroubleshoot[5150]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:987): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="comm" dev="proc" ino=47779 scontext=system_
+[  393.561144] localhost-live setroubleshoot[5155]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  393.561645] localhost-live setroubleshoot[5155]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:988): avc:  denied  { open } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 scont
+[  394.748473] localhost-live setroubleshoot[5158]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  394.749016] localhost-live setroubleshoot[5158]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:989): avc:  denied  { getattr } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sc
+[  395.758456] localhost-live setroubleshoot[5161]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  395.758512] localhost-live setroubleshoot[5161]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:990): avc:  denied  { ioctl } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 ioct
+[  396.716189] localhost-live setroubleshoot[5164]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  396.716224] localhost-live setroubleshoot[5164]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.202:991): avc:  denied  { execute_no_trans } for  pid=5150 comm="(setroubleshoo)" path="/usr/bin/setroubleshootd" dev=
+[  397.794865] localhost-live setroubleshoot[5167]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  397.795782] localhost-live setroubleshoot[5167]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.971:993): avc:  denied  { read_policy } for  pid=5150 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tc
+[  398.829823] localhost-live setroubleshoot[5172]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  398.829927] localhost-live setroubleshoot[5172]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750384.236:994): avc:  denied  { signull } for  pid=905 comm="systemd-journal" scontext=system_u:system_r:kernel_t:s0 tcontex
+[  428.953209] localhost-live setroubleshoot[5200]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  428.954085] localhost-live setroubleshoot[5200]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1008): avc:  denied  { read } for  pid=5196 comm="unbound-anchor" name="ip_local_port_range" dev="proc" ino=50658 
+[  430.048985] localhost-live setroubleshoot[5204]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  430.049014] localhost-live setroubleshoot[5204]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1009): avc:  denied  { open } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range" de
+[  431.100629] localhost-live setroubleshoot[5207]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  431.101253] localhost-live setroubleshoot[5207]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1010): avc:  denied  { getattr } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range"
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-04T00:01:48+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  235.752149] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.752404] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Initialize OSTree file system and repository
+[  235.752670] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage init-fs /mnt/sysimage
+[  235.781859] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  235.782255] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-InitOSTreeFsAndRepoTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.865001] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Change OSTree remote
+[  235.874136] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ChangeOSTreeRemoteTask-1 (140481573488320)
+[  235.970388] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-DeployOSTreeTask-1 (140481573488320)
+[  235.970549] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Deploy OSTree
+[  235.971335] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree admin --sysroot=/mnt/sysimage os-init default
+[  235.986127] localhost-live tessera-install: stage Copying Tessera onto the disk
+[  236.000536] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:ostree/deploy/default initialized as OSTree stateroot
+[  236.000807] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of ostree: 0
+[  236.000995] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.payload.rpm_ostree.installation:ostree image deploy starting
+[  236.001434] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree container image deploy --sysroot=/mnt/sysimage --image=/run/initramfs/live/tessera-images:tessera --transpor
+[  246.406433] localhost-live setroubleshoot[5036]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  246.406466] localhost-live setroubleshoot[5036]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750235.432:964): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:
+[  248.605693] localhost-live setroubleshoot[5041]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  248.605721] localhost-live setroubleshoot[5041]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:969): avc:  denied  { read } for  pid=5036 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  249.775453] localhost-live setroubleshoot[5045]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  249.775481] localhost-live setroubleshoot[5045]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:970): avc:  denied  { open } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  250.987384] localhost-live setroubleshoot[5048]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  250.987428] localhost-live setroubleshoot[5048]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:971): avc:  denied  { getattr } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+[  359.736412] localhost-live setroubleshoot[5125]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  359.736480] localhost-live setroubleshoot[5125]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750348.227:984): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_u
+[  392.419514] localhost-live setroubleshoot[5150]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  392.419579] localhost-live setroubleshoot[5150]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:987): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="comm" dev="proc" ino=47779 scontext=system_
+[  393.561144] localhost-live setroubleshoot[5155]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  393.561645] localhost-live setroubleshoot[5155]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:988): avc:  denied  { open } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 scont
+[  394.748473] localhost-live setroubleshoot[5158]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  394.749016] localhost-live setroubleshoot[5158]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:989): avc:  denied  { getattr } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sc
+[  395.758456] localhost-live setroubleshoot[5161]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  395.758512] localhost-live setroubleshoot[5161]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:990): avc:  denied  { ioctl } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 ioct
+[  396.716189] localhost-live setroubleshoot[5164]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  396.716224] localhost-live setroubleshoot[5164]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.202:991): avc:  denied  { execute_no_trans } for  pid=5150 comm="(setroubleshoo)" path="/usr/bin/setroubleshootd" dev=
+[  397.794865] localhost-live setroubleshoot[5167]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  397.795782] localhost-live setroubleshoot[5167]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.971:993): avc:  denied  { read_policy } for  pid=5150 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tc
+[  398.829823] localhost-live setroubleshoot[5172]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  398.829927] localhost-live setroubleshoot[5172]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750384.236:994): avc:  denied  { signull } for  pid=905 comm="systemd-journal" scontext=system_u:system_r:kernel_t:s0 tcontex
+[  428.953209] localhost-live setroubleshoot[5200]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  428.954085] localhost-live setroubleshoot[5200]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1008): avc:  denied  { read } for  pid=5196 comm="unbound-anchor" name="ip_local_port_range" dev="proc" ino=50658 
+[  430.048985] localhost-live setroubleshoot[5204]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  430.049014] localhost-live setroubleshoot[5204]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1009): avc:  denied  { open } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range" de
+[  431.100629] localhost-live setroubleshoot[5207]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  431.101253] localhost-live setroubleshoot[5207]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1010): avc:  denied  { getattr } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range"
+[  473.872175] localhost-live setroubleshoot[5234]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  473.872231] localhost-live setroubleshoot[5234]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750462.630:1019): avc:  denied  { setrlimit } for  pid=5219 comm="systemctl" scontext=system_u:system_r:kernel_t:s0 tcontext=
+[  476.101944] localhost-live setroubleshoot[5241]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  476.101993] localhost-live setroubleshoot[5241]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750464.644:1020): avc:  denied  { setfscreate } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=sys
+[  477.399065] localhost-live setroubleshoot[5245]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  477.399119] localhost-live setroubleshoot[5245]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750464.658:1021): avc:  denied  { search } for  pid=5234 comm="(setroubleshoo)" name="pressure" dev="proc" ino=4026532058 sco
+[  478.606620] localhost-live setroubleshoot[5250]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  478.607394] localhost-live setroubleshoot[5250]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1024): avc:  denied  { read } for  pid=5241 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=s
+[  479.713849] localhost-live setroubleshoot[5254]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  479.713929] localhost-live setroubleshoot[5254]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1025): avc:  denied  { open } for  pid=5241 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402653
+[  480.849401] localhost-live setroubleshoot[5257]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  480.850224] localhost-live setroubleshoot[5257]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1026): avc:  denied  { getattr } for  pid=5241 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402
+[  506.119659] localhost-live setroubleshoot[5265]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  506.119701] localhost-live setroubleshoot[5265]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750494.983:1037): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-04T00:02:33+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  236.000995] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.payload.rpm_ostree.installation:ostree image deploy starting
+[  236.001434] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... ostree container image deploy --sysroot=/mnt/sysimage --image=/run/initramfs/live/tessera-images:tessera --transpor
+[  246.406433] localhost-live setroubleshoot[5036]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  246.406466] localhost-live setroubleshoot[5036]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750235.432:964): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u:
+[  248.605693] localhost-live setroubleshoot[5041]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  248.605721] localhost-live setroubleshoot[5041]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:969): avc:  denied  { read } for  pid=5036 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  249.775453] localhost-live setroubleshoot[5045]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  249.775481] localhost-live setroubleshoot[5045]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:970): avc:  denied  { open } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  250.987384] localhost-live setroubleshoot[5048]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  250.987428] localhost-live setroubleshoot[5048]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750237.328:971): avc:  denied  { getattr } for  pid=5036 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+[  359.736412] localhost-live setroubleshoot[5125]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  359.736480] localhost-live setroubleshoot[5125]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750348.227:984): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_u
+[  392.419514] localhost-live setroubleshoot[5150]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  392.419579] localhost-live setroubleshoot[5150]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:987): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="comm" dev="proc" ino=47779 scontext=system_
+[  393.561144] localhost-live setroubleshoot[5155]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  393.561645] localhost-live setroubleshoot[5155]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:988): avc:  denied  { open } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 scont
+[  394.748473] localhost-live setroubleshoot[5158]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  394.749016] localhost-live setroubleshoot[5158]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:989): avc:  denied  { getattr } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sc
+[  395.758456] localhost-live setroubleshoot[5161]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  395.758512] localhost-live setroubleshoot[5161]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750381.170:990): avc:  denied  { ioctl } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 ioct
+[  396.716189] localhost-live setroubleshoot[5164]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  396.716224] localhost-live setroubleshoot[5164]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.202:991): avc:  denied  { execute_no_trans } for  pid=5150 comm="(setroubleshoo)" path="/usr/bin/setroubleshootd" dev=
+[  397.794865] localhost-live setroubleshoot[5167]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  397.795782] localhost-live setroubleshoot[5167]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.971:993): avc:  denied  { read_policy } for  pid=5150 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tc
+[  398.829823] localhost-live setroubleshoot[5172]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  398.829927] localhost-live setroubleshoot[5172]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750384.236:994): avc:  denied  { signull } for  pid=905 comm="systemd-journal" scontext=system_u:system_r:kernel_t:s0 tcontex
+[  428.953209] localhost-live setroubleshoot[5200]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  428.954085] localhost-live setroubleshoot[5200]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1008): avc:  denied  { read } for  pid=5196 comm="unbound-anchor" name="ip_local_port_range" dev="proc" ino=50658 
+[  430.048985] localhost-live setroubleshoot[5204]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  430.049014] localhost-live setroubleshoot[5204]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1009): avc:  denied  { open } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range" de
+[  431.100629] localhost-live setroubleshoot[5207]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  431.101253] localhost-live setroubleshoot[5207]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1010): avc:  denied  { getattr } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range"
+[  473.872175] localhost-live setroubleshoot[5234]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  473.872231] localhost-live setroubleshoot[5234]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750462.630:1019): avc:  denied  { setrlimit } for  pid=5219 comm="systemctl" scontext=system_u:system_r:kernel_t:s0 tcontext=
+[  476.101944] localhost-live setroubleshoot[5241]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  476.101993] localhost-live setroubleshoot[5241]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750464.644:1020): avc:  denied  { setfscreate } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=sys
+[  477.399065] localhost-live setroubleshoot[5245]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  477.399119] localhost-live setroubleshoot[5245]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750464.658:1021): avc:  denied  { search } for  pid=5234 comm="(setroubleshoo)" name="pressure" dev="proc" ino=4026532058 sco
+[  478.606620] localhost-live setroubleshoot[5250]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  478.607394] localhost-live setroubleshoot[5250]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1024): avc:  denied  { read } for  pid=5241 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=s
+[  479.713849] localhost-live setroubleshoot[5254]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  479.713929] localhost-live setroubleshoot[5254]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1025): avc:  denied  { open } for  pid=5241 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402653
+[  480.849401] localhost-live setroubleshoot[5257]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  480.850224] localhost-live setroubleshoot[5257]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1026): avc:  denied  { getattr } for  pid=5241 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402
+[  506.119659] localhost-live setroubleshoot[5265]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  506.119701] localhost-live setroubleshoot[5265]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750494.983:1037): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u
+[  521.048392] localhost-live setroubleshoot[5288]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  521.048442] localhost-live setroubleshoot[5288]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750509.766:1040): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_
+[  556.094590] localhost-live setroubleshoot[5302]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  556.094648] localhost-live setroubleshoot[5302]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.1:1043): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="comm" dev="proc" ino=47779 scontext=system_u
+[  557.089874] localhost-live setroubleshoot[5306]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  557.090539] localhost-live setroubleshoot[5306]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.1:1044): avc:  denied  { open } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sconte
+[  558.104027] localhost-live setroubleshoot[5309]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  558.104132] localhost-live setroubleshoot[5309]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.2:1045): avc:  denied  { getattr } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sco
+[  559.374635] localhost-live setroubleshoot[5314]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  559.375464] localhost-live setroubleshoot[5314]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.2:1046): avc:  denied  { ioctl } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 ioctl
+[  560.397164] localhost-live setroubleshoot[5317]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  560.397211] localhost-live setroubleshoot[5317]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750547.581:1047): avc:  denied  { name_connect } for  pid=1493 comm="NetworkManager" dest=80 scontext=system_u:system_r:kerne
+[  561.547385] localhost-live setroubleshoot[5320]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  561.548440] localhost-live setroubleshoot[5320]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750547.911:1049): avc:  denied  { signull } for  pid=905 comm="systemd-journal" scontext=system_u:system_r:kernel_t:s0 tconte
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-04T00:03:18+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  397.794865] localhost-live setroubleshoot[5167]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  397.795782] localhost-live setroubleshoot[5167]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750383.971:993): avc:  denied  { read_policy } for  pid=5150 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 tc
+[  398.829823] localhost-live setroubleshoot[5172]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  398.829927] localhost-live setroubleshoot[5172]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750384.236:994): avc:  denied  { signull } for  pid=905 comm="systemd-journal" scontext=system_u:system_r:kernel_t:s0 tcontex
+[  428.953209] localhost-live setroubleshoot[5200]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  428.954085] localhost-live setroubleshoot[5200]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1008): avc:  denied  { read } for  pid=5196 comm="unbound-anchor" name="ip_local_port_range" dev="proc" ino=50658 
+[  430.048985] localhost-live setroubleshoot[5204]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  430.049014] localhost-live setroubleshoot[5204]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1009): avc:  denied  { open } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range" de
+[  431.100629] localhost-live setroubleshoot[5207]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  431.101253] localhost-live setroubleshoot[5207]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750417.661:1010): avc:  denied  { getattr } for  pid=5196 comm="unbound-anchor" path="/proc/sys/net/ipv4/ip_local_port_range"
+[  473.872175] localhost-live setroubleshoot[5234]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  473.872231] localhost-live setroubleshoot[5234]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750462.630:1019): avc:  denied  { setrlimit } for  pid=5219 comm="systemctl" scontext=system_u:system_r:kernel_t:s0 tcontext=
+[  476.101944] localhost-live setroubleshoot[5241]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  476.101993] localhost-live setroubleshoot[5241]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750464.644:1020): avc:  denied  { setfscreate } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=sys
+[  477.399065] localhost-live setroubleshoot[5245]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  477.399119] localhost-live setroubleshoot[5245]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750464.658:1021): avc:  denied  { search } for  pid=5234 comm="(setroubleshoo)" name="pressure" dev="proc" ino=4026532058 sco
+[  478.606620] localhost-live setroubleshoot[5250]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  478.607394] localhost-live setroubleshoot[5250]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1024): avc:  denied  { read } for  pid=5241 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=s
+[  479.713849] localhost-live setroubleshoot[5254]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  479.713929] localhost-live setroubleshoot[5254]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1025): avc:  denied  { open } for  pid=5241 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402653
+[  480.849401] localhost-live setroubleshoot[5257]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  480.850224] localhost-live setroubleshoot[5257]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750466.864:1026): avc:  denied  { getattr } for  pid=5241 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402
+[  506.119659] localhost-live setroubleshoot[5265]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  506.119701] localhost-live setroubleshoot[5265]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750494.983:1037): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u
+[  521.048392] localhost-live setroubleshoot[5288]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  521.048442] localhost-live setroubleshoot[5288]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750509.766:1040): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_
+[  556.094590] localhost-live setroubleshoot[5302]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  556.094648] localhost-live setroubleshoot[5302]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.1:1043): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="comm" dev="proc" ino=47779 scontext=system_u
+[  557.089874] localhost-live setroubleshoot[5306]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  557.090539] localhost-live setroubleshoot[5306]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.1:1044): avc:  denied  { open } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sconte
+[  558.104027] localhost-live setroubleshoot[5309]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  558.104132] localhost-live setroubleshoot[5309]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.2:1045): avc:  denied  { getattr } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 sco
+[  559.374635] localhost-live setroubleshoot[5314]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  559.375464] localhost-live setroubleshoot[5314]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750545.2:1046): avc:  denied  { ioctl } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 ioctl
+[  560.397164] localhost-live setroubleshoot[5317]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  560.397211] localhost-live setroubleshoot[5317]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750547.581:1047): avc:  denied  { name_connect } for  pid=1493 comm="NetworkManager" dest=80 scontext=system_u:system_r:kerne
+[  561.547385] localhost-live setroubleshoot[5320]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  561.548440] localhost-live setroubleshoot[5320]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750547.911:1049): avc:  denied  { signull } for  pid=905 comm="systemd-journal" scontext=system_u:system_r:kernel_t:s0 tconte
+[  576.246141] localhost-live setroubleshoot[5341]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  576.246182] localhost-live setroubleshoot[5341]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750564.983:1061): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u
+[  577.351865] localhost-live setroubleshoot[5345]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  577.352586] localhost-live setroubleshoot[5345]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750564.983:1062): avc:  denied  { search } for  pid=1651 comm="gssproxy" name="rpc" dev="proc" ino=4026532192 scontext=system
+[  578.474332] localhost-live setroubleshoot[5350]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  578.475026] localhost-live setroubleshoot[5350]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.1:1063): avc:  denied  { setfscreate } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=syste
+[  579.649921] localhost-live setroubleshoot[5353]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  579.650772] localhost-live setroubleshoot[5353]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.2:1064): avc:  denied  { execute_no_trans } for  pid=5341 comm="systemd" path="/usr/lib/systemd/systemd-executor" dev=
+[  580.902407] localhost-live setroubleshoot[5356]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  580.902459] localhost-live setroubleshoot[5356]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1065): avc:  denied  { search } for  pid=5341 comm="(setroubleshoo)" name="pressure" dev="proc" ino=4026532058 scon
+[  582.192475] localhost-live setroubleshoot[5360]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  582.192537] localhost-live setroubleshoot[5360]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1066): avc:  denied  { read } for  pid=5341 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  583.388553] localhost-live setroubleshoot[5365]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  583.388616] localhost-live setroubleshoot[5365]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1067): avc:  denied  { open } for  pid=5341 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  584.536827] localhost-live setroubleshoot[5368]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  584.537572] localhost-live setroubleshoot[5368]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1068): avc:  denied  { getattr } for  pid=5341 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+[  585.764389] localhost-live setroubleshoot[5371]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  585.764445] localhost-live setroubleshoot[5371]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.19:1069): avc:  denied  { setrlimit } for  pid=5341 comm="(setroubleshoo)" scontext=system_u:system_r:kernel_t:s0 tcon
+[  586.891716] localhost-live setroubleshoot[5374]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  586.891777] localhost-live setroubleshoot[5374]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.841:1071): avc:  denied  { read_policy } for  pid=5341 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 t
+[  606.326672] localhost-live setroubleshoot[5382]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  606.326717] localhost-live setroubleshoot[5382]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750594.983:1091): avc:  denied  { search } for  pid=1651 comm="gssproxy" name="rpc" dev="proc" ino=4026532192 scontext=system
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+==== tessera debug 2026-11-04T00:04:04+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  577.351865] localhost-live setroubleshoot[5345]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  577.352586] localhost-live setroubleshoot[5345]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750564.983:1062): avc:  denied  { search } for  pid=1651 comm="gssproxy" name="rpc" dev="proc" ino=4026532192 scontext=system
+[  578.474332] localhost-live setroubleshoot[5350]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  578.475026] localhost-live setroubleshoot[5350]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.1:1063): avc:  denied  { setfscreate } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=syste
+[  579.649921] localhost-live setroubleshoot[5353]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  579.650772] localhost-live setroubleshoot[5353]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.2:1064): avc:  denied  { execute_no_trans } for  pid=5341 comm="systemd" path="/usr/lib/systemd/systemd-executor" dev=
+[  580.902407] localhost-live setroubleshoot[5356]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  580.902459] localhost-live setroubleshoot[5356]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1065): avc:  denied  { search } for  pid=5341 comm="(setroubleshoo)" name="pressure" dev="proc" ino=4026532058 scon
+[  582.192475] localhost-live setroubleshoot[5360]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  582.192537] localhost-live setroubleshoot[5360]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1066): avc:  denied  { read } for  pid=5341 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  583.388553] localhost-live setroubleshoot[5365]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  583.388616] localhost-live setroubleshoot[5365]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1067): avc:  denied  { open } for  pid=5341 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  584.536827] localhost-live setroubleshoot[5368]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  584.537572] localhost-live setroubleshoot[5368]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.18:1068): avc:  denied  { getattr } for  pid=5341 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+[  585.764389] localhost-live setroubleshoot[5371]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  585.764445] localhost-live setroubleshoot[5371]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.19:1069): avc:  denied  { setrlimit } for  pid=5341 comm="(setroubleshoo)" scontext=system_u:system_r:kernel_t:s0 tcon
+[  586.891716] localhost-live setroubleshoot[5374]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  586.891777] localhost-live setroubleshoot[5374]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750567.841:1071): avc:  denied  { read_policy } for  pid=5341 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 t
+[  606.326672] localhost-live setroubleshoot[5382]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  606.326717] localhost-live setroubleshoot[5382]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750594.983:1091): avc:  denied  { search } for  pid=1651 comm="gssproxy" name="rpc" dev="proc" ino=4026532192 scontext=system
+[  607.555268] localhost-live setroubleshoot[5386]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  607.556187] localhost-live setroubleshoot[5386]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750596.994:1092): avc:  denied  { setfscreate } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=sys
+[  608.759038] localhost-live setroubleshoot[5405]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  608.759095] localhost-live setroubleshoot[5405]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750596.995:1093): avc:  denied  { execute_no_trans } for  pid=5382 comm="systemd" path="/usr/lib/systemd/systemd-executor" de
+[  609.822691] localhost-live setroubleshoot[5408]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  609.822770] localhost-live setroubleshoot[5408]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750597.11:1094): avc:  denied  { setrlimit } for  pid=5382 comm="(setroubleshoo)" scontext=system_u:system_r:kernel_t:s0 tcon
+[  610.937600] localhost-live setroubleshoot[5411]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  610.937657] localhost-live setroubleshoot[5411]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750597.931:1096): avc:  denied  { read_policy } for  pid=5382 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 t
+[  622.233511] localhost-live setroubleshoot[5418]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  622.234299] localhost-live setroubleshoot[5418]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750611.172:1106): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="comm" dev="proc" ino=47779 scontext=system
+[  623.072969] localhost-live setroubleshoot[5423]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  623.073683] localhost-live setroubleshoot[5423]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750611.172:1107): avc:  denied  { open } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 scon
+[  624.235430] localhost-live setroubleshoot[5426]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  624.235476] localhost-live setroubleshoot[5426]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750611.172:1108): avc:  denied  { getattr } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 s
+[  625.438250] localhost-live setroubleshoot[5429]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  625.438904] localhost-live setroubleshoot[5429]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750611.172:1109): avc:  denied  { ioctl } for  pid=905 comm="systemd-journal" path="/proc/5000/comm" dev="proc" ino=47779 ioc
+[  626.687609] localhost-live setroubleshoot[5432]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  626.687648] localhost-live setroubleshoot[5432]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750611.172:1110): avc:  denied  { read } for  pid=905 comm="systemd-journal" name="exe" dev="proc" ino=47780 scontext=system_
+[  627.687345] localhost-live setroubleshoot[5436]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  627.687395] localhost-live setroubleshoot[5436]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750613.203:1111): avc:  denied  { search } for  pid=5418 comm="(setroubleshoo)" name="pressure" dev="proc" ino=4026532058 sco
+[  628.738889] localhost-live setroubleshoot[5441]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  628.739580] localhost-live setroubleshoot[5441]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750613.203:1112): avc:  denied  { read } for  pid=5418 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=s
+[  629.596901] localhost-live setroubleshoot[5445]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  629.596954] localhost-live setroubleshoot[5445]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750613.203:1113): avc:  denied  { open } for  pid=5418 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402653
+[  630.659087] localhost-live setroubleshoot[5448]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  630.659140] localhost-live setroubleshoot[5448]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750613.203:1114): avc:  denied  { getattr } for  pid=5418 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=402
+[  631.839654] localhost-live setroubleshoot[5451]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  631.839681] localhost-live setroubleshoot[5451]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750614.983:1118): avc:  denied  { read } for  pid=1651 comm="gssproxy" name="net" dev="proc" ino=4026531843 scontext=system_u
+[  646.196396] localhost-live setroubleshoot[5459]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  646.196463] localhost-live setroubleshoot[5459]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750634.984:1136): avc:  denied  { search } for  pid=1651 comm="gssproxy" name="rpc" dev="proc" ino=4026532192 scontext=system
+[  647.404779] localhost-live setroubleshoot[5463]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  647.404844] localhost-live setroubleshoot[5463]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750636.995:1137): avc:  denied  { setfscreate } for  pid=1 comm="systemd" scontext=system_u:system_r:kernel_t:s0 tcontext=sys
+[  648.610889] localhost-live setroubleshoot[5467]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  648.610938] localhost-live setroubleshoot[5467]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750636.996:1138): avc:  denied  { execute_no_trans } for  pid=5459 comm="systemd" path="/usr/lib/systemd/systemd-executor" de
+[  649.823726] localhost-live setroubleshoot[5470]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  649.823788] localhost-live setroubleshoot[5470]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750637.13:1139): avc:  denied  { read } for  pid=5459 comm="(setroubleshoo)" name="cpu" dev="proc" ino=4026532061 scontext=sy
+[  651.054278] localhost-live setroubleshoot[5474]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  651.055078] localhost-live setroubleshoot[5474]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750637.13:1140): avc:  denied  { open } for  pid=5459 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026532
+[  652.230474] localhost-live setroubleshoot[5477]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  652.230500] localhost-live setroubleshoot[5477]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750637.13:1141): avc:  denied  { getattr } for  pid=5459 comm="(setroubleshoo)" path="/proc/pressure/cpu" dev="proc" ino=4026
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+[  697.759233] tessera-install: stage Installing the boot loader
+==== tessera debug 2026-11-04T00:04:50+00:00
+UNIT                          LOAD   ACTIVE SUB    DESCRIPTION
+greenboot-healthcheck.service loaded failed failed Greenboot Health Checks Runner
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+[  697.234637] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... mount --bind /mnt/sysimage/boot /var/mnt/sysroot/boot
+[  697.256077] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of mount: 0
+[  697.256077] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running... mount --bind /mnt/sysimage/ /var/mnt/sysroot/sysroot
+[  697.276990] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:program:Return code of mount: 0
+[  697.277605] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-PrepareOSTreeMountTargetsTask-1 (140481573488320)
+[  697.278100] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:anaconda.modules.payloads.payload.rpm_ostree.rpm_ostree:Internal mounts are set to: ['/mnt/sysroot/usr', '/var/mnt/sysroot/dev', '/va
+[  697.368653] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Late storage configuration (7/18)
+[  697.373956] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-WriteConfigurationTask-1 (140407935252160)
+[  697.377060] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.common.task.task:Write the storage configuration
+[  697.385667] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.storage.devicetree.fsset:not writing out mpath configuration
+[  697.390733] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.iscsi.iscsi:Write iSCSI configuration.
+[  697.394085] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.fcoe.fcoe:Write FCoE configuration.
+[  697.397277] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.nvme.nvme:Write NVMe configuration.
+[  697.399872] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-WriteConfigurationTask-1 (140407935252160)
+[  697.492879] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Bootloader installation (8/18)
+[  697.499083] localhost-live tessera-install: stage Installing the boot loader
+[  697.522103] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:dasbus.connection:Publishing an object at /org/fedoraproject/Anaconda/Modules/Storage/Task/8.
+[  697.523855] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:dasbus.connection:Publishing an object at /org/fedoraproject/Anaconda/Modules/Storage/Task/9.
+[  697.526073] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:dasbus.connection:Publishing an object at /org/fedoraproject/Anaconda/Modules/Storage/Task/10.
+[  697.529974] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:dasbus.connection:Publishing an object at /org/fedoraproject/Anaconda/Modules/Storage/Task/11.
+[  697.531772] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:dasbus.connection:Publishing an object at /org/fedoraproject/Anaconda/Modules/Storage/Task/12.
+[  697.536444] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-CreateRescueImagesTask-1 (140407935252160)
+[  697.536649] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.common.task.task:Create rescue images
+[  697.536757] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.bootloader.installation:Only live payloads require this fix.
+[  697.536936] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-CreateRescueImagesTask-1 (140407935252160)
+[  697.542273] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ConfigureBootloaderTask-1 (140407935252160)
+[  697.542381] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.common.task.task:Configure the bootloader
+[  697.542434] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.bootloader.installation:Don't configure bootloader on rpm-ostree systems.
+[  697.542717] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ConfigureBootloaderTask-1 (140407935252160)
+[  697.548622] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-CollectKernelArgumentsTask-1 (140407935252160)
+[  697.548833] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.common.task.task:Collect kernel arguments
+[  697.548998] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.bootloader.installation:Collecting the kernel arguments.
+[  697.549193] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.storage.bootloader.installation:boot loader stage1 target device is vda1
+[  697.549246] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.storage.bootloader.installation:boot loader stage2 target device is vda4
+[  697.559582] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.bootloader.base:Multiple "console=" kernel parameters to be preserved
+[  697.573259] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-CollectKernelArgumentsTask-1 (140407935252160)
+[  697.658236] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-InstallBootloaderTask-1 (140407935252160)
+[  697.658367] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.common.task.task:Install the bootloader
+[  697.658923] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.bootloader.installation:Will not install regular bootloader for ostree with bootupd
+[  697.658923] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-InstallBootloaderTask-1 (140407935252160)
+[  697.664637] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-CreateBLSEntriesTask-1 (140407935252160)
+[  697.664747] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.modules.common.task.task:Create the BLS entries
+[  697.664805] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:anaconda.modules.storage.bootloader.installation:Only live payloads require this fix.
+[  697.664979] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-CreateBLSEntriesTask-1 (140407935252160)
+[  697.668671] localhost-live org.fedoraproject.Anaconda.Boss[4506]: INFO:anaconda.modules.boss.installation:Queue started: Post-installation setup tasks (9/18)
+[  697.670206] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-CopyDriverDisksFilesTask-1 (140481573488320)
+[  697.671491] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Copy driver disks files
+[  697.671491] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.payloads.installation:Skipping copying of driver disk files.
+[  697.672233] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-CopyDriverDisksFilesTask-1 (140481573488320)
+[  697.677293] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ChangeOSTreeRemoteTask-2 (140481573488320)
+[  697.677454] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Change OSTree remote
+[  697.679858] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Thread Done: AnaTaskThread-ChangeOSTreeRemoteTask-2 (140481573488320)
+[  697.682348] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.core.threads:Running Thread: AnaTaskThread-ConfigureBootloader-1 (140481573488320)
+[  697.682535] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:anaconda.modules.common.task.task:Configure OSTree bootloader
+[  697.708663] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:blivet:             DeviceTree.get_device_by_device_id: device_id: vda ; incomplete: True ; hidden: True ;
+[  697.715307] localhost-live org.fedoraproject.Anaconda.Modules.Storage[4528]: DEBUG:blivet:             DeviceTree.get_device_by_device_id returned existing 100 GiB disk vda (8) with existing gpt disklabel
+[  697.723985] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: DEBUG:anaconda.modules.payloads.payload.rpm_ostree.installation:Adding --update-firmware to bootupdctl call
+[  697.723985] localhost-live org.fedoraproject.Anaconda.Modules.Payloads[4551]: INFO:program:Running in chroot '/mnt/sysroot'... bootupctl backend install --auto --write-uuid --update-firmware --device /dev/vda /
+[  697.876985] localhost-live setroubleshoot[5591]: setroubleshoot generated AVC, exiting to avoid recursion, context=system_u:system_r:kernel_t:s0, AVC scontext=system_u:system_r:kernel_t:s0
+[  697.877107] localhost-live setroubleshoot[5591]: audit event
+                                                    node=localhost-live type=AVC msg=audit(1793750680.483:1181): avc:  denied  { read_policy } for  pid=5529 comm="setroubleshootd" scontext=system_u:system_r:kernel_t:s0 t
+---- display manager
+Starting plasmalogin.service - Plasma Login Manager...
+Started plasmalogin.service - Plasma Login Manager.
+Detected locale "C" with character encoding "ANSI_X3.4-1968", which is not UTF-8.
+Qt depends on a UTF-8 locale, and has switched to "C.UTF-8" instead.
+If this causes problems, reconfigure your locale. See the locale(1) manual
+for more information.
+pam_unix(plasmalogin-autologin:session): session opened for user liveuser(uid=1000) by liveuser(uid=0)
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: pam_sm_open_session
+pam_kwallet5(plasmalogin-autologin:session): pam_kwallet5: open_session called without kwallet5_key
+Starting Wayland user session: "/etc/plasmalogin/wayland-session" "/usr/libexec/tessera/live-session-run"
+---- session.log
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/common'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/inspect.lua' (id: 0)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/modegen.lua' (id: 1)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/common/util.lua' (id: 2)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/usr/share/gamescope/scripts/00-gamescope/displays'
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogally.lcd.lua' (id: 3)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/asus.rogallyx20.oled.lua' (id: 4)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/ayaneo.3.oled.lua' (id: 5)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/deckhd.steamdeck.deckhd-lcd.lua' (id: 6)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/gpd.win4.lcd.lua' (id: 7)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo.lcd.lua' (id: 8)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongo2.oled.lua' (id: 9)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/lenovo.legiongos.lcd.lua' (id: 10)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/onexplayer.f1.oled.lua' (id: 11)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.lcd.lua' (id: 12)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/valve.steamdeck.oled.lua' (id: 13)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Running script file '/usr/share/gamescope/scripts/00-gamescope/displays/zotac.zone.oled.lua' (id: 14)
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/etc/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/etc/gamescope/scripts' does not exist
+[gamescope] [[0;34mInfo[0m]  [0;37mscriptmgr:[0m Loading scripts from: '/var/home/liveuser/.config/gamescope/scripts'
+[gamescope] [[0;33mWarn[0m]  [0;37mscriptmgr:[0m Directory '/var/home/liveuser/.config/gamescope/scripts' does not exist
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+MESA: info: could not get caps: Function not implemented
+MESA: error: vdrm_device_connect failed
+radv/amdgpu: failed to initialize device.
+[gamescope] [[0;34mInfo[0m]  [0;37mvulkan:[0m selecting physical device 'llvmpipe (LLVM 22.1.8, 256 bits)': queue family 0 (general queue family 0)
+[gamescope] [[0;31mError[0m] [0;37mvulkan:[0m not a valid physical device
+Failed to initialize Vulkan
+Failed to create backend.
+launcher exited with code 1
+too many quick failures, giving up
+---- live-session.log
+live session 2026-11-03T23:53:46+00:00
+tessera-session ended with 1
+falling back to the KDE desktop
+---- gpu
+by-path  card1	renderD128
+SESSION  UID USER     SEAT  LEADER CLASS            TTY  IDLE SINCE
+      1 1000 liveuser seat0 2002   user             tty1 no   -
+      2 1000 liveuser -     2171   manager          -    no   -
+     c3    0 root     -     4470   background-light -    no   -
+
+3 sessions listed.
+[  709.257317] tessera-install: stage Creating your account
+[  715.586821] tessera-install: anaconda finished
+[  716.025516] SELinux:  Permission firmware_load in class system not defined in policy.
+[  716.027578] SELinux:  Permission kexec_image_load in class system not defined in policy.
+[  716.029426] SELinux:  Permission kexec_initramfs_load in class system not defined in policy.
+[  716.031341] SELinux:  Permission policy_load in class system not defined in policy.
+[  716.033115] SELinux:  Permission x509_certificate_load in class system not defined in policy.
+[  716.035397] SELinux:  Permission map_create_as in class bpf not defined in policy.
+[  716.037343] SELinux:  Permission prog_load_as in class bpf not defined in policy.
+[  716.039622] SELinux:  Permission allowed in class io_uring not defined in policy.
+[  716.041514] SELinux:  Class memfd_file not defined in policy.
+[  716.042845] SELinux: the above unknown classes and permissions will be allowed
+[  716.044860] SELinux:  Converting 667 SID table entries...
+[  716.071354] SELinux:  policy capability network_peer_controls=1
+[  716.072775] SELinux:  policy capability open_perms=1
+[  716.074343] SELinux:  policy capability extended_socket_class=1
+[  716.075814] SELinux:  policy capability always_check_network=0
+[  716.078531] SELinux:  policy capability cgroup_seclabel=1
+[  716.080247] SELinux:  policy capability nnp_nosuid_transition=1
+[  716.081689] SELinux:  policy capability genfs_seclabel_symlinks=1
+[  716.083201] SELinux:  policy capability ioctl_skip_cloexec=0
+[  716.084528] SELinux:  policy capability userspace_initial_context=0
+[  716.086019] SELinux:  policy capability netlink_xperm=0
+[  716.087314] SELinux:  policy capability netif_wildcard=0
+[  716.088578] SELinux:  policy capability genfs_seclabel_wildcard=0
+[  716.090060] SELinux:  policy capability functionfs_seclabel=0
+[  716.091915] SELinux:  policy capability memfd_class=0
+[  716.093146] SELinux:  policy capability bpf_token_perms=0
+[  716.914362] tessera-install: done
